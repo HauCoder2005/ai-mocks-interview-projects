@@ -1,0 +1,82 @@
+# ==================================
+# Backend
+# ==================================
+
+backeck-interview-project/node_modules
+backeck-interview-project/dist
+backeck-interview-project/generated
+
+backeck-interview-project/.env
+backeck-interview-project/.env.local
+backeck-interview-project/.env.production
+
+# ==================================
+# Frontend
+# ==================================
+
+frontend-interview-project/node_modules
+
+frontend-interview-project/.next
+frontend-interview-project/out
+frontend-interview-project/build
+frontend-interview-project/dist
+
+frontend-interview-project/.env
+frontend-interview-project/.env.local
+frontend-interview-project/.env.production
+
+# ==================================
+# IDE
+# ==================================
+
+.vscode
+.idea
+
+# ==================================
+# OS
+# ==================================
+
+.DS_Store
+Thumbs.db
+
+# ==================================
+# Logs
+# ==================================
+
+*.log
+logs
+
+# ==================================
+# Coverage
+# ==================================
+
+coverage
+.nyc_output
+
+# ==================================
+# Runtime
+# ==================================
+
+*.pid
+*.seed
+
+# ==================================
+# Temp
+# ==================================
+
+.tmp
+.temp
+
+# ==================================
+# Docker
+# ==================================
+
+docker-data
+redis-data
+minio-data
+
+# ==================================
+# Prisma
+# ==================================
+
+**/generated

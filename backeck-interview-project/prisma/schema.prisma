@@ -1,0 +1,404 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../generated/prisma"
+  moduleFormat    = "cjs"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model cv_reviews {
+  id          Int      @id @default(autoincrement())
+  cv_id       Int
+  score       Decimal? @db.Decimal(5, 2)
+  strengths   String?  @db.LongText
+  weaknesses  String?  @db.LongText
+  suggestions String?  @db.LongText
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+  user_cvs    user_cvs @relation(fields: [cv_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "cv_reviews_ibfk_1")
+
+  @@index([cv_id], map: "idx_cv_review_cv")
+}
+
+model cv_templates {
+  id            Int        @id @default(autoincrement())
+  name          String     @db.VarChar(255)
+  description   String?    @db.Text
+  preview_image String?    @db.Text
+  template_file String?    @db.Text
+  created_at    DateTime   @default(now()) @db.Timestamp(0)
+  updated_at    DateTime   @default(now()) @db.Timestamp(0)
+  user_cvs      user_cvs[]
+}
+
+model interview_answer_reviews {
+  id                Int               @id @default(autoincrement())
+  answer_id         Int
+  score             Decimal?          @db.Decimal(5, 2)
+  feedback          String?           @db.LongText
+  strengths         String?           @db.LongText
+  weaknesses        String?           @db.LongText
+  suggestions       String?           @db.LongText
+  ai_model          String?           @db.VarChar(100)
+  created_at        DateTime          @default(now()) @db.Timestamp(0)
+  interview_answers interview_answers @relation(fields: [answer_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "interview_answer_reviews_ibfk_1")
+
+  @@index([answer_id], map: "answer_id")
+}
+
+model interview_answers {
+  id                                 Int                                 @id @default(autoincrement())
+  session_question_id                Int
+  user_id                            Int
+  selected_option_id                 Int?
+  answer_text                        String?                             @db.LongText
+  source_code                        String?                             @db.LongText
+  submitted_at                       DateTime?                           @db.Timestamp(0)
+  created_at                         DateTime                            @default(now()) @db.Timestamp(0)
+  interview_answer_reviews           interview_answer_reviews[]
+  interview_session_questions        interview_session_questions         @relation(fields: [session_question_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "interview_answers_ibfk_1")
+  users                              users                               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "interview_answers_ibfk_2")
+  interview_session_question_options interview_session_question_options? @relation(fields: [selected_option_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "interview_answers_ibfk_3")
+
+  @@index([user_id], map: "idx_answer_user")
+  @@index([selected_option_id], map: "selected_option_id")
+  @@index([session_question_id], map: "session_question_id")
+}
+
+model interview_configuration_technologies {
+  id                       Int                      @id @default(autoincrement())
+  configuration_id         Int
+  technology_id            Int
+  created_at               DateTime                 @default(now()) @db.Timestamp(0)
+  interview_configurations interview_configurations @relation(fields: [configuration_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "interview_configuration_technologies_ibfk_1")
+  interview_technologies   interview_technologies   @relation(fields: [technology_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "interview_configuration_technologies_ibfk_2")
+
+  @@index([configuration_id], map: "configuration_id")
+  @@index([technology_id], map: "technology_id")
+}
+
+model interview_configuration_topics {
+  id                       Int                      @id @default(autoincrement())
+  configuration_id         Int
+  topic_id                 Int
+  created_at               DateTime                 @default(now()) @db.Timestamp(0)
+  interview_configurations interview_configurations @relation(fields: [configuration_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "interview_configuration_topics_ibfk_1")
+  interview_topics         interview_topics         @relation(fields: [topic_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "interview_configuration_topics_ibfk_2")
+
+  @@index([configuration_id], map: "configuration_id")
+  @@index([topic_id], map: "topic_id")
+}
+
+model interview_configurations {
+  id                                   Int                                     @id @default(autoincrement())
+  user_id                              Int
+  position_id                          Int
+  level_id                             Int
+  name                                 String                                  @db.VarChar(255)
+  interview_type                       interview_configurations_interview_type
+  question_count                       Int
+  duration_minutes                     Int
+  description                          String?                                 @db.Text
+  created_at                           DateTime                                @default(now()) @db.Timestamp(0)
+  updated_at                           DateTime                                @default(now()) @db.Timestamp(0)
+  interview_configuration_technologies interview_configuration_technologies[]
+  interview_configuration_topics       interview_configuration_topics[]
+  users                                users                                   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "interview_configurations_ibfk_1")
+  interview_positions                  interview_positions                     @relation(fields: [position_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "interview_configurations_ibfk_2")
+  interview_levels                     interview_levels                        @relation(fields: [level_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "interview_configurations_ibfk_3")
+  interview_sessions                   interview_sessions[]
+
+  @@index([level_id], map: "level_id")
+  @@index([position_id], map: "position_id")
+  @@index([user_id], map: "user_id")
+}
+
+model interview_levels {
+  id                       Int                        @id @default(autoincrement())
+  name                     String                     @unique(map: "name") @db.VarChar(50)
+  display_order            Int
+  created_at               DateTime                   @default(now()) @db.Timestamp(0)
+  updated_at               DateTime                   @default(now()) @db.Timestamp(0)
+  interview_configurations interview_configurations[]
+}
+
+model interview_positions {
+  id                       Int                        @id @default(autoincrement())
+  name                     String                     @unique(map: "name") @db.VarChar(100)
+  description              String?                    @db.Text
+  created_at               DateTime                   @default(now()) @db.Timestamp(0)
+  updated_at               DateTime                   @default(now()) @db.Timestamp(0)
+  interview_configurations interview_configurations[]
+}
+
+model interview_question_bank_options {
+  id                       Int                      @id @default(autoincrement())
+  question_bank_id         Int
+  content                  String                   @db.Text
+  is_correct               Boolean                  @default(false)
+  display_order            Int
+  created_at               DateTime                 @default(now()) @db.Timestamp(0)
+  updated_at               DateTime                 @default(now()) @db.Timestamp(0)
+  interview_question_banks interview_question_banks @relation(fields: [question_bank_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_qbo_question")
+
+  @@index([question_bank_id], map: "fk_qbo_question")
+}
+
+model interview_question_banks {
+  id                              Int                                    @id @default(autoincrement())
+  topic_id                        Int
+  technology_id                   Int
+  title                           String                                 @db.VarChar(255)
+  content                         String                                 @db.LongText
+  question_type                   interview_question_banks_question_type
+  difficulty                      interview_question_banks_difficulty
+  expected_answer                 String?                                @db.LongText
+  created_by                      Int
+  created_at                      DateTime                               @default(now()) @db.Timestamp(0)
+  updated_at                      DateTime                               @default(now()) @db.Timestamp(0)
+  interview_question_bank_options interview_question_bank_options[]
+  users                           users                                  @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_qb_created_by")
+  interview_technologies          interview_technologies                 @relation(fields: [technology_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_qb_technology")
+  interview_topics                interview_topics                       @relation(fields: [topic_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_qb_topic")
+  interview_session_questions     interview_session_questions[]
+
+  @@index([created_by], map: "fk_qb_created_by")
+  @@index([technology_id], map: "idx_qb_technology")
+  @@index([topic_id], map: "idx_qb_topic")
+}
+
+model interview_reports {
+  id                    Int                @id @default(autoincrement())
+  session_id            Int                @unique(map: "session_id")
+  overall_score         Decimal?           @db.Decimal(5, 2)
+  technical_score       Decimal?           @db.Decimal(5, 2)
+  problem_solving_score Decimal?           @db.Decimal(5, 2)
+  communication_score   Decimal?           @db.Decimal(5, 2)
+  strengths             String?            @db.LongText
+  weaknesses            String?            @db.LongText
+  recommendations       String?            @db.LongText
+  learning_path         String?            @db.LongText
+  readiness_level       String?            @db.VarChar(100)
+  created_at            DateTime           @default(now()) @db.Timestamp(0)
+  interview_sessions    interview_sessions @relation(fields: [session_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "interview_reports_ibfk_1")
+}
+
+model interview_session_question_options {
+  id                          Int                         @id @default(autoincrement())
+  session_question_id         Int
+  content                     String                      @db.Text
+  is_correct                  Boolean                     @default(false)
+  display_order               Int
+  created_at                  DateTime                    @default(now()) @db.Timestamp(0)
+  interview_answers           interview_answers[]
+  interview_session_questions interview_session_questions @relation(fields: [session_question_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "interview_session_question_options_ibfk_1")
+
+  @@index([session_question_id], map: "session_question_id")
+}
+
+model interview_session_questions {
+  id                                 Int                                       @id @default(autoincrement())
+  session_id                         Int
+  question_bank_id                   Int
+  content                            String                                    @db.LongText
+  question_type                      interview_session_questions_question_type
+  difficulty                         interview_session_questions_difficulty
+  display_order                      Int
+  created_at                         DateTime                                  @default(now()) @db.Timestamp(0)
+  interview_answers                  interview_answers[]
+  interview_session_question_options interview_session_question_options[]
+  interview_sessions                 interview_sessions                        @relation(fields: [session_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "interview_session_questions_ibfk_1")
+  interview_question_banks           interview_question_banks                  @relation(fields: [question_bank_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "interview_session_questions_ibfk_2")
+
+  @@index([question_bank_id], map: "question_bank_id")
+  @@index([session_id], map: "session_id")
+}
+
+model interview_sessions {
+  id                          Int                           @id @default(autoincrement())
+  configuration_id            Int
+  user_id                     Int
+  attempt_number              Int                           @default(1)
+  status                      interview_sessions_status     @default(PENDING)
+  started_at                  DateTime?                     @db.Timestamp(0)
+  completed_at                DateTime?                     @db.Timestamp(0)
+  duration_seconds            Int?
+  overall_score               Decimal?                      @db.Decimal(5, 2)
+  created_at                  DateTime                      @default(now()) @db.Timestamp(0)
+  updated_at                  DateTime                      @default(now()) @db.Timestamp(0)
+  interview_reports           interview_reports?
+  interview_session_questions interview_session_questions[]
+  interview_configurations    interview_configurations      @relation(fields: [configuration_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "interview_sessions_ibfk_1")
+  users                       users                         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "interview_sessions_ibfk_2")
+
+  @@index([configuration_id], map: "configuration_id")
+  @@index([status], map: "idx_session_status")
+  @@index([user_id], map: "idx_session_user")
+}
+
+model interview_technologies {
+  id                                   Int                                    @id @default(autoincrement())
+  name                                 String                                 @unique(map: "name") @db.VarChar(100)
+  slug                                 String                                 @unique(map: "slug") @db.VarChar(100)
+  description                          String?                                @db.Text
+  created_at                           DateTime                               @default(now()) @db.Timestamp(0)
+  updated_at                           DateTime                               @default(now()) @db.Timestamp(0)
+  interview_configuration_technologies interview_configuration_technologies[]
+  interview_question_banks             interview_question_banks[]
+}
+
+model interview_topics {
+  id                             Int                              @id @default(autoincrement())
+  name                           String                           @unique(map: "name") @db.VarChar(100)
+  description                    String?                          @db.Text
+  created_at                     DateTime                         @default(now()) @db.Timestamp(0)
+  updated_at                     DateTime                         @default(now()) @db.Timestamp(0)
+  interview_configuration_topics interview_configuration_topics[]
+  interview_question_banks       interview_question_banks[]
+}
+
+model roles {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique(map: "name") @db.VarChar(50)
+  description String?  @db.Text
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+  updated_at  DateTime @default(now()) @db.Timestamp(0)
+  users       users[]
+}
+
+model user_cv_educations {
+  id             Int       @id @default(autoincrement())
+  cv_id          Int
+  school_name    String    @db.VarChar(255)
+  degree         String?   @db.VarChar(255)
+  field_of_study String?   @db.VarChar(255)
+  start_date     DateTime? @db.Date
+  end_date       DateTime? @db.Date
+  description    String?   @db.Text
+  created_at     DateTime  @default(now()) @db.Timestamp(0)
+  updated_at     DateTime  @default(now()) @db.Timestamp(0)
+  user_cvs       user_cvs  @relation(fields: [cv_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_cv_educations_ibfk_1")
+
+  @@index([cv_id], map: "cv_id")
+}
+
+model user_cv_experiences {
+  id           Int       @id @default(autoincrement())
+  cv_id        Int
+  company_name String    @db.VarChar(255)
+  position     String    @db.VarChar(255)
+  start_date   DateTime? @db.Date
+  end_date     DateTime? @db.Date
+  description  String?   @db.LongText
+  created_at   DateTime  @default(now()) @db.Timestamp(0)
+  updated_at   DateTime  @default(now()) @db.Timestamp(0)
+  user_cvs     user_cvs  @relation(fields: [cv_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_cv_experiences_ibfk_1")
+
+  @@index([cv_id], map: "cv_id")
+}
+
+model user_cv_projects {
+  id           Int      @id @default(autoincrement())
+  cv_id        Int
+  project_name String   @db.VarChar(255)
+  description  String?  @db.LongText
+  github_url   String?  @db.Text
+  demo_url     String?  @db.Text
+  created_at   DateTime @default(now()) @db.Timestamp(0)
+  updated_at   DateTime @default(now()) @db.Timestamp(0)
+  user_cvs     user_cvs @relation(fields: [cv_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_cv_projects_ibfk_1")
+
+  @@index([cv_id], map: "cv_id")
+}
+
+model user_cvs {
+  id                  Int                   @id @default(autoincrement())
+  user_id             Int
+  template_id         Int
+  title               String                @db.VarChar(255)
+  summary             String?               @db.LongText
+  pdf_url             String?               @db.Text
+  docx_url            String?               @db.Text
+  created_at          DateTime              @default(now()) @db.Timestamp(0)
+  updated_at          DateTime              @default(now()) @db.Timestamp(0)
+  cv_reviews          cv_reviews[]
+  user_cv_educations  user_cv_educations[]
+  user_cv_experiences user_cv_experiences[]
+  user_cv_projects    user_cv_projects[]
+  users               users                 @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_cvs_ibfk_1")
+  cv_templates        cv_templates          @relation(fields: [template_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_cvs_ibfk_2")
+
+  @@index([user_id], map: "idx_cv_user")
+  @@index([template_id], map: "template_id")
+}
+
+model users {
+  id                       Int                        @id @default(autoincrement())
+  role_id                  Int
+  email                    String                     @unique(map: "email") @db.VarChar(255)
+  password_hash            String                     @db.VarChar(255)
+  first_name               String                     @db.VarChar(100)
+  last_name                String                     @db.VarChar(100)
+  phone_number             String                     @db.VarChar(20)
+  avatar_url               String?                    @db.Text
+  headline                 String                     @db.Text
+  current_position         String                     @db.VarChar(255)
+  years_of_experience      Int                        @default(0)
+  linkedin_url             String?                    @db.Text
+  github_url               String?                    @db.Text
+  portfolio_url            String?                    @db.Text
+  is_verified              Boolean                    @default(false)
+  last_login_at            DateTime?                  @db.Timestamp(0)
+  created_at               DateTime                   @default(now()) @db.Timestamp(0)
+  updated_at               DateTime                   @default(now()) @db.Timestamp(0)
+  interview_answers        interview_answers[]
+  interview_configurations interview_configurations[]
+  interview_question_banks interview_question_banks[]
+  interview_sessions       interview_sessions[]
+  user_cvs                 user_cvs[]
+  roles                    roles                      @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_role")
+
+  @@index([role_id], map: "fk_users_role")
+  @@index([email], map: "idx_users_email")
+}
+
+enum interview_session_questions_question_type {
+  MCQ
+  THEORY
+  CODING
+  CASE_STUDY
+}
+
+enum interview_sessions_status {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum interview_configurations_interview_type {
+  MCQ
+  THEORY
+  CODING
+  MIXED
+}
+
+enum interview_question_banks_question_type {
+  MCQ
+  THEORY
+  CODING
+  CASE_STUDY
+}
+
+enum interview_session_questions_difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum interview_question_banks_difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
