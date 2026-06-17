@@ -1,5 +1,7 @@
-export const env = {
-    nodeENV: process.env.APP_ENV ?? 'development',
-    portENV: Number(process.env.APP_PORT ?? 8080),
-    databaseENV: process.env.DATABASE_URL as string,
-}
+import { registerAs } from "@nestjs/config";
+
+export default registerAs('redis', () => ({
+    host: process.env.REDIS_HOST || 'localhost',
+    port: parseInt(process.env.REDIS_PORT || '6379', 10),
+    ttl: parseInt(process.env.REDIS_TTL || '3600', 10),
+}))
