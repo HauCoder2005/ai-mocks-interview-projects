@@ -16,6 +16,8 @@ import { RedisHealthService } from './redis-health.service';
             host: configService.get<string>('redis.host'),
             port: configService.get<number>('redis.port'),
           },
+          password: configService.get<string>('redis.password'),
+          database: configService.get<number>('redis.db'),
           ttl: configService.get<number>('redis.ttl'),
         }),
       }),

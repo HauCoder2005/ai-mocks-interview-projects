@@ -21,7 +21,9 @@ export class RedisHealthService implements OnModuleInit {
       if (response === 'PONG') {
         this.logger.log('Redis connection established successfully (PONG).');
       } else {
-        this.logger.warn(`Redis connected, but unexpected response: ${response}`);
+        this.logger.warn(
+          `Redis connected, but unexpected response: ${response}`,
+        );
       }
     } catch (error) {
       const details = error instanceof Error ? error.message : String(error);
