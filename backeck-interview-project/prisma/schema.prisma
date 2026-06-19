@@ -1,7 +1,7 @@
 generator client {
-  provider        = "prisma-client"
-  output          = "../generated/prisma"
-  moduleFormat    = "cjs"
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
@@ -19,6 +19,24 @@ model cv_reviews {
   user_cvs    user_cvs @relation(fields: [cv_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "cv_reviews_ibfk_1")
 
   @@index([cv_id], map: "idx_cv_review_cv")
+}
+
+model CvReview {
+  id               Int            @id @default(autoincrement())
+  candidateId      Int
+  originalFileName String         @db.VarChar(255)
+  fileUrl          String         @db.Text
+  fileType         CvFileType
+  extractedText    String?        @db.LongText
+  score            Int?
+  feedback         Json?
+  status           CvReviewStatus @default(PENDING)
+  createdAt        DateTime       @default(now()) @db.Timestamp(0)
+  updatedAt        DateTime       @default(now()) @updatedAt @db.Timestamp(0)
+
+  @@index([candidateId])
+  @@index([status])
+  @@map("cv_reviews_ai")
 }
 
 model cv_templates {
@@ -361,6 +379,41 @@ model users {
 
   @@index([role_id], map: "fk_users_role")
   @@index([email], map: "idx_users_email")
+}
+
+model Job {
+  id           Int       @id @default(autoincrement())
+  title        String    @db.VarChar(255)
+  company      String    @db.VarChar(255)
+  sourceUrl    String    @unique @db.VarChar(768)
+  technologies Json?
+  focusTopics  Json?
+  expiredAt    DateTime?
+  status       JobStatus @default(ACTIVE)
+  createdAt    DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt    DateTime  @default(now()) @updatedAt @db.Timestamp(0)
+
+  @@index([status])
+  @@index([expiredAt])
+  @@map("jobs")
+}
+
+enum JobStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum CvFileType {
+  PDF
+  DOCX
+  DOC
+}
+
+enum CvReviewStatus {
+  PENDING
+  EXTRACTING
+  REVIEWED
+  FAILED
 }
 
 enum interview_session_questions_question_type {

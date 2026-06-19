@@ -1,2 +1,3 @@
-// Dependency-injection tokens owned by the auth module belong here.
-export const AUTH_TOKENS = {} as const;
+export const AUTH_TOKENS = {
+  ROLES_METADATA: 'auth:roles',
+} as const;
