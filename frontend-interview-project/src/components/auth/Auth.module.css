@@ -1,0 +1,254 @@
+/**
+ * Defines the shared authentication layout theme for login and registration.
+ *
+ * The container intentionally breaks out of the global constrained main layout
+ * so the soft ice-blue background fills the full viewport area below the navbar.
+ */
+.page,
+.authContainer {
+  position: absolute;
+  top: 72px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(147, 197, 253, 0.2), transparent 30%),
+    linear-gradient(135deg, #f3f8fe 0%, #edf5fc 48%, #e6f0fa 100%);
+}
+
+.card {
+  width: 100%;
+  max-width: 472px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 36px;
+  border: 1px solid rgba(226, 232, 240, 0.88);
+  border-radius: 24px;
+  background-color: #ffffff;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.05),
+    0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.subtitle {
+  margin: -6px 0 0;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.inputShell {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  border: 1px solid #dbeafe;
+  border-radius: 16px;
+  background-color: #f8fbff;
+  color: #2563eb;
+  box-sizing: border-box;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.inputShell:focus-within {
+  border-color: #2563eb;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #0f172a;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.input::placeholder {
+  color: #94a3b8;
+}
+
+.fieldError {
+  margin: 0;
+  color: #dc2626;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.rowBetween {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: -4px;
+}
+
+.helperLink {
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.submitButton {
+  min-height: 54px;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 18px 34px -18px rgba(37, 99, 235, 0.9);
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.4;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.submitButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
+}
+
+.submitButton:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.submitError {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+  background-color: #fff1f2;
+  color: #dc2626;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background-color: #e2e8f0;
+}
+
+.googleButton {
+  min-height: 52px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 1px solid #dbeafe;
+  border-radius: 16px;
+  background-color: #ffffff;
+  color: #1e293b;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.4;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.googleButton:hover {
+  border-color: #bfdbfe;
+  box-shadow: 0 12px 30px -20px rgba(15, 23, 42, 0.35);
+  transform: translateY(-1px);
+}
+
+.footerText {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.footerLink {
+  color: #2563eb;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 560px) {
+  .page,
+  .authContainer {
+    padding: 28px 12px;
+  }
+
+  .card {
+    padding: 28px 20px;
+    border-radius: 20px;
+  }
+}

@@ -598,9 +598,21 @@ export class AuthService {
   private get cookieBaseOptions(): CookieOptions {
     return {
       httpOnly: true,
-      secure: this.configService.getOrThrow<boolean>('cookie.secure'),
-      sameSite: 'strict',
+      secure: this.shouldUseSecureCookies,
+      sameSite: this.shouldUseSecureCookies ? 'none' : 'lax',
       path: this.configService.getOrThrow<string>('cookie.path'),
     };
+  }
+
+  private get shouldUseSecureCookies(): boolean {
+    const configuredSecure = this.configService.getOrThrow<boolean>(
+      'cookie.secure',
+    );
+
+    return configuredSecure && this.appEnv !== 'development';
+  }
+
+  private get appEnv(): string {
+    return this.configService.get<string>('app.env') ?? 'development';
   }
 }
