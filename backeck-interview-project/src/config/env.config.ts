@@ -125,6 +125,7 @@ export const configValidationSchema = Joi.object({
   REDIS_PORT: Joi.number().default(6379),
   REDIS_PASSWORD: Joi.string().allow('', null),
   REDIS_DB: Joi.number().default(0),
+  REDIS_TTL: Joi.number().default(3600),
 
   MINIO_ENDPOINT: Joi.string().default('http://localhost:9000'),
   MINIO_REGION: Joi.string().allow('', null),

@@ -2,8 +2,9 @@ import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Client } from 'minio'
 import { MinioConfig } from "src/config/env.interface";
+import { ResourceLifecycleService } from "src/shared/abstracts/connectable/resource-lifecycle.service";
 @Injectable()
-export class MinioService {
+export class MinioService extends ResourceLifecycleService {
     private readonly logger = new Logger(MinioService.name);
     private readonly client: Client;
     /*
@@ -14,6 +15,7 @@ export class MinioService {
     */
     private readonly bucketName: string;
     constructor(private readonly configService: ConfigService) {
+        super();
         const minioConfig = this.configService.getOrThrow<MinioConfig>('config.minio');
         
         // kiểm tra xem có nạp env vào thành công chưa
@@ -31,7 +33,7 @@ export class MinioService {
     }
 
     async onModuleInit(): Promise<void> {
-        const bucketExists = await this.client.bucketExists(this.bucketName)
+        const bucketExists = await this.client.bucketExists(this.bucketName)    
         if (!bucketExists) {
             await this.client.makeBucket(this.bucketName);
 

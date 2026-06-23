@@ -39,7 +39,7 @@ export class RedisService extends ResourceLifecycleService {
         this.logger.log(`Redis connected successfully:  ${checkConnect}`);
     }
 
-    protected async disconnect(): Promise<void> {
+    async onModuleDestroy(): Promise<void> {
         await this.client.quit();
         this.logger.log('Redis disconnected');
     }
