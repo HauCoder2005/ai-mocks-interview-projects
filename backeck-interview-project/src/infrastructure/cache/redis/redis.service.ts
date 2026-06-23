@@ -2,16 +2,22 @@ import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import Redis from 'ioredis';
 import { RedisConfig } from "src/config/env.interface";
+import { ResourceLifecycleService } from "src/shared/abstracts/connectable/resource-lifecycle.service";
 
 @Injectable()
-export class RedisService {
+export class RedisService extends ResourceLifecycleService {
     private readonly logger = new Logger(RedisService.name);
     private readonly client: Redis;
     private readonly redisTtl: number;
 
     constructor(private readonly configService: ConfigService) {
+        /*
+            Tạo phần ResourceLifecycleService trước đã,
+            sau đó mới cho RedisService dùng this.
+            mục đích trỏ, gọi tới contructor của cha 
+        */
+        super()
         const redisConfig = this.configService.getOrThrow<RedisConfig>('config.redis');
-        // check thử xem có lấy được config env không
         if(!redisConfig) {
             this.logger.error('Failed to load Redis configuration from environment variables.');
         }
@@ -31,5 +37,10 @@ export class RedisService {
         await this.client.connect();
         const checkConnect = await this.client.ping();
         this.logger.log(`Redis connected successfully:  ${checkConnect}`);
+    }
+
+    protected async disconnect(): Promise<void> {
+        await this.client.quit();
+        this.logger.log('Redis disconnected');
     }
 }
