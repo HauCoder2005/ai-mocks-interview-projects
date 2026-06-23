@@ -376,9 +376,72 @@ model users {
   interview_sessions       interview_sessions[]
   user_cvs                 user_cvs[]
   roles                    roles                      @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_role")
+  created_mock_tests       MockTest[]                 @relation("MockTestCreatedBy")
+  system_visits            SystemVisit[]
+  test_attempts            TestAttempt[]
 
   @@index([role_id], map: "fk_users_role")
   @@index([email], map: "idx_users_email")
+}
+
+model MockTest {
+  id               Int            @id @default(autoincrement())
+  title            String         @db.VarChar(255)
+  slug             String         @unique @db.VarChar(255)
+  description      String?        @db.Text
+  cover_image_url  String?        @db.Text
+  duration_minutes Int?
+  total_questions  Int            @default(0)
+  status           MockTestStatus @default(DRAFT)
+  created_by       Int
+  created_at       DateTime       @default(now()) @db.Timestamp(0)
+  updated_at       DateTime       @default(now()) @updatedAt @db.Timestamp(0)
+
+  creator  users         @relation("MockTestCreatedBy", fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  attempts TestAttempt[]
+
+  @@index([created_by])
+  @@index([status])
+  @@index([slug])
+  @@map("mock_tests")
+}
+
+model TestAttempt {
+  id              Int               @id @default(autoincrement())
+  user_id         Int
+  mock_test_id    Int
+  status          TestAttemptStatus @default(IN_PROGRESS)
+  score           Decimal?          @db.Decimal(5, 2)
+  total_questions Int               @default(0)
+  correct_answers Int               @default(0)
+  started_at      DateTime          @default(now()) @db.Timestamp(0)
+  completed_at    DateTime?         @db.Timestamp(0)
+  created_at      DateTime          @default(now()) @db.Timestamp(0)
+  updated_at      DateTime          @default(now()) @updatedAt @db.Timestamp(0)
+
+  user      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mock_test MockTest @relation(fields: [mock_test_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id])
+  @@index([mock_test_id])
+  @@index([status])
+  @@index([started_at])
+  @@map("test_attempts")
+}
+
+model SystemVisit {
+  id         Int      @id @default(autoincrement())
+  user_id    Int?
+  ip_address String?  @db.VarChar(45)
+  user_agent String?  @db.Text
+  path       String?  @db.VarChar(512)
+  visited_at DateTime @default(now()) @db.Timestamp(0)
+
+  user users? @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  @@index([user_id])
+  @@index([visited_at])
+  @@map("system_visits")
 }
 
 model Job {
@@ -414,6 +477,18 @@ enum CvReviewStatus {
   EXTRACTING
   REVIEWED
   FAILED
+}
+
+enum MockTestStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum TestAttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
 }
 
 enum interview_session_questions_question_type {
