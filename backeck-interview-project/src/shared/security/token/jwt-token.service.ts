@@ -44,9 +44,7 @@ export class JwtTokenService {
     };
   }
 
-  signAccessToken<TPayload extends object>(
-    payload: TPayload,
-  ): Promise<string> {
+  signAccessToken<TPayload extends object>(payload: TPayload): Promise<string> {
     return this.jwtService.signAsync(
       payload,
       this.tokenOptions.accessTokenSignOptions,
@@ -62,9 +60,7 @@ export class JwtTokenService {
     );
   }
 
-  verifyAccessToken<TPayload extends object>(
-    token: string,
-  ): Promise<TPayload> {
+  verifyAccessToken<TPayload extends object>(token: string): Promise<TPayload> {
     return this.jwtService.verifyAsync<TPayload>(
       token,
       this.tokenOptions.accessTokenVerifyOptions,

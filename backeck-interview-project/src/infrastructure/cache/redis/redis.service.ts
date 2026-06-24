@@ -17,7 +17,7 @@ export class RedisService extends ResourceLifecycleService {
             mục đích trỏ, gọi tới contructor của cha 
         */
         super()
-        const redisConfig = this.configService.getOrThrow<RedisConfig>('config.redis');
+        const redisConfig =   this.configService.getOrThrow<RedisConfig>('config.redis');
         if(!redisConfig) {
             this.logger.error('Failed to load Redis configuration from environment variables.');
         }

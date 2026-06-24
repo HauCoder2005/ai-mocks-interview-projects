@@ -20,7 +20,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       password: databaseConfig.password,
       database: databaseConfig.name,
     });
-
     super({
       adapter,
     });
@@ -28,7 +27,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     await this.$connect();
-
     this.logger.log('Prisma connected MySQL successfully');
   }
 }
