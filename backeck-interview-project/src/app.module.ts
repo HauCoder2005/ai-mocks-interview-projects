@@ -7,6 +7,7 @@ import { MinioModule } from './infrastructure/storage/minio/minio.module';
 import { PrismaModule } from './infrastructure/persistence/prisma/prisma.module';
 import { AuthModule } from './module/auth/auth.module';
 import { UsersModule } from './module/users/users.module';
+import { InterviewsModule } from './module/interviews/interviews.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UsersModule } from './module/users/users.module';
     PrismaModule,
     UsersModule,
     AuthModule,
+    InterviewsModule,
   ],
 })
 export class AppModule {}

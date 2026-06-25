@@ -49,6 +49,110 @@ async function main(): Promise<void> {
     },
   });
 
+  const positions = [
+    ['Backend Developer', 'BACKEND_DEVELOPER'],
+    ['Frontend Developer', 'FRONTEND_DEVELOPER'],
+    ['Fullstack Developer', 'FULLSTACK_DEVELOPER'],
+  ];
+  for (const [name, code] of positions) {
+    await prisma.interview_positions.upsert({
+      where: {
+        code,
+      },
+      update: {
+        name,
+        is_active: true,
+        updated_at: new Date(),
+      },
+      create: {
+        name,
+        code,
+        is_active: true,
+      },
+    });
+  }
+
+  const levels = [
+    ['Intern', 'INTERN', 1],
+    ['Fresher', 'FRESHER', 2],
+    ['Junior', 'JUNIOR', 3],
+    ['Middle', 'MIDDLE', 4],
+    ['Senior', 'SENIOR', 5],
+  ] as const;
+  for (const [name, code, displayOrder] of levels) {
+    await prisma.interview_levels.upsert({
+      where: {
+        code,
+      },
+      update: {
+        name,
+        display_order: displayOrder,
+        is_active: true,
+        updated_at: new Date(),
+      },
+      create: {
+        name,
+        code,
+        display_order: displayOrder,
+        is_active: true,
+      },
+    });
+  }
+
+  const technologies = [
+    ['Node.js', 'NODEJS'],
+    ['NestJS', 'NESTJS'],
+    ['React', 'REACT'],
+    ['Next.js', 'NEXTJS'],
+    ['MySQL', 'MYSQL'],
+    ['Redis', 'REDIS'],
+  ];
+  for (const [name, code] of technologies) {
+    await prisma.interview_technologies.upsert({
+      where: {
+        code,
+      },
+      update: {
+        name,
+        slug: code,
+        is_active: true,
+        updated_at: new Date(),
+      },
+      create: {
+        name,
+        code,
+        slug: code,
+        is_active: true,
+      },
+    });
+  }
+
+  const focusTopics = [
+    ['REST API', 'REST_API'],
+    ['Authentication', 'AUTHENTICATION'],
+    ['Database Design', 'DATABASE_DESIGN'],
+    ['Clean Architecture', 'CLEAN_ARCHITECTURE'],
+    ['Performance', 'PERFORMANCE'],
+    ['Testing', 'TESTING'],
+  ];
+  for (const [name, code] of focusTopics) {
+    await prisma.interview_topics.upsert({
+      where: {
+        code,
+      },
+      update: {
+        name,
+        is_active: true,
+        updated_at: new Date(),
+      },
+      create: {
+        name,
+        code,
+        is_active: true,
+      },
+    });
+  }
+
   await prisma.$disconnect();
 }
 

@@ -75,7 +75,7 @@ export class AuthController {
   /**
    * Endpoint gửi lại OTP xác thực tài khoản.
    */
-  @Post('send-account-verification-otp')
+  @Post('resend-otp')
   async sendAccountVerificationOtp(
     @Body() dto: ForgotPasswordDto,
   ): Promise<ApiResponse<null>> {
