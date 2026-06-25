@@ -1,8 +1,4 @@
-export type AppEnvironment =
-  | 'development'
-  | 'test'
-  | 'staging'
-  | 'production';
+export type AppEnvironment = 'development' | 'test' | 'staging' | 'production';
 
 export interface AppConfig {
   name: string;

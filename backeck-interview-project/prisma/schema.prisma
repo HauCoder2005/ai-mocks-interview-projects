@@ -133,21 +133,28 @@ model interview_configurations {
 }
 
 model interview_levels {
-  id                       Int                        @id @default(autoincrement())
-  name                     String                     @unique(map: "name") @db.VarChar(50)
+  id                       Int                         @id @default(autoincrement())
+  name                     String                      @unique(map: "name") @db.VarChar(50)
+  code                     String                      @unique(map: "code") @db.VarChar(50)
+  description              String?                     @db.Text
   display_order            Int
-  created_at               DateTime                   @default(now()) @db.Timestamp(0)
-  updated_at               DateTime                   @default(now()) @db.Timestamp(0)
+  is_active                Boolean                     @default(true)
+  created_at               DateTime                    @default(now()) @db.Timestamp(0)
+  updated_at               DateTime                    @default(now()) @db.Timestamp(0)
   interview_configurations interview_configurations[]
+  interviews               interviews[]
 }
 
 model interview_positions {
   id                       Int                        @id @default(autoincrement())
   name                     String                     @unique(map: "name") @db.VarChar(100)
+  code                     String                     @unique(map: "code") @db.VarChar(100)
   description              String?                    @db.Text
+  is_active                Boolean                    @default(true)
   created_at               DateTime                   @default(now()) @db.Timestamp(0)
   updated_at               DateTime                   @default(now()) @db.Timestamp(0)
   interview_configurations interview_configurations[]
+  interviews               interviews[]
 }
 
 model interview_question_bank_options {
@@ -259,21 +266,27 @@ model interview_technologies {
   id                                   Int                                    @id @default(autoincrement())
   name                                 String                                 @unique(map: "name") @db.VarChar(100)
   slug                                 String                                 @unique(map: "slug") @db.VarChar(100)
+  code                                 String                                 @unique(map: "code") @db.VarChar(100)
   description                          String?                                @db.Text
+  is_active                            Boolean                                @default(true)
   created_at                           DateTime                               @default(now()) @db.Timestamp(0)
   updated_at                           DateTime                               @default(now()) @db.Timestamp(0)
   interview_configuration_technologies interview_configuration_technologies[]
   interview_question_banks             interview_question_banks[]
+  interview_selected_technologies      interview_selected_technologies[]
 }
 
 model interview_topics {
   id                             Int                              @id @default(autoincrement())
   name                           String                           @unique(map: "name") @db.VarChar(100)
+  code                           String                           @unique(map: "code") @db.VarChar(100)
   description                    String?                          @db.Text
+  is_active                      Boolean                          @default(true)
   created_at                     DateTime                         @default(now()) @db.Timestamp(0)
   updated_at                     DateTime                         @default(now()) @db.Timestamp(0)
   interview_configuration_topics interview_configuration_topics[]
   interview_question_banks       interview_question_banks[]
+  interview_selected_focus_topics interview_selected_focus_topics[]
 }
 
 model roles {
@@ -372,6 +385,7 @@ model users {
   updated_at               DateTime                   @default(now()) @db.Timestamp(0)
   interview_answers        interview_answers[]
   interview_configurations interview_configurations[]
+  interviews               interviews[]
   interview_question_banks interview_question_banks[]
   interview_sessions       interview_sessions[]
   user_cvs                 user_cvs[]
@@ -382,6 +396,52 @@ model users {
 
   @@index([role_id], map: "fk_users_role")
   @@index([email], map: "idx_users_email")
+}
+
+model interviews {
+  id                                Int                               @id @default(autoincrement())
+  user_id                           Int
+  position_id                       Int
+  experience_level_id               Int
+  status                            interviews_status                 @default(READY)
+  started_at                        DateTime?                         @db.Timestamp(0)
+  completed_at                      DateTime?                         @db.Timestamp(0)
+  created_at                        DateTime                          @default(now()) @db.Timestamp(0)
+  updated_at                        DateTime                          @default(now()) @db.Timestamp(0)
+  users                             users                             @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_interviews_user")
+  interview_positions               interview_positions               @relation(fields: [position_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_interviews_position")
+  interview_levels                  interview_levels                  @relation(fields: [experience_level_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_interviews_level")
+  interview_selected_technologies   interview_selected_technologies[]
+  interview_selected_focus_topics   interview_selected_focus_topics[]
+
+  @@index([user_id], map: "idx_interviews_user")
+  @@index([position_id], map: "idx_interviews_position")
+  @@index([experience_level_id], map: "idx_interviews_level")
+  @@index([status], map: "idx_interviews_status")
+}
+
+model interview_selected_technologies {
+  id                     Int                    @id @default(autoincrement())
+  interview_id           Int
+  technology_id          Int
+  created_at             DateTime               @default(now()) @db.Timestamp(0)
+  interviews             interviews             @relation(fields: [interview_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_selected_technology_interview")
+  interview_technologies interview_technologies @relation(fields: [technology_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_selected_technology")
+
+  @@unique([interview_id, technology_id], map: "unique_interview_technology")
+  @@index([technology_id], map: "idx_selected_technology")
+}
+
+model interview_selected_focus_topics {
+  id               Int              @id @default(autoincrement())
+  interview_id     Int
+  focus_topic_id   Int
+  created_at       DateTime         @default(now()) @db.Timestamp(0)
+  interviews       interviews       @relation(fields: [interview_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_selected_focus_topic_interview")
+  interview_topics interview_topics @relation(fields: [focus_topic_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_selected_focus_topic")
+
+  @@unique([interview_id, focus_topic_id], map: "unique_interview_focus_topic")
+  @@index([focus_topic_id], map: "idx_selected_focus_topic")
 }
 
 model MockTest {
@@ -486,6 +546,14 @@ enum MockTestStatus {
 }
 
 enum TestAttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum interviews_status {
+  DRAFT
+  READY
   IN_PROGRESS
   COMPLETED
   CANCELLED

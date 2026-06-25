@@ -54,16 +54,15 @@
   */
 
 export interface GenerateJwtTokenInput {
-    userId: string;
-    email: string;
-    role: string;
+  userId: string;
+  email: string;
+  role: string;
 }
 
 export interface JwtTokenPair {
-    accessToken: string;
-    refreshToken: string;
-    accessTokenExpiresIn: number;
-    refreshTokenExpiresIn: number;
-    refreshTokenJti: string;
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresIn: number;
+  refreshTokenExpiresIn: number;
+  refreshTokenJti: string;
 }
-
