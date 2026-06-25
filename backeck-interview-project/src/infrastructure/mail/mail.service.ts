@@ -12,7 +12,7 @@ export class MailService implements OnModuleInit {
   private readonly transporter: Transporter;
   private readonly mailFrom: string;
   private readonly logo = join(process.cwd(), 'assets', 'mail', 'logo.png');
-    
+
   constructor(private readonly configService: ConfigService) {
     const mailConfig = this.configService.getOrThrow<MailConfig>('config.mail');
 
@@ -22,10 +22,13 @@ export class MailService implements OnModuleInit {
       host: mailConfig.host,
       port: mailConfig.port,
       secure: mailConfig.secure,
-      auth: mailConfig.user && mailConfig.password ? {
+      auth:
+        mailConfig.user && mailConfig.password
+          ? {
               user: mailConfig.user,
               pass: mailConfig.password,
-            } : undefined,
+            }
+          : undefined,
     });
   }
 
@@ -33,7 +36,7 @@ export class MailService implements OnModuleInit {
     try {
       await this.transporter.verify();
       this.logger.log('Mail transporter verified successfully');
-    } catch (error) {
+    } catch {
       this.logger.warn('Mail transporter verification failed');
     }
   }
