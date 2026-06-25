@@ -6,16 +6,15 @@ import { AppEnvironment, RootConfig } from './env.interface';
 export const configuration = registerAs('config', (): RootConfig => {
   const appEnv = (process.env.APP_ENV ?? 'development') as AppEnvironment;
 
-  const corsOrigins =
-    process.env.APP_CORS_ORIGINS
-      ? process.env.APP_CORS_ORIGINS.split(',')
-          .map((origin) => origin.trim())
-          .filter(Boolean)
-      : [
-          process.env.CORS_ORIGIN,
-          process.env.CLIENT_URL,
-          process.env.FRONTEND_URL,
-        ].filter(Boolean) as string[];
+  const corsOrigins = process.env.APP_CORS_ORIGINS
+    ? process.env.APP_CORS_ORIGINS.split(',')
+        .map((origin) => origin.trim())
+        .filter(Boolean)
+    : ([
+        process.env.CORS_ORIGIN,
+        process.env.CLIENT_URL,
+        process.env.FRONTEND_URL,
+      ].filter(Boolean) as string[]);
 
   return {
     app: {
@@ -72,8 +71,7 @@ export const configuration = registerAs('config', (): RootConfig => {
     auth: {
       bcryptSaltRounds: Number(process.env.AUTH_BCRYPT_SALT_ROUNDS ?? 12),
       otpTtlSeconds: Number(process.env.AUTH_OTP_TTL_SECONDS ?? 300),
-      refreshCookieName:
-        process.env.AUTH_REFRESH_COOKIE_NAME ?? 'refreshToken',
+      refreshCookieName: process.env.AUTH_REFRESH_COOKIE_NAME ?? 'refreshToken',
       cookieSecure: process.env.AUTH_COOKIE_SECURE === 'true',
       cookiePath: process.env.AUTH_COOKIE_PATH ?? '/',
     },
@@ -84,9 +82,7 @@ export const configuration = registerAs('config', (): RootConfig => {
       secure: process.env.MAIL_SECURE === 'true',
       user: process.env.MAIL_USER || undefined,
       password: process.env.MAIL_PASSWORD || undefined,
-      from:
-        process.env.MAIL_FROM ??
-        'AI Mock Interview <no-reply@example.com>',
+      from: process.env.MAIL_FROM ?? 'AI Mock Interview <no-reply@example.com>',
     },
 
     google: {
@@ -149,9 +145,7 @@ export const configValidationSchema = Joi.object({
   MAIL_SECURE: Joi.boolean().default(false),
   MAIL_USER: Joi.string().allow('', null),
   MAIL_PASSWORD: Joi.string().allow('', null),
-  MAIL_FROM: Joi.string().default(
-    'AI Mock Interview <no-reply@example.com>',
-  ),
+  MAIL_FROM: Joi.string().default('AI Mock Interview <no-reply@example.com>'),
 
   GOOGLE_CLIENT_ID: Joi.string().allow('', null),
   GOOGLE_CLIENT_SECRET: Joi.string().allow('', null),

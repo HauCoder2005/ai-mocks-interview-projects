@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module';
 import { RootConfig } from './config/env.interface';
@@ -13,6 +14,12 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   app.setGlobalPrefix(configEnv.app.globalPrefix);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  );
 
   await app.listen(configEnv.app.port, configEnv.app.host);
 

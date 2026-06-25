@@ -1,7 +1,4 @@
-import {
-  JwtSignOptions,
-  JwtVerifyOptions,
-} from '@nestjs/jwt';
+import { JwtSignOptions, JwtVerifyOptions } from '@nestjs/jwt';
 
 export interface JwtTokenTtlSeconds {
   accessToken: number;
