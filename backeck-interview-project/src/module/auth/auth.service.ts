@@ -162,7 +162,6 @@ export class AuthService {
     if (!user) {
       return;
     }
-
     await this.createAndSendOtp(this.accountOtpPrefix, user.email);
     this.logger.log(`Send OTP success email=${user.email}`);
   }
@@ -177,13 +176,11 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('Invalid or expired OTP');
     }
-
     const verifiedUser = await this.usersRepositories.markAsVerified(user.id);
     await this.redisService.deleteValue(
       this.buildOtpKey(this.accountOtpPrefix, dto.email),
     );
     this.logger.log(`Verify OTP success email=${dto.email}`);
-
     return UserMapper.toResponseDto(verifiedUser);
   }
 

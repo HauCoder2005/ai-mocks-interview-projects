@@ -1,4 +1,4 @@
-export class AdminInterviewLevelModel {
+export class CandidateInterviewLevelModel {
   private _id: number;
   private _name: string;
   private _code: string;
@@ -36,40 +36,20 @@ export class AdminInterviewLevelModel {
     return this._name;
   }
 
-  set name(value: string) {
-    this._name = value;
-  }
-
   get code(): string {
     return this._code;
-  }
-
-  set code(value: string) {
-    this._code = value;
   }
 
   get description(): string | null {
     return this._description;
   }
 
-  set description(value: string | null) {
-    this._description = value;
-  }
-
   get displayOrder(): number {
     return this._displayOrder;
   }
 
-  set displayOrder(value: number) {
-    this._displayOrder = value;
-  }
-
   get isActive(): boolean {
     return this._isActive;
-  }
-
-  set isActive(value: boolean) {
-    this._isActive = value;
   }
 
   get createdAt(): Date {
@@ -78,17 +58,5 @@ export class AdminInterviewLevelModel {
 
   get updatedAt(): Date {
     return this._updatedAt;
-  }
-
-  set updatedAt(value: Date) {
-    this._updatedAt = value;
-  }
-
-  activate(): void {
-    this._isActive = true;
-  }
-
-  deactivate(): void {
-    this._isActive = false;
   }
 }

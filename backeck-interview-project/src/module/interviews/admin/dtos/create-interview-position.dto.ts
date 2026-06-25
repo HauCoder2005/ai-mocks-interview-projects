@@ -18,4 +18,4 @@ export class CreateInterviewPositionDto {
   @IsString()
   @IsOptional()
   description?: string;
-}
+} 

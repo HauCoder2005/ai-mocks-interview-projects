@@ -1,13 +1,13 @@
 import { interview_levels } from 'generated/prisma/client';
-import { AdminInterviewLevelModel } from '../models/admin-interview-level.model';
-import { AdminInterviewLevelResponseDto } from '../responses/admin-interview-level-response.dto';
+import { CandidateInterviewLevelModel } from '../models/candidate-interview-level.model';
+import { CandidateInterviewLevelResponseDto } from '../responses/candidate-interview-level-response.dto';
 
-export class AdminInterviewLevelMapper {
+export class CandidateInterviewLevelMapper {
   /*
-   * Chuyển dữ liệu interview_levels từ Prisma sang AdminInterviewLevelModel.
+   * Chuyển dữ liệu interview_levels từ Prisma sang CandidateInterviewLevelModel.
    */
-  static toModel(level: interview_levels): AdminInterviewLevelModel {
-    return new AdminInterviewLevelModel({
+  static toModel(level: interview_levels): CandidateInterviewLevelModel {
+    return new CandidateInterviewLevelModel({
       id: level.id,
       name: level.name,
       code: level.code,
@@ -20,11 +20,11 @@ export class AdminInterviewLevelMapper {
   }
 
   /*
-   * Chuyển AdminInterviewLevelModel sang AdminInterviewLevelResponseDto để trả về API.
+   * Chuyển CandidateInterviewLevelModel sang CandidateInterviewLevelResponseDto để trả về API.
    */
   static toResponseDto(
-    level: AdminInterviewLevelModel,
-  ): AdminInterviewLevelResponseDto {
+    level: CandidateInterviewLevelModel,
+  ): CandidateInterviewLevelResponseDto {
     return {
       id: level.id,
       name: level.name,

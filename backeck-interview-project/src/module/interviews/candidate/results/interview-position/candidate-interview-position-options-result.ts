@@ -1,6 +1,6 @@
 import { ApiListMeta } from 'src/shared/responses/api-response.interface';
 
-import { CandidateInterviewPositionResponseDto } from '../responses/candidate-interview-position-response.dto';
+import { CandidateInterviewPositionResponseDto } from '../../responses/candidate-interview-position-response.dto';
 
 /*
  * File này định nghĩa kiểu dữ liệu trả về từ Service cho Controller.

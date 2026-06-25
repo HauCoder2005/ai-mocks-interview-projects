@@ -1,6 +1,6 @@
 import { ApiListMeta } from 'src/shared/responses/api-response.interface';
 
-import { AdminInterviewPositionResponseDto } from '../responses/admin-interview-position-response.dto';
+import { AdminInterviewPositionResponseDto } from '../../../responses/admin-interview-position-response.dto';
 
 /*
  * File này định nghĩa kiểu dữ liệu trả về từ Service cho Controller.

@@ -1,16 +1,17 @@
 import { interview_technologies } from 'generated/prisma/client';
 
-import { AdminInterviewTechnologyModel } from '../models/admin-interview-technology.model';
-import { AdminInterviewTechnologyResponseDto } from '../responses/admin-interview-technology-response.dto';
+import { CandidateInterviewTechnologyModel } from '../models/candidate-interview-technology.model';
+import { CandidateInterviewTechnologyResponseDto } from '../responses/candidate-interview-technology-response.dto';
 
-export class AdminInterviewTechnologyMapper {
+export class CandidateInterviewTechnologyMapper {
   /*
-   * Chuyển dữ liệu interview_technologies từ Prisma sang AdminInterviewTechnologyModel.
+   * Chuyển dữ liệu interview_technologies từ Prisma sang CandidateInterviewTechnologyModel.
+   * Candidate chỉ đọc dữ liệu Technology, không được chỉnh sửa master data.
    */
   static toModel(
     technology: interview_technologies,
-  ): AdminInterviewTechnologyModel {
-    return new AdminInterviewTechnologyModel({
+  ): CandidateInterviewTechnologyModel {
+    return new CandidateInterviewTechnologyModel({
       id: technology.id,
       name: technology.name,
       slug: technology.slug,
@@ -23,11 +24,11 @@ export class AdminInterviewTechnologyMapper {
   }
 
   /*
-   * Chuyển AdminInterviewTechnologyModel sang AdminInterviewTechnologyResponseDto để trả về API.
+   * Chuyển CandidateInterviewTechnologyModel sang Response DTO để trả về API.
    */
   static toResponseDto(
-    technology: AdminInterviewTechnologyModel,
-  ): AdminInterviewTechnologyResponseDto {
+    technology: CandidateInterviewTechnologyModel,
+  ): CandidateInterviewTechnologyResponseDto {
     return {
       id: technology.id,
       name: technology.name,
