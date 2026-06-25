@@ -5,19 +5,80 @@ import { AbstractPrismaCrudService } from 'src/shared/abstracts/crud/abstract-pr
 
 import { AdminInterviewPositionMapper } from '../mappers/admin-interview-position.mapper';
 import { AdminInterviewPositionModel } from '../models/admin-interview-position.model';
+import { AdminInterviewPositionListQueryResult } from '../results/admin-interview-position-list-query-result';
 
 @Injectable()
 export class AdminInterviewPositionRepository extends AbstractPrismaCrudService<any> {
-  constructor(private readonly prismaService: PrismaService) {
+  constructor(prismaService: PrismaService) {
     super(prismaService.interview_positions);
   }
 
-  /**
-   * Lấy toàn bộ Position trong hệ thống.
-   * Admin dùng danh sách này để quản lý master data vị trí phỏng vấn.
+  /*
+   * Method bắt buộc do AbstractPrismaCrudService yêu cầu.
+   * Dùng để lấy nhiều bản ghi từ Prisma model.
    */
-  async findAll(): Promise<AdminInterviewPositionModel[]> {
+  selectMany(query?: any): Promise<any[]> {
+    return this.executeSelectMany(query);
+  }
+
+  /*
+   * Method bắt buộc do AbstractPrismaCrudService yêu cầu.
+   * Dùng để lấy một bản ghi theo unique field như id hoặc code.
+   */
+  selectOne(where: any): Promise<any | null> {
+    return this.executeSelectOne(where);
+  }
+
+  /*
+   * Method bắt buộc do AbstractPrismaCrudService yêu cầu.
+   * Dùng để tạo mới một bản ghi.
+   */
+  insertOne(data: any): Promise<any> {
+    return this.executeInsertOne(data);
+  }
+
+  /*
+   * Method bắt buộc do AbstractPrismaCrudService yêu cầu.
+   * Dùng để cập nhật một bản ghi theo unique field.
+   */
+  updateOne(where: any, data: any): Promise<any> {
+    return this.executeUpdateOne(where, data);
+  }
+
+  /*
+   * Method bắt buộc do AbstractPrismaCrudService yêu cầu.
+   * Dùng để xóa một bản ghi theo unique field.
+   */
+  deleteOne(where: any): Promise<any> {
+    return this.executeDeleteOne(where);
+  }
+
+  /*
+   * Lấy toàn bộ Position trong hệ thống.
+   * Repository trả items và total để Service tạo meta cho response list.
+   */
+  async findAllWithTotal(): Promise<AdminInterviewPositionListQueryResult> {
     const positions = await this.selectMany({
+      orderBy: {
+        id: 'asc',
+      },
+    });
+
+    return {
+      items: positions.map(AdminInterviewPositionMapper.toModel),
+      total: positions.length,
+    };
+  }
+
+  /*
+   * Lấy các Position đang active.
+   * Candidate sẽ chỉ được chọn những Position còn hoạt động.
+   */
+  async findActive(): Promise<AdminInterviewPositionModel[]> {
+    const positions = await this.selectMany({
+      where: {
+        is_active: true,
+      },
       orderBy: {
         id: 'asc',
       },
@@ -26,9 +87,9 @@ export class AdminInterviewPositionRepository extends AbstractPrismaCrudService<
     return positions.map(AdminInterviewPositionMapper.toModel);
   }
 
-  /**
+  /*
    * Tìm một Position theo id.
-   * Dùng khi admin muốn xem, cập nhật, kích hoạt hoặc vô hiệu hóa Position.
+   * Dùng khi admin muốn cập nhật, kích hoạt hoặc vô hiệu hóa Position.
    */
   async findById(id: number): Promise<AdminInterviewPositionModel | null> {
     const position = await this.selectOne({ id });
@@ -36,9 +97,9 @@ export class AdminInterviewPositionRepository extends AbstractPrismaCrudService<
     return position ? AdminInterviewPositionMapper.toModel(position) : null;
   }
 
-  /**
+  /*
    * Tìm một Position theo code.
-   * Dùng để kiểm tra trùng mã trước khi tạo Position mới.
+   * Dùng để kiểm tra trùng mã trước khi tạo hoặc cập nhật Position.
    */
   async findByCode(code: string): Promise<AdminInterviewPositionModel | null> {
     const position = await this.selectOne({ code });
@@ -46,7 +107,7 @@ export class AdminInterviewPositionRepository extends AbstractPrismaCrudService<
     return position ? AdminInterviewPositionMapper.toModel(position) : null;
   }
 
-  /**
+  /*
    * Tạo Position mới trong bảng interview_positions.
    * Position là master data để Candidate chọn khi cấu hình buổi phỏng vấn.
    */
@@ -64,9 +125,9 @@ export class AdminInterviewPositionRepository extends AbstractPrismaCrudService<
     return AdminInterviewPositionMapper.toModel(position);
   }
 
-  /**
+  /*
    * Cập nhật thông tin Position.
-   * Chỉ cập nhật các field thuộc master data, không đụng tới relation interviews.
+   * Chỉ cập nhật dữ liệu master data, không đụng tới relation interviews.
    */
   async updatePosition(
     id: number,
@@ -89,7 +150,7 @@ export class AdminInterviewPositionRepository extends AbstractPrismaCrudService<
     return AdminInterviewPositionMapper.toModel(position);
   }
 
-  /**
+  /*
    * Kích hoạt Position để Candidate có thể chọn khi tạo Interview Configuration.
    */
   async activate(id: number): Promise<AdminInterviewPositionModel> {
@@ -104,9 +165,9 @@ export class AdminInterviewPositionRepository extends AbstractPrismaCrudService<
     return AdminInterviewPositionMapper.toModel(position);
   }
 
-  /**
+  /*
    * Vô hiệu hóa Position.
-   * Dữ liệu không bị xóa cứng để tránh ảnh hưởng các Interview đã liên kết trước đó.
+   * Không xóa cứng để tránh ảnh hưởng các Interview hoặc Configuration đã liên kết.
    */
   async deactivate(id: number): Promise<AdminInterviewPositionModel> {
     const position = await this.updateOne(
