@@ -26,7 +26,7 @@ export const configuration = registerAs('config', (): RootConfig => {
       corsOrigins,
       clientUrl: process.env.CLIENT_URL ?? 'http://localhost:3000',
       frontendUrl: process.env.FRONTEND_URL ?? 'http://localhost:3000',
-      swaggerPath: process.env.SWAGGER_PATH ?? '/api/docs',
+      swaggerPath: process.env.SWAGGER_PATH ?? '/api/doc',
       swaggerEnabled: process.env.SWAGGER_ENABLED !== 'false',
       isDevelopment: appEnv === 'development',
       isProduction: appEnv === 'production',
@@ -107,7 +107,7 @@ export const configValidationSchema = Joi.object({
   CLIENT_URL: Joi.string().default('http://localhost:3000'),
   FRONTEND_URL: Joi.string().default('http://localhost:3000'),
 
-  SWAGGER_PATH: Joi.string().default('/api/docs'),
+  SWAGGER_PATH: Joi.string().default('/api/doc'),
   SWAGGER_ENABLED: Joi.boolean().default(true),
 
   DATABASE_HOST: Joi.string().required(),

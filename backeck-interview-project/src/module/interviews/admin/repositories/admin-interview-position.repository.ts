@@ -5,7 +5,7 @@ import { AbstractPrismaCrudService } from 'src/shared/abstracts/crud/abstract-pr
 
 import { AdminInterviewPositionMapper } from '../mappers/admin-interview-position.mapper';
 import { AdminInterviewPositionModel } from '../models/admin-interview-position.model';
-import { AdminInterviewPositionListQueryResult } from '../results/admin-interview-position-list-query-result';
+import { AdminInterviewPositionListQueryResult } from '../results/interview/position/admin-interview-position-list-query-result';
 
 @Injectable()
 export class AdminInterviewPositionRepository extends AbstractPrismaCrudService<any> {

@@ -1,4 +1,4 @@
-import { CandidateInterviewPositionModel } from '../models/candidate-interview-position.model';
+import { CandidateInterviewPositionModel } from '../../models/candidate-interview-position.model';
 
 /*
  * File này định nghĩa kiểu dữ liệu trả về từ Repository.

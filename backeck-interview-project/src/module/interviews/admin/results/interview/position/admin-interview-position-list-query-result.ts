@@ -1,4 +1,4 @@
-import { AdminInterviewPositionModel } from '../models/admin-interview-position.model';
+import { AdminInterviewPositionModel } from '../../../models/admin-interview-position.model';
 
 /*
  * File này định nghĩa kiểu dữ liệu trả về từ Repository.

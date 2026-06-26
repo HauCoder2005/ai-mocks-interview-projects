@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { createListMeta } from 'src/shared/responses/api-response.interface';
 import { CandidateInterviewPositionMapper } from '../mappers/candidate-interview-position.mapper';
 import { CandidateInterviewPositionRepository } from '../repositories/candidate-interview-position.repository';
-import { CandidateInterviewPositionOptionsResult } from '../results/candidate-interview-position-options-result';
+import { CandidateInterviewPositionOptionsResult } from '../results/interview-position/candidate-interview-position-options-result';
 
 @Injectable()
 export class CandidateInterviewOptionsService {

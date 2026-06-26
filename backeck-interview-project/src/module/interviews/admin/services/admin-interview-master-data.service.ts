@@ -12,7 +12,7 @@ import { UpdateInterviewPositionDto } from '../dtos/update-interview-position.dt
 import { AdminInterviewPositionMapper } from '../mappers/admin-interview-position.mapper';
 import { AdminInterviewPositionRepository } from '../repositories/admin-interview-position.repository';
 import { AdminInterviewPositionResponseDto } from '../responses/admin-interview-position-response.dto';
-import { AdminInterviewPositionListResponseResult } from '../results/admin-interview-position-list-response-result';
+import { AdminInterviewPositionListResponseResult } from '../results/interview/position/admin-interview-position-list-response-result';
 
 @Injectable()
 export class AdminInterviewMasterDataService {
