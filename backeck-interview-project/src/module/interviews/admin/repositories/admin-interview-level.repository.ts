@@ -1,16 +1,14 @@
 import { Injectable } from '@nestjs/common';
-
 import { PrismaService } from 'src/infrastructure/persistence/prisma/prisma.service';
 import { AbstractPrismaCrudService } from 'src/shared/abstracts/crud/abstract-prisma-crud.service';
-
-import { AdminInterviewPositionMapper } from '../mappers/admin-interview-position.mapper';
-import { AdminInterviewPositionModel } from '../models/admin-interview-position.model';
-import { AdminInterviewPositionListQueryResult } from '../results/admin-interview-position-list-query-result';
+import { AdminInterviewLevelMapper } from '../mappers/admin-interview-level.mapper';
+import { AdminInterviewLevelModel } from '../models/admin-interview-level.model';
+import { AdminInterviewLevelListQueryResult } from '../results/interview/level/admin-interview-level-list-query-result';
 
 @Injectable()
-export class AdminInterviewPositionRepository extends AbstractPrismaCrudService<any> {
+export class AdminInterviewLevelRepository extends AbstractPrismaCrudService<any> {
   constructor(prismaService: PrismaService) {
-    super(prismaService.interview_positions);
+    super(prismaService.interview_levels);
   }
 
   /*
@@ -54,107 +52,195 @@ export class AdminInterviewPositionRepository extends AbstractPrismaCrudService<
   }
 
   /*
-   * Lấy toàn bộ Position trong hệ thống.
+   * Lấy toàn bộ Level trong hệ thống.
    * Repository trả items và total để Service tạo meta cho response list.
    */
-  async findAllWithTotal(): Promise<AdminInterviewPositionListQueryResult> {
-    const positions = await this.selectMany({
-      orderBy: {
-        id: 'asc',
-      },
+  async findAllWithTotal(): Promise<AdminInterviewLevelListQueryResult> {
+    const levels = await this.selectMany({
+      orderBy: [
+        {
+          display_order: 'asc',
+        },
+        {
+          id: 'asc',
+        },
+      ],
     });
 
     return {
-      items: positions.map(AdminInterviewPositionMapper.toModel),
-      total: positions.length,
+      items: levels.map(AdminInterviewLevelMapper.toModel),
+      total: levels.length,
     };
   }
 
   /*
-   * Lấy các Position đang active.
-   * Candidate sẽ chỉ được chọn những Position còn hoạt động.
+   * Lấy các Level đang bật.
+   * Dùng cho Admin khi cần lọc Level active và dùng cho 
+   * Candidate khi chọn Level.
    */
-  async findActive(): Promise<AdminInterviewPositionModel[]> {
-    const positions = await this.selectMany({
+  async findActiveWithTotal(): Promise<AdminInterviewLevelListQueryResult> {
+    const levels = await this.selectMany({
       where: {
         is_active: true,
       },
-      orderBy: {
-        id: 'asc',
-      },
+      orderBy: [
+        {
+          display_order: 'asc',
+        },
+        {
+          id: 'asc',
+        },
+      ],
     });
 
-    return positions.map(AdminInterviewPositionMapper.toModel);
+    return {
+      items: levels.map(AdminInterviewLevelMapper.toModel),
+      total: levels.length,
+    };
   }
 
   /*
-   * Tìm một Position theo id.
-   * Dùng khi admin muốn cập nhật, kích hoạt hoặc vô hiệu hóa Position.
+   * Lấy các Level đang tắt.
+   * Dùng cho Admin khi cần xem danh sách Level đã bị vô hiệu hóa.
    */
-  async findById(id: number): Promise<AdminInterviewPositionModel | null> {
-    const position = await this.selectOne({ id });
+  async findInactiveWithTotal(): Promise<AdminInterviewLevelListQueryResult> {
+    const levels = await this.selectMany({
+      where: {
+        is_active: false,
+      },
+      orderBy: [
+        {
+          display_order: 'asc',
+        },
+        {
+          id: 'asc',
+        },
+      ],
+    });
 
-    return position ? AdminInterviewPositionMapper.toModel(position) : null;
+    return {
+      items: levels.map(AdminInterviewLevelMapper.toModel),
+      total: levels.length,
+    };
   }
 
   /*
-   * Tìm một Position theo code.
-   * Dùng để kiểm tra trùng mã trước khi tạo hoặc cập nhật Position.
+   * Lấy các Level đang active.
+   * Candidate sẽ chỉ được chọn những Level còn hoạt động.
    */
-  async findByCode(code: string): Promise<AdminInterviewPositionModel | null> {
-    const position = await this.selectOne({ code });
+  async findActive(): Promise<AdminInterviewLevelModel[]> {
+    const levels = await this.selectMany({
+      where: {
+        is_active: true,
+      },
+      orderBy: [
+        {
+          display_order: 'asc',
+        },
+        {
+          id: 'asc',
+        },
+      ],
+    });
 
-    return position ? AdminInterviewPositionMapper.toModel(position) : null;
+    return levels.map(AdminInterviewLevelMapper.toModel);
   }
 
   /*
-   * Tạo Position mới trong bảng interview_positions.
-   * Position là master data để Candidate chọn khi cấu hình buổi phỏng vấn.
+   * Lấy các Level đang inactive.
+   * Admin dùng để xem các Level đang bị tắt.
    */
-  async createPosition(params: {
+  async findInactive(): Promise<AdminInterviewLevelModel[]> {
+    const levels = await this.selectMany({
+      where: {
+        is_active: false,
+      },
+      orderBy: [
+        {
+          display_order: 'asc',
+        },
+        {
+          id: 'asc',
+        },
+      ],
+    });
+
+    return levels.map(AdminInterviewLevelMapper.toModel);
+  }
+
+  /*
+   * Tìm một Level theo id.
+   * Dùng khi admin muốn cập nhật, kích hoạt hoặc vô hiệu hóa Level.
+   */
+  async findById(id: number): Promise<AdminInterviewLevelModel | null> {
+    const level = await this.selectOne({ id });
+
+    return level ? AdminInterviewLevelMapper.toModel(level) : null;
+  }
+
+  /*
+   * Tìm một Level theo code.
+   * Dùng để kiểm tra trùng mã trước khi tạo hoặc cập nhật Level.
+   */
+  async findByCode(code: string): Promise<AdminInterviewLevelModel | null> {
+    const level = await this.selectOne({ code });
+
+    return level ? AdminInterviewLevelMapper.toModel(level) : null;
+  }
+
+  /*
+   * Tạo Level mới trong bảng interview_levels.
+   * Level là master data để Candidate chọn kinh 
+   * nghiệm khi cấu hình buổi phỏng vấn.
+   */
+  async createLevel(params: {
     name: string;
     code: string;
     description?: string;
-  }): Promise<AdminInterviewPositionModel> {
-    const position = await this.insertOne({
+    displayOrder: number;
+  }): Promise<AdminInterviewLevelModel> {
+    const level = await this.insertOne({
       name: params.name,
       code: params.code,
       description: params.description ?? null,
+      display_order: params.displayOrder,
     });
 
-    return AdminInterviewPositionMapper.toModel(position);
+    return AdminInterviewLevelMapper.toModel(level);
   }
 
   /*
-   * Cập nhật thông tin Position.
+   * Cập nhật thông tin Level.
    * Chỉ cập nhật dữ liệu master data, không đụng tới relation interviews.
    */
-  async updatePosition(
+  async updateLevel(
     id: number,
     params: {
       name?: string;
       code?: string;
       description?: string;
+      displayOrder?: number;
     },
-  ): Promise<AdminInterviewPositionModel> {
-    const position = await this.updateOne(
+  ): Promise<AdminInterviewLevelModel> {
+    const level = await this.updateOne(
       { id },
       {
         name: params.name,
         code: params.code,
         description: params.description,
+        display_order: params.displayOrder,
         updated_at: new Date(),
       },
     );
 
-    return AdminInterviewPositionMapper.toModel(position);
+    return AdminInterviewLevelMapper.toModel(level);
   }
 
   /*
-   * Kích hoạt Position để Candidate có thể chọn khi tạo Interview Configuration.
+   * Kích hoạt Level để Candidate có thể chọn khi tạo Interview Configuration.
    */
-  async activate(id: number): Promise<AdminInterviewPositionModel> {
-    const position = await this.updateOne(
+  async activate(id: number): Promise<AdminInterviewLevelModel> {
+    const level = await this.updateOne(
       { id },
       {
         is_active: true,
@@ -162,15 +248,16 @@ export class AdminInterviewPositionRepository extends AbstractPrismaCrudService<
       },
     );
 
-    return AdminInterviewPositionMapper.toModel(position);
+    return AdminInterviewLevelMapper.toModel(level);
   }
 
   /*
-   * Vô hiệu hóa Position.
-   * Không xóa cứng để tránh ảnh hưởng các Interview hoặc Configuration đã liên kết.
+   * Vô hiệu hóa Level.
+   * Không xóa cứng để tránh ảnh hưởng các 
+   * Interview hoặc Configuration đã liên kết.
    */
-  async deactivate(id: number): Promise<AdminInterviewPositionModel> {
-    const position = await this.updateOne(
+  async deactivate(id: number): Promise<AdminInterviewLevelModel> {
+    const level = await this.updateOne(
       { id },
       {
         is_active: false,
@@ -178,6 +265,6 @@ export class AdminInterviewPositionRepository extends AbstractPrismaCrudService<
       },
     );
 
-    return AdminInterviewPositionMapper.toModel(position);
+    return AdminInterviewLevelMapper.toModel(level);
   }
 }

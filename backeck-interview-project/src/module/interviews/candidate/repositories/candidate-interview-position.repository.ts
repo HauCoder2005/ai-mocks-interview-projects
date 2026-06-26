@@ -4,7 +4,7 @@ import { PrismaService } from 'src/infrastructure/persistence/prisma/prisma.serv
 import { AbstractPrismaCrudService } from 'src/shared/abstracts/crud/abstract-prisma-crud.service';
 
 import { CandidateInterviewPositionMapper } from '../mappers/candidate-interview-position.mapper';
-import { CandidateInterviewPositionListResult } from '../results/candidate-interview-position-list-result';
+import { CandidateInterviewPositionListResult } from '../results/interview-position/candidate-interview-position-list-result';
 
 @Injectable()
 export class CandidateInterviewPositionRepository extends AbstractPrismaCrudService<any> {

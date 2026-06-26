@@ -1,4 +1,5 @@
 import { Transform } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
@@ -8,6 +9,10 @@ import {
 } from 'class-validator';
 
 export class VerifyAccountDto {
+  @ApiProperty({
+    example: 'candidate@example.com',
+    description: 'Email cần xác thực tài khoản.',
+  })
   @IsEmail()
   @MaxLength(255)
   @Transform(({ value }: { value: unknown }) =>
@@ -15,6 +20,10 @@ export class VerifyAccountDto {
   )
   email!: string;
 
+  @ApiProperty({
+    example: '123456',
+    description: 'Mã OTP 6 chữ số.',
+  })
   @IsString()
   @IsNotEmpty()
   @Matches(/^\d{6}$/, {
