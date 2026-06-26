@@ -9,11 +9,23 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import {
   ApiResponse,
   ApiResponseWithMeta,
 } from 'src/shared/responses/api-response.interface';
+import {
+  ApiBadRequestErrorResponse,
+  ApiConflictErrorResponse,
+  ApiNotFoundErrorResponse,
+} from 'src/shared/swagger/decorators/api-error-response.decorator';
+import { ApiFormBody } from 'src/shared/swagger/decorators/api-form-body.decorator';
+import {
+  ApiCreatedSuccessResponse,
+  ApiListSuccessResponse,
+  ApiSuccessResponse,
+} from 'src/shared/swagger/decorators/api-success-response.decorator';
 
 import { CreateInterviewTechnologyDto } from '../dtos/create-interview-technology.dto';
 import { UpdateInterviewTechnologyDto } from '../dtos/update-interview-technology.dto';
@@ -21,6 +33,7 @@ import { AdminInterviewTechnologyResponseDto } from '../responses/admin-intervie
 import { AdminInterviewTechnologyListResponseResult } from '../results/interview/technology/admin-interview-technology-list-response-result';
 import { AdminInterviewTechnologyService } from '../services/admin-interview-technology.service';
 
+@ApiTags('Admin Interview Technologies')
 @Controller('admin/interview-master-data/technologies')
 export class AdminInterviewTechnologyController {
   /*
@@ -37,6 +50,14 @@ export class AdminInterviewTechnologyController {
    */
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Tạo mới Interview Technology' })
+  @ApiFormBody(CreateInterviewTechnologyDto)
+  @ApiCreatedSuccessResponse(
+    AdminInterviewTechnologyResponseDto,
+    'Interview technology created successfully',
+  )
+  @ApiBadRequestErrorResponse()
+  @ApiConflictErrorResponse('Interview technology code or slug already exists')
   async createTechnology(
     @Body() dto: CreateInterviewTechnologyDto,
   ): Promise<ApiResponse<AdminInterviewTechnologyResponseDto>> {
@@ -57,6 +78,11 @@ export class AdminInterviewTechnologyController {
    */
   @Get()
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Lấy danh sách Interview Technology' })
+  @ApiListSuccessResponse(
+    AdminInterviewTechnologyResponseDto,
+    'Interview technologies retrieved successfully',
+  )
   async getTechnologies(): Promise<
     ApiResponseWithMeta<
       AdminInterviewTechnologyResponseDto[],
@@ -80,6 +106,11 @@ export class AdminInterviewTechnologyController {
    */
   @Get('active')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Lấy danh sách Interview Technology đang active' })
+  @ApiListSuccessResponse(
+    AdminInterviewTechnologyResponseDto,
+    'Active interview technologies retrieved successfully',
+  )
   async getActiveTechnologies(): Promise<
     ApiResponseWithMeta<
       AdminInterviewTechnologyResponseDto[],
@@ -104,6 +135,11 @@ export class AdminInterviewTechnologyController {
    */
   @Get('inactive')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Lấy danh sách Interview Technology inactive' })
+  @ApiListSuccessResponse(
+    AdminInterviewTechnologyResponseDto,
+    'Inactive interview technologies retrieved successfully',
+  )
   async getInactiveTechnologies(): Promise<
     ApiResponseWithMeta<
       AdminInterviewTechnologyResponseDto[],
@@ -128,6 +164,15 @@ export class AdminInterviewTechnologyController {
    */
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cập nhật Interview Technology' })
+  @ApiFormBody(UpdateInterviewTechnologyDto)
+  @ApiSuccessResponse(
+    AdminInterviewTechnologyResponseDto,
+    'Interview technology updated successfully',
+  )
+  @ApiBadRequestErrorResponse()
+  @ApiNotFoundErrorResponse('Interview technology not found')
+  @ApiConflictErrorResponse('Interview technology code or slug already exists')
   async updateTechnology(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateInterviewTechnologyDto,
@@ -151,6 +196,12 @@ export class AdminInterviewTechnologyController {
    */
   @Patch(':id/activate')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Kích hoạt Interview Technology' })
+  @ApiSuccessResponse(
+    AdminInterviewTechnologyResponseDto,
+    'Interview technology activated successfully',
+  )
+  @ApiNotFoundErrorResponse('Interview technology not found')
   async activateTechnology(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ApiResponse<AdminInterviewTechnologyResponseDto>> {
@@ -171,6 +222,12 @@ export class AdminInterviewTechnologyController {
    */
   @Patch(':id/deactivate')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Vô hiệu hóa Interview Technology' })
+  @ApiSuccessResponse(
+    AdminInterviewTechnologyResponseDto,
+    'Interview technology deactivated successfully',
+  )
+  @ApiNotFoundErrorResponse('Interview technology not found')
   async deactivateTechnology(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ApiResponse<AdminInterviewTechnologyResponseDto>> {

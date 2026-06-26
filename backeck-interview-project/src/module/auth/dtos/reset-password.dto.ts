@@ -1,4 +1,5 @@
 import { Transform } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
@@ -9,6 +10,10 @@ import {
 } from 'class-validator';
 
 export class ResetPasswordDto {
+  @ApiProperty({
+    example: 'candidate@example.com',
+    description: 'Email cần reset mật khẩu.',
+  })
   @IsEmail()
   @MaxLength(255)
   @Transform(({ value }: { value: unknown }) =>
@@ -16,6 +21,10 @@ export class ResetPasswordDto {
   )
   email!: string;
 
+  @ApiProperty({
+    example: '123456',
+    description: 'Mã OTP 6 chữ số.',
+  })
   @IsString()
   @IsNotEmpty()
   @Matches(/^\d{6}$/, {
@@ -23,6 +32,10 @@ export class ResetPasswordDto {
   })
   otpCode!: string;
 
+  @ApiProperty({
+    example: 'NewP@ssw0rd123',
+    description: 'Mật khẩu mới.',
+  })
   @IsString()
   @IsNotEmpty()
   @MinLength(6)

@@ -1,12 +1,16 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-} from '@nestjs/common';
-
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiResponse } from 'src/shared/responses/api-response.interface';
+import {
+  ApiBadRequestErrorResponse,
+  ApiConflictErrorResponse,
+  ApiUnauthorizedErrorResponse,
+} from 'src/shared/swagger/decorators/api-error-response.decorator';
+import { ApiFormBody } from 'src/shared/swagger/decorators/api-form-body.decorator';
+import {
+  ApiCreatedSuccessResponse,
+  ApiSuccessResponse,
+} from 'src/shared/swagger/decorators/api-success-response.decorator';
 
 import { ForgotPasswordDto } from './dtos/forgot-password.dto';
 import { GoogleLoginDto } from './dtos/google-login.dto';
@@ -21,6 +25,7 @@ import { AuthRefreshResponse } from './interfaces/auth-refresh-response.interfac
 import { AuthService } from './auth.service';
 import { UsersResponseDto } from '../users/dtos/users-response.dto';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   /*
@@ -33,6 +38,11 @@ export class AuthController {
    */
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Đăng ký tài khoản' })
+  @ApiFormBody(RegisterDto)
+  @ApiCreatedSuccessResponse(UsersResponseDto, 'Register successfully')
+  @ApiBadRequestErrorResponse()
+  @ApiConflictErrorResponse('Email already exists')
   async register(
     @Body() dto: RegisterDto,
   ): Promise<ApiResponse<UsersResponseDto>> {
@@ -49,6 +59,11 @@ export class AuthController {
    */
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Đăng nhập bằng email/password' })
+  @ApiFormBody(LoginDto)
+  @ApiSuccessResponse(AuthLoginResponse, 'Login successfully')
+  @ApiBadRequestErrorResponse()
+  @ApiUnauthorizedErrorResponse('Invalid credentials')
   async login(@Body() dto: LoginDto): Promise<ApiResponse<AuthLoginResponse>> {
     return {
       success: true,
@@ -63,6 +78,11 @@ export class AuthController {
    */
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cấp access token mới' })
+  @ApiFormBody(RefreshTokenDto)
+  @ApiSuccessResponse(AuthRefreshResponse, 'Refresh token successfully')
+  @ApiBadRequestErrorResponse()
+  @ApiUnauthorizedErrorResponse('Invalid refresh token')
   async refreshToken(
     @Body() dto: RefreshTokenDto,
   ): Promise<ApiResponse<AuthRefreshResponse>> {
@@ -79,6 +99,10 @@ export class AuthController {
    */
   @Post('logout')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Logout và revoke refresh session' })
+  @ApiFormBody(LogoutDto)
+  @ApiSuccessResponse(null, 'Logout successfully')
+  @ApiBadRequestErrorResponse()
   async logout(@Body() dto: LogoutDto): Promise<ApiResponse<null>> {
     await this.authService.logout(dto);
 
@@ -95,6 +119,10 @@ export class AuthController {
    */
   @Post('resend-otp')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Gửi lại OTP xác thực tài khoản' })
+  @ApiFormBody(ForgotPasswordDto)
+  @ApiSuccessResponse(null, 'If the email is valid, an OTP has been sent')
+  @ApiBadRequestErrorResponse()
   async sendAccountVerificationOtp(
     @Body() dto: ForgotPasswordDto,
   ): Promise<ApiResponse<null>> {
@@ -113,6 +141,10 @@ export class AuthController {
    */
   @Post('verify-account')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Xác thực tài khoản bằng OTP' })
+  @ApiFormBody(VerifyAccountDto)
+  @ApiSuccessResponse(UsersResponseDto, 'Account verified successfully')
+  @ApiBadRequestErrorResponse()
   async verifyAccount(
     @Body() dto: VerifyAccountDto,
   ): Promise<ApiResponse<UsersResponseDto>> {
@@ -129,6 +161,10 @@ export class AuthController {
    */
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Gửi OTP quên mật khẩu' })
+  @ApiFormBody(ForgotPasswordDto)
+  @ApiSuccessResponse(null, 'If the email is valid, an OTP has been sent')
+  @ApiBadRequestErrorResponse()
   async forgotPassword(
     @Body() dto: ForgotPasswordDto,
   ): Promise<ApiResponse<null>> {
@@ -147,6 +183,10 @@ export class AuthController {
    */
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reset mật khẩu bằng OTP' })
+  @ApiFormBody(ResetPasswordDto)
+  @ApiSuccessResponse(null, 'Password reset successfully')
+  @ApiBadRequestErrorResponse()
   async resetPassword(
     @Body() dto: ResetPasswordDto,
   ): Promise<ApiResponse<null>> {
@@ -165,6 +205,11 @@ export class AuthController {
    */
   @Post('google-login')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Đăng nhập bằng Google idToken' })
+  @ApiFormBody(GoogleLoginDto)
+  @ApiSuccessResponse(AuthLoginResponse, 'Login successfully')
+  @ApiBadRequestErrorResponse()
+  @ApiUnauthorizedErrorResponse('Invalid Google token')
   async googleLogin(
     @Body() dto: GoogleLoginDto,
   ): Promise<ApiResponse<AuthLoginResponse>> {

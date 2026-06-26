@@ -9,11 +9,23 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import {
   ApiResponse,
   ApiResponseWithMeta,
 } from 'src/shared/responses/api-response.interface';
+import {
+  ApiBadRequestErrorResponse,
+  ApiConflictErrorResponse,
+  ApiNotFoundErrorResponse,
+} from 'src/shared/swagger/decorators/api-error-response.decorator';
+import { ApiFormBody } from 'src/shared/swagger/decorators/api-form-body.decorator';
+import {
+  ApiCreatedSuccessResponse,
+  ApiListSuccessResponse,
+  ApiSuccessResponse,
+} from 'src/shared/swagger/decorators/api-success-response.decorator';
 
 import { CreateInterviewLevelDto } from '../dtos/create-interview-level.dto';
 import { UpdateInterviewLevelDto } from '../dtos/update-interview-level.dto';
@@ -21,6 +33,7 @@ import { AdminInterviewLevelResponseDto } from '../responses/admin-interview-lev
 import { AdminInterviewLevelListResponseResult } from '../results/interview/level/admin-interview-level-list-response-result';
 import { AdminInterviewLevelService } from '../services/admin-interview-level.service';
 
+@ApiTags('Admin Interview Levels')
 @Controller('admin/interview-master-data/levels')
 export class AdminInterviewLevelController {
   /*
@@ -36,6 +49,14 @@ export class AdminInterviewLevelController {
    */
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Tạo mới Interview Level' })
+  @ApiFormBody(CreateInterviewLevelDto)
+  @ApiCreatedSuccessResponse(
+    AdminInterviewLevelResponseDto,
+    'Interview level created successfully',
+  )
+  @ApiBadRequestErrorResponse()
+  @ApiConflictErrorResponse('Interview level code already exists')
   async createLevel(
     @Body() dto: CreateInterviewLevelDto,
   ): Promise<ApiResponse<AdminInterviewLevelResponseDto>> {
@@ -55,6 +76,11 @@ export class AdminInterviewLevelController {
    */
   @Get()
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Lấy danh sách Interview Level' })
+  @ApiListSuccessResponse(
+    AdminInterviewLevelResponseDto,
+    'Interview levels retrieved successfully',
+  )
   async getLevels(): Promise<
     ApiResponseWithMeta<
       AdminInterviewLevelResponseDto[],
@@ -78,6 +104,15 @@ export class AdminInterviewLevelController {
    */
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cập nhật Interview Level' })
+  @ApiFormBody(UpdateInterviewLevelDto)
+  @ApiSuccessResponse(
+    AdminInterviewLevelResponseDto,
+    'Interview level updated successfully',
+  )
+  @ApiBadRequestErrorResponse()
+  @ApiNotFoundErrorResponse('Interview level not found')
+  @ApiConflictErrorResponse('Interview level code already exists')
   async updateLevel(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateInterviewLevelDto,
@@ -98,6 +133,12 @@ export class AdminInterviewLevelController {
    */
   @Patch(':id/activate')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Kích hoạt Interview Level' })
+  @ApiSuccessResponse(
+    AdminInterviewLevelResponseDto,
+    'Interview level activated successfully',
+  )
+  @ApiNotFoundErrorResponse('Interview level not found')
   async activateLevel(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ApiResponse<AdminInterviewLevelResponseDto>> {
@@ -117,6 +158,12 @@ export class AdminInterviewLevelController {
    */
   @Patch(':id/deactivate')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Vô hiệu hóa Interview Level' })
+  @ApiSuccessResponse(
+    AdminInterviewLevelResponseDto,
+    'Interview level deactivated successfully',
+  )
+  @ApiNotFoundErrorResponse('Interview level not found')
   async deactivateLevel(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ApiResponse<AdminInterviewLevelResponseDto>> {

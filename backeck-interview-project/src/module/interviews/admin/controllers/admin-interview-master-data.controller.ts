@@ -10,17 +10,30 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import {
   ApiResponse,
   ApiResponseWithMeta,
 } from 'src/shared/responses/api-response.interface';
+import {
+  ApiBadRequestErrorResponse,
+  ApiConflictErrorResponse,
+  ApiNotFoundErrorResponse,
+} from 'src/shared/swagger/decorators/api-error-response.decorator';
+import { ApiFormBody } from 'src/shared/swagger/decorators/api-form-body.decorator';
+import {
+  ApiCreatedSuccessResponse,
+  ApiListSuccessResponse,
+  ApiSuccessResponse,
+} from 'src/shared/swagger/decorators/api-success-response.decorator';
 
 import { CreateInterviewPositionDto } from '../dtos/create-interview-position.dto';
 import { UpdateInterviewPositionDto } from '../dtos/update-interview-position.dto';
 import { AdminInterviewPositionResponseDto } from '../responses/admin-interview-position-response.dto';
 import { AdminInterviewMasterDataService } from '../services/admin-interview-master-data.service';
 
+@ApiTags('Admin Interview Positions')
 @Controller('admin/interview-master-data')
 export class AdminInterviewMasterDataController {
   private readonly logger = new Logger(AdminInterviewMasterDataController.name);
@@ -38,6 +51,14 @@ export class AdminInterviewMasterDataController {
    */
   @Post('positions')
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Tạo mới Interview Position' })
+  @ApiFormBody(CreateInterviewPositionDto)
+  @ApiCreatedSuccessResponse(
+    AdminInterviewPositionResponseDto,
+    'Interview position created successfully',
+  )
+  @ApiBadRequestErrorResponse()
+  @ApiConflictErrorResponse('Interview position code already exists')
   async createPosition(
     @Body() dto: CreateInterviewPositionDto,
   ): Promise<ApiResponse<AdminInterviewPositionResponseDto>> {
@@ -60,6 +81,11 @@ export class AdminInterviewMasterDataController {
    */
   @Get('positions')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Lấy danh sách Interview Position' })
+  @ApiListSuccessResponse(
+    AdminInterviewPositionResponseDto,
+    'Interview positions retrieved successfully',
+  )
   async getPositions(): Promise<
     ApiResponseWithMeta<AdminInterviewPositionResponseDto[]>
   > {
@@ -82,6 +108,15 @@ export class AdminInterviewMasterDataController {
    */
   @Patch('positions/:id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cập nhật Interview Position' })
+  @ApiFormBody(UpdateInterviewPositionDto)
+  @ApiSuccessResponse(
+    AdminInterviewPositionResponseDto,
+    'Interview position updated successfully',
+  )
+  @ApiBadRequestErrorResponse()
+  @ApiNotFoundErrorResponse('Interview position not found')
+  @ApiConflictErrorResponse('Interview position code already exists')
   async updatePosition(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateInterviewPositionDto,
@@ -107,6 +142,12 @@ export class AdminInterviewMasterDataController {
    */
   @Patch('positions/:id/activate')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Kích hoạt Interview Position' })
+  @ApiSuccessResponse(
+    AdminInterviewPositionResponseDto,
+    'Interview position activated successfully',
+  )
+  @ApiNotFoundErrorResponse('Interview position not found')
   async activatePosition(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ApiResponse<AdminInterviewPositionResponseDto>> {
@@ -131,6 +172,12 @@ export class AdminInterviewMasterDataController {
    */
   @Patch('positions/:id/deactivate')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Vô hiệu hóa Interview Position' })
+  @ApiSuccessResponse(
+    AdminInterviewPositionResponseDto,
+    'Interview position deactivated successfully',
+  )
+  @ApiNotFoundErrorResponse('Interview position not found')
   async deactivatePosition(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ApiResponse<AdminInterviewPositionResponseDto>> {
