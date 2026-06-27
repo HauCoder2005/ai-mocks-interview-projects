@@ -1,10 +1,10 @@
-import { AppShell } from "@/components/layouts/app-shell";
+import { PublicShell } from "@/components/layouts/public-shell";
 import { LandingPage } from "@/features/landing/components/landing-page";
 
 export default function HomePage() {
   return (
-    <AppShell>
+    <PublicShell>
       <LandingPage />
-    </AppShell>
+    </PublicShell>
   );
 }

@@ -1,6 +1,8 @@
+import styles from "./loading.module.css";
+
 export default function Loading() {
   return (
-    <div className="grid min-h-screen place-items-center bg-white text-sm text-slate-600">
+    <div className={styles.loading}>
       Loading...
     </div>
   );

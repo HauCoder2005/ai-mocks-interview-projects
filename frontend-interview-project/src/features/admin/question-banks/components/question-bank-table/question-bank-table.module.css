@@ -1,0 +1,11 @@
+.questionTitle {
+  margin: 0;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.questionMeta {
+  margin: 0;
+  color: var(--color-subtle-text);
+  font-size: 0.75rem;
+}

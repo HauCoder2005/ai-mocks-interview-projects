@@ -1,23 +1,30 @@
-export type QuestionType = "behavioral" | "technical" | "system-design" | "coding";
+export type QuestionType = "MCQ" | "THEORY" | "CODING" | "CASE_STUDY";
 
-export type QuestionDifficulty = "easy" | "medium" | "hard";
+export type QuestionDifficulty = "EASY" | "MEDIUM" | "HARD";
 
 export type QuestionBankOption = {
-  id: string;
-  label: string;
-  value: string;
+  id?: string;
+  content: string;
+  isCorrect: boolean;
+  explanation?: string;
 };
 
 export type AdminQuestionBank = {
   id: string;
   title: string;
+  content: string;
   type: QuestionType;
   difficulty: QuestionDifficulty;
+  position?: string;
+  level?: string;
   technology?: string;
   topic?: string;
+  options?: QuestionBankOption[];
   isActive: boolean;
 };
 
-export type CreateAdminQuestionBankPayload = Omit<AdminQuestionBank, "id">;
+export type CreateAdminQuestionBankPayload = Omit<AdminQuestionBank, "id" | "isActive"> & {
+  isActive?: boolean;
+};
 
 export type UpdateAdminQuestionBankPayload = Partial<CreateAdminQuestionBankPayload>;

@@ -1,12 +1,15 @@
 export type ApiResponse<T> = {
+  success: boolean;
+  statusCode: number;
+  message: string;
   data: T;
-  message?: string;
-  success?: boolean;
 };
 
-export type PaginatedResponse<T> = {
-  items: T[];
+export type ApiListMeta = {
   total: number;
-  page: number;
-  limit: number;
+  itemCount: number;
+};
+
+export type ApiResponseWithMeta<T> = ApiResponse<T[]> & {
+  meta: ApiListMeta;
 };

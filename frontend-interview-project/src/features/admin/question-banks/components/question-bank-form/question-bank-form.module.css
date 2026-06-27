@@ -1,0 +1,29 @@
+.form {
+  display: grid;
+  gap: 16px;
+}
+
+.content {
+  display: grid;
+  gap: 16px;
+}
+
+.fieldGroup {
+  display: grid;
+  gap: 8px;
+}
+
+.fieldGrid {
+  display: grid;
+  gap: 16px;
+}
+
+.submitButton {
+  justify-self: start;
+}
+
+@media (min-width: 640px) {
+  .fieldGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
