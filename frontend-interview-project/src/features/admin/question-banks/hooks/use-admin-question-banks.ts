@@ -8,6 +8,5 @@ export function useAdminQuestionBanks() {
   return useQuery({
     queryKey: ["admin", "question-banks"],
     queryFn: () => adminQuestionBankApi.list(),
-    enabled: false,
   });
 }

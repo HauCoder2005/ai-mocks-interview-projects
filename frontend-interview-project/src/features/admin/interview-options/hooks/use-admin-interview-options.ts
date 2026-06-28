@@ -9,6 +9,5 @@ export function useAdminInterviewOptions(type: InterviewOptionType) {
   return useQuery({
     queryKey: ["admin", "interview-options", type],
     queryFn: () => adminInterviewOptionsApi.list(type),
-    enabled: false,
   });
 }

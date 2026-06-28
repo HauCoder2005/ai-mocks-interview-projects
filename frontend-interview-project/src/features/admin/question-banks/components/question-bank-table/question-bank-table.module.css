@@ -9,3 +9,9 @@
   color: var(--color-subtle-text);
   font-size: 0.75rem;
 }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

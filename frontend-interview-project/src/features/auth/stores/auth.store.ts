@@ -2,16 +2,13 @@
 
 import { useSyncExternalStore } from "react";
 
-import { tokenStorage } from "@/lib/auth/token-storage";
-import type { User } from "@/types/user";
+import type { AuthUser } from "@/features/auth/types";
 
 type AuthState = {
-  accessToken: string | null;
-  user: User | null;
+  user: AuthUser | null;
 };
 
 const emptyAuthState: AuthState = {
-  accessToken: null,
   user: null,
 };
 
@@ -41,22 +38,15 @@ export const authStore = {
   useAuthState() {
     return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   },
-  setSession(accessToken: string, user: User) {
-    tokenStorage.setAccessToken(accessToken);
-    authState = { accessToken, user };
+  setUser(user?: AuthUser | null) {
+    authState = { user: user ?? null };
     emitChange();
   },
   clearSession() {
-    tokenStorage.clearAccessToken();
     authState = emptyAuthState;
     emitChange();
   },
   hydrateFromStorage() {
-    const accessToken = tokenStorage.getAccessToken();
-
-    if (accessToken && authState.accessToken !== accessToken) {
-      authState = { ...authState, accessToken };
-      emitChange();
-    }
+    return;
   },
 };

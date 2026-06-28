@@ -17,6 +17,20 @@
   justify-self: start;
 }
 
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-muted-text);
+  font-size: 0.875rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 @media (min-width: 640px) {
   .fieldGrid {
     grid-template-columns: 12rem 1fr;

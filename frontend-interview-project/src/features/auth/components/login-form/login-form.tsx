@@ -20,8 +20,13 @@ export function LoginForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const session = await login({ email, password });
-    router.push(getPostLoginRedirect(session.user.role));
+
+    try {
+      const session = await login({ email, password });
+      router.push(getPostLoginRedirect(session.user?.role, session.user?.roleId));
+    } catch {
+      // React Query exposes the backend error through loginError.
+    }
   }
 
   return (

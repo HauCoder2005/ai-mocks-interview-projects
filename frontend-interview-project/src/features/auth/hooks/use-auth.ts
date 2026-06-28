@@ -15,16 +15,24 @@ export function useAuth() {
 
   const loginMutation = useMutation({
     mutationFn: authApi.login,
-    onSuccess: ({ accessToken, user }) => {
-      authStore.setSession(accessToken, user);
+    onSuccess: ({ user }) => {
+      authStore.setUser(user);
     },
   });
 
   const registerMutation = useMutation({
     mutationFn: authApi.register,
-    onSuccess: ({ accessToken, user }) => {
-      authStore.setSession(accessToken, user);
+  });
+
+  const verifyAccountMutation = useMutation({
+    mutationFn: authApi.verifyAccount,
+    onSuccess: ({ user }) => {
+      authStore.setUser(user);
     },
+  });
+
+  const resendOtpMutation = useMutation({
+    mutationFn: authApi.resendOtp,
   });
 
   return {
@@ -35,6 +43,12 @@ export function useAuth() {
     register: registerMutation.mutateAsync,
     registerStatus: registerMutation.status,
     registerError: registerMutation.error,
+    verifyAccount: verifyAccountMutation.mutateAsync,
+    verifyAccountStatus: verifyAccountMutation.status,
+    verifyAccountError: verifyAccountMutation.error,
+    resendOtp: resendOtpMutation.mutateAsync,
+    resendOtpStatus: resendOtpMutation.status,
+    resendOtpError: resendOtpMutation.error,
     logout: authStore.clearSession,
   };
 }

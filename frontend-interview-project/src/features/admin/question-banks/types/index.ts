@@ -14,11 +14,14 @@ export type AdminQuestionBank = {
   title: string;
   content: string;
   type: QuestionType;
+  questionType?: QuestionType;
   difficulty: QuestionDifficulty;
   position?: string;
   level?: string;
   technology?: string;
+  technologyId?: string;
   topic?: string;
+  topicId?: string;
   options?: QuestionBankOption[];
   isActive: boolean;
 };
