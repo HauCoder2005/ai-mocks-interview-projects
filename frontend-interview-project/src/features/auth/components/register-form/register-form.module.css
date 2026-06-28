@@ -1,0 +1,41 @@
+.form {
+  display: grid;
+  gap: 16px;
+}
+
+.fieldGroup {
+  display: grid;
+  gap: 8px;
+}
+
+.otpSection {
+  display: grid;
+  gap: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.otpTitle {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.otpDescription {
+  margin: 6px 0 0;
+  color: var(--color-muted-text);
+  font-size: 0.875rem;
+}
+
+.otpActions {
+  display: grid;
+  gap: 12px;
+}
+
+.successMessage {
+  margin: 0;
+  color: var(--color-success);
+  font-size: 0.875rem;
+}
