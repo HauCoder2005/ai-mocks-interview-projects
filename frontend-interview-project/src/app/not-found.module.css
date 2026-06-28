@@ -1,0 +1,38 @@
+.page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  background: var(--color-page);
+  padding: 0 16px;
+  text-align: center;
+}
+
+.code {
+  margin: 0;
+  color: var(--color-subtle-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 12px 0 0;
+  color: var(--color-text);
+  font-size: 1.875rem;
+  font-weight: 600;
+}
+
+.description {
+  margin: 12px 0 0;
+  color: var(--color-muted-text);
+  font-size: 0.875rem;
+}
+
+.link {
+  display: inline-flex;
+  margin-top: 24px;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
