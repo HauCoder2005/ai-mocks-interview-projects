@@ -1,0 +1,33 @@
+.page {
+  display: grid;
+  gap: 10px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 28px;
+}
+
+.description {
+  margin: 0;
+  color: var(--color-muted-text);
+  line-height: 1.6;
+}
+
+.panel {
+  margin-top: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-muted-text);
+  padding: 18px;
+}

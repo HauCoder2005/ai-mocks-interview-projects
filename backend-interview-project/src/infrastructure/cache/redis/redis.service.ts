@@ -14,7 +14,9 @@ import { ResourceLifecycleService } from 'src/shared/abstracts/connectable/resou
  * Kế thừa ResourceLifecycleService và triển khai các hook vòng đời của NestJS.
  */
 @Injectable()
-export class RedisService extends ResourceLifecycleService implements OnModuleInit, OnModuleDestroy
+export class RedisService
+  extends ResourceLifecycleService
+  implements OnModuleInit, OnModuleDestroy
 {
   /**
    * Cung cấp cơ chế ghi log chuẩn của NestJS cho service này.

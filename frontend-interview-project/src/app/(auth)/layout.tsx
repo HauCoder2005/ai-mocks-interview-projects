@@ -1,6 +1,5 @@
+import { AuthShell } from "@/components/layouts/auth-shell /auth-shell";
 import type { ReactNode } from "react";
-
-import { AuthShell } from "@/components/layouts/auth-shell";
 
 type AuthLayoutProps = {
   children: ReactNode;

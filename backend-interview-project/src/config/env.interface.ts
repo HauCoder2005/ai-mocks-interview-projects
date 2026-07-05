@@ -38,6 +38,19 @@ export interface MinioConfig {
   accessKey?: string;
   secretKey?: string;
   bucketName: string;
+  interviewAudioBucket: string;
+}
+
+export interface SpeechTranscriptionConfig {
+  serviceUrl: string;
+  internalServiceToken?: string;
+  timeoutMs: number;
+}
+
+export interface InterviewAgentConfig {
+  serviceUrl: string;
+  internalServiceToken?: string;
+  timeoutMs: number;
 }
 
 export interface JwtConfig {
@@ -75,6 +88,8 @@ export interface RootConfig {
   database: DatabaseConfig;
   redis: RedisConfig;
   minio: MinioConfig;
+  speechTranscription: SpeechTranscriptionConfig;
+  interviewAgent: InterviewAgentConfig;
   jwt: JwtConfig;
   auth: AuthConfig;
   mail: MailConfig;

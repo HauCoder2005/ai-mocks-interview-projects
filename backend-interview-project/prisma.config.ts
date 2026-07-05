@@ -1,15 +1,13 @@
-// file setup PRISMA CLI: de no biet SChema dat o dau, migrations o dau,...
-import 'dotenv/config'
-import { url } from 'inspector';
+// Prisma CLI config: schema, migrations, and datasource location.
+import 'dotenv/config';
 import { defineConfig, env } from 'prisma/config';
+
 export default defineConfig({
-    schema: './prisma/schema.prisma',
-
-    migrations: { 
-        path:  './prisma/migrations',
-    },
-
-    datasource: {
-        url: process.env.DATABASE_URL as string,
-    }
-})
+  schema: './prisma/schema.prisma',
+  migrations: {
+    path: './prisma/migrations',
+  },
+  datasource: {
+    url: env('DATABASE_URL'),
+  },
+});

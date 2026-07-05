@@ -10,7 +10,6 @@ import { ROLES_KEY } from '../decorators/roles.decorator';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  
   /**
    * Inject Reflector để đọc metadata roleId được khai báo trên endpoint.
    */

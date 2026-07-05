@@ -29,7 +29,7 @@ export class AdminInterviewLevelService {
    */
   async createLevel(
     dto: CreateInterviewLevelDto,
-  ): Promise<AdminInterviewLevelResponseDto> {  
+  ): Promise<AdminInterviewLevelResponseDto> {
     this.logger.log(`Start creating interview level: code=${dto.code}`);
     await this.checkCodeUniqueness(dto.code);
     const level = await this.levelRepository.createLevel({

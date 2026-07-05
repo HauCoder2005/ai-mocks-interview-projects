@@ -1,187 +1,185 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
-import { FieldError } from "@/components/ui/field-error";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { getPostLoginRedirect } from "@/lib/auth/auth-redirect";
-import { appRoutes } from "@/lib/constants/app-routes";
-import { useAuth } from "@/features/auth/hooks/use-auth";
-import styles from "./register-form.module.css";
+import { useRegisterForm } from "@/features/auth/hooks";
 
+import "./register-form.module.css";
+
+/*
+ * RegisterForm là giao diện đăng ký.
+ *
+ * Điểm đặc biệt:
+ * - Form đăng ký vẫn hiển thị bình thường.
+ * - Sau khi đăng ký thành công, ô nhập OTP sẽ xổ ra ngay bên dưới.
+ * - Nút xác minh OTP nằm bên cạnh ô OTP.
+ */
 export function RegisterForm() {
-  const router = useRouter();
   const {
-    register,
-    registerError,
-    registerStatus,
-    resendOtp,
-    resendOtpError,
-    resendOtpStatus,
-    verifyAccount,
-    verifyAccountError,
-    verifyAccountStatus,
-  } = useAuth();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
-  const [password, setPassword] = useState("");
-  const [registeredEmail, setRegisteredEmail] = useState("");
-  const [resendMessage, setResendMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+    firstName,
+    lastName,
+    email,
+    phoneNumber,
+    password,
+    confirmPassword,
+    otpCode,
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setResendMessage("");
-    setSuccessMessage("");
+    isOtpVisible,
+    errorMessage,
+    successMessage,
+    isSubmitting,
+    isVerifyingOtp,
 
-    try {
-      await register({ email, name, password });
-      setRegisteredEmail(email);
-      setSuccessMessage("Mã OTP đã được gửi đến email của bạn.");
-    } catch {
-      // React Query exposes the backend error through registerError.
-    }
-  }
+    setFirstName,
+    setLastName,
+    setEmail,
+    setPhoneNumber,
+    setPassword,
+    setConfirmPassword,
+    setOtpCode,
 
-  async function handleVerifyOtp() {
-    setSuccessMessage("");
-    setResendMessage("");
-
-    try {
-      const session = await verifyAccount({ email: registeredEmail, otp });
-
-      if (session.authenticated || session.user) {
-        router.push(
-          getPostLoginRedirect(session.user?.role, session.user?.roleId),
-        );
-        return;
-      }
-
-      setSuccessMessage("Tài khoản đã xác thực, bạn có thể đăng nhập.");
-    } catch {
-      // React Query exposes the backend error through verifyAccountError.
-    }
-  }
-
-  async function handleResendOtp() {
-    setSuccessMessage("");
-    setResendMessage("");
-
-    try {
-      await resendOtp({ email: registeredEmail });
-      setResendMessage("Mã OTP mới đã được gửi đến email của bạn.");
-    } catch {
-      // React Query exposes the backend error through resendOtpError.
-    }
-  }
+    handleSubmit,
+    handleVerifyOtpClick,
+  } = useRegisterForm();
 
   return (
-    <div className={styles.form}>
-      <form className={styles.form} onSubmit={handleSubmit}>
-        <div className={styles.fieldGroup}>
-          <Label htmlFor="name">Full name</Label>
-          <Input
-            autoComplete="name"
-            id="name"
-            onChange={(event) => setName(event.target.value)}
-            required
-            value={name}
-          />
+    <section className="register-card">
+      <div className="register-header">
+        <p className="register-eyebrow">Create account</p>
+
+        <h2 className="register-title">Đăng ký</h2>
+
+        <p className="register-description">
+          Tạo tài khoản để bắt đầu luyện phỏng vấn cùng AI.
+        </p>
+      </div>
+
+      <form className="register-form" onSubmit={handleSubmit}>
+        <div className="register-grid">
+          <label className="register-field">
+            <span>Tên</span>
+
+            <input
+              className="register-input"
+              type="text"
+              placeholder="Hậu"
+              value={firstName}
+              onChange={(event) => setFirstName(event.target.value)}
+            />
+          </label>
+
+          <label className="register-field">
+            <span>Họ</span>
+
+            <input
+              className="register-input"
+              type="text"
+              placeholder="Huỳnh"
+              value={lastName}
+              onChange={(event) => setLastName(event.target.value)}
+            />
+          </label>
         </div>
-        <div className={styles.fieldGroup}>
-          <Label htmlFor="email">Email</Label>
-          <Input
-            autoComplete="email"
-            id="email"
-            onChange={(event) => setEmail(event.target.value)}
-            required
+
+        <label className="register-field">
+          <span>Email</span>
+
+          <input
+            className="register-input"
             type="email"
+            placeholder="candidate@example.com"
             value={email}
+            onChange={(event) => setEmail(event.target.value)}
           />
-        </div>
-        <div className={styles.fieldGroup}>
-          <Label htmlFor="password">Password</Label>
-          <Input
-            autoComplete="new-password"
-            id="password"
-            minLength={8}
-            onChange={(event) => setPassword(event.target.value)}
-            required
+        </label>
+
+        <label className="register-field">
+          <span>Số điện thoại</span>
+
+          <input
+            className="register-input"
+            type="tel"
+            placeholder="0901234567"
+            value={phoneNumber}
+            onChange={(event) => setPhoneNumber(event.target.value)}
+          />
+        </label>
+
+        <label className="register-field">
+          <span>Mật khẩu</span>
+
+          <input
+            className="register-input"
             type="password"
+            placeholder="Nhập mật khẩu"
             value={password}
+            onChange={(event) => setPassword(event.target.value)}
           />
-        </div>
-        <FieldError message={registerError?.message} />
-        <Button
-          fullWidth
-          isLoading={registerStatus === "pending"}
+        </label>
+
+        <label className="register-field">
+          <span>Nhập lại mật khẩu</span>
+
+          <input
+            className="register-input"
+            type="password"
+            placeholder="Nhập lại mật khẩu"
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+          />
+        </label>
+
+        <button
+          className="register-submit-button"
           type="submit"
+          disabled={isSubmitting}
         >
-          Create account
-        </Button>
+          {isSubmitting ? "Đang đăng ký..." : "Đăng ký"}
+        </button>
+
+        {isOtpVisible ? (
+          <div className="register-otp-box">
+            <label className="register-field">
+              <span>Mã OTP</span>
+
+              <div className="register-otp-row">
+                <input
+                  className="register-input register-otp-input"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="123456"
+                  value={otpCode}
+                  onChange={(event) => setOtpCode(event.target.value)}
+                />
+
+                <button
+                  className="register-otp-button"
+                  type="button"
+                  disabled={isVerifyingOtp}
+                  onClick={handleVerifyOtpClick}
+                  aria-label="Xác minh OTP"
+                >
+                  <span aria-hidden="true">✓</span>
+                </button>
+              </div>
+            </label>
+          </div>
+        ) : null}
+
+        {errorMessage ? <p className="register-error">{errorMessage}</p> : null}
+
+        {successMessage ? (
+          <p className="register-success">{successMessage}</p>
+        ) : null}
       </form>
 
-      {registeredEmail ? (
-        <section className={styles.otpSection}>
-          <div>
-            <h2 className={styles.otpTitle}>Verify your account</h2>
-            <p className={styles.otpDescription}>
-              Mã OTP đã được gửi đến email của bạn.
-            </p>
-          </div>
-          <div className={styles.fieldGroup}>
-            <Label htmlFor="otp">OTP</Label>
-            <Input
-              autoComplete="one-time-code"
-              id="otp"
-              onChange={(event) => setOtp(event.target.value)}
-              placeholder="Enter OTP"
-              value={otp}
-            />
-          </div>
-          <FieldError
-            message={verifyAccountError?.message || resendOtpError?.message}
-          />
-          {successMessage ? (
-            <p className={styles.successMessage}>{successMessage}</p>
-          ) : null}
-          {resendMessage ? (
-            <p className={styles.successMessage}>{resendMessage}</p>
-          ) : null}
-          <div className={styles.otpActions}>
-            <Button
-              fullWidth
-              isLoading={verifyAccountStatus === "pending"}
-              onClick={handleVerifyOtp}
-              type="button"
-            >
-              Xác thực tài khoản
-            </Button>
-            <Button
-              fullWidth
-              isLoading={resendOtpStatus === "pending"}
-              onClick={handleResendOtp}
-              type="button"
-              variant="secondary"
-            >
-              Gửi lại OTP
-            </Button>
-          </div>
-        </section>
-      ) : null}
-
-      <Button
-        fullWidth
-        onClick={() => router.push(appRoutes.login)}
-        type="button"
-        variant="secondary"
-      >
-        Back to login
-      </Button>
-    </div>
+      <p className="register-footer-text">
+        Đã có tài khoản?{" "}
+        <Link className="register-link" href="/login">
+          Đăng nhập
+        </Link>
+      </p>
+    </section>
   );
 }

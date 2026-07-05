@@ -1,41 +1,224 @@
-.form {
+:global(.register-card) {
+  width: 100%;
+  max-width: 560px;
+  box-sizing: border-box;
+  padding: 36px;
+  border: 1px solid #dbeafe;
+  background: #ffffff;
+  box-shadow: 0 22px 50px rgba(15, 23, 42, 0.08);
+}
+
+:global(.register-grid) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+:global(.register-header) {
+  margin-bottom: 26px;
+}
+
+:global(.register-eyebrow) {
+  margin: 0 0 10px;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+:global(.register-title) {
+  margin: 0;
+  color: #0f172a;
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+:global(.register-description) {
+  margin: 10px 0 0;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+:global(.register-form) {
   display: grid;
   gap: 16px;
 }
 
-.fieldGroup {
+:global(.register-input) {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+:global(.register-grid) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+:global(.register-field) {
   display: grid;
   gap: 8px;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 800;
 }
 
-.otpSection {
-  display: grid;
-  gap: 16px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 16px;
+:global(.register-input) {
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 15px;
+  outline: none;
 }
 
-.otpTitle {
+:global(.register-input::placeholder) {
+  color: #94a3b8;
+}
+
+:global(.register-input:focus) {
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+:global(.register-error) {
   margin: 0;
-  color: var(--color-text);
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 12px 14px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 700;
 }
 
-.otpDescription {
-  margin: 6px 0 0;
-  color: var(--color-muted-text);
-  font-size: 0.875rem;
+:global(.register-submit-button) {
+  height: 48px;
+  margin-top: 4px;
+  border: 0;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
 }
 
-.otpActions {
-  display: grid;
-  gap: 12px;
+:global(.register-submit-button:hover) {
+  background: #1d4ed8;
 }
 
-.successMessage {
-  margin: 0;
-  color: var(--color-success);
-  font-size: 0.875rem;
+:global(.register-submit-button:disabled) {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+:global(.register-footer-text) {
+  margin: 22px 0 0;
+  color: #64748b;
+  font-size: 14px;
+  text-align: center;
+}
+
+:global(.register-link) {
+  color: #2563eb;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+:global(.register-link:hover) {
+  text-decoration: underline;
+}
+
+:global(.register-otp-panel) {
+    display: grid;
+    gap: 18px;
+    padding: 18px;
+    border: 1px solid #dbeafe;
+    background: #f8fbff;
+}
+
+:global(.register-otp-input) {
+    height: 56px;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 0.28em;
+    text-align: center;
+}
+
+:global(.register-success) {
+    margin: 0;
+    padding: 12px 14px;
+    border: 1px solid #bbf7d0;
+    background: #f0fdf4;
+    color: #15803d;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+:global(.register-otp-box) {
+    padding: 16px;
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+}
+
+:global(.register-otp-row) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 48px;
+    gap: 10px;
+}
+
+:global(.register-otp-input) {
+    height: 48px;
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 0.24em;
+    text-align: center;
+}
+
+:global(.register-otp-button) {
+    width: 48px;
+    height: 48px;
+    border: 0;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+:global(.register-otp-button:hover) {
+    background: #1d4ed8;
+}
+
+:global(.register-otp-button:disabled) {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+:global(.register-success) {
+    margin: 0;
+    padding: 12px 14px;
+    border: 1px solid #bbf7d0;
+    background: #f0fdf4;
+    color: #15803d;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+@media (max-width: 520px) {
+  :global(.register-card) {
+    padding: 24px;
+  }
+
+  :global(.register-grid) {
+    grid-template-columns: 1fr;
+  }
+
+  :global(.register-title) {
+    font-size: 28px;
+  }
 }

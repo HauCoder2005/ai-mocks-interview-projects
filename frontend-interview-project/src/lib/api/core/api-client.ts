@@ -31,26 +31,55 @@
  */
 
 import { ApiErrorResponse } from "./api-error";
+import { getStoredAccessToken } from "@/lib/auth/auth-storage";
 
 const urlApi = process.env.NEXT_PUBLIC_API_URL as string;
-if (!urlApi) throw new Error('No search env api backend!');
+if (!urlApi) throw new Error("No search env api backend!");
 
-export const request = async <TResponse>(path: string, option: RequestInit,): Promise<TResponse | null> => {
-    const response = await fetch(`${urlApi}${path}`, {
-        ...option,
-        headers: {
-        "Content-Type": "application/json",
-        ...option.headers,
-        },
-    });
-    const data = await response.json();
-    if (!data.ok) {
-        const apiErr = data as ApiErrorResponse;
-        throw new Error(
-            [apiErr.message].flat().filter(Boolean).join(", ") ||
-            apiErr.error ||
-            "API request failed",
-        );
-    };
-    return data as TResponse;
-}
+export type ApiRequestInit = RequestInit & {
+  auth?: boolean;
+};
+
+export const request = async <TResponse>(
+  path: string,
+  option: ApiRequestInit,
+): Promise<TResponse> => {
+  const isFormData = option.body instanceof FormData;
+  const headers = new Headers(option.headers);
+  const { auth = false, ...requestOption } = option;
+
+  if (!isFormData && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  if (auth) {
+    const accessToken = getStoredAccessToken();
+
+    if (accessToken) {
+      headers.set("Authorization", `Bearer ${accessToken}`);
+    }
+  }
+
+  const response = await fetch(`${urlApi}${path}`, {
+    ...requestOption,
+    credentials: "include",
+    headers,
+  });
+
+  const contentType = response.headers.get("content-type") ?? "";
+  const data = contentType.includes("application/json")
+    ? await response.json()
+    : null;
+
+  if (!response.ok) {
+    const apiErr = data as ApiErrorResponse | null;
+
+    throw new Error(
+      [apiErr?.message].flat().filter(Boolean).join(", ") ||
+        apiErr?.error ||
+        "API request failed",
+    );
+  }
+
+  return data as TResponse;
+};

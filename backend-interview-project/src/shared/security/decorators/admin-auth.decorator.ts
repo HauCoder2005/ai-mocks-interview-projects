@@ -10,8 +10,5 @@ import { JwtAccessGuard } from '../guards/jwt-access.guard';
  * Gồm xác thực access token, kiểm tra role admin và cấu hình Swagger auth.
  */
 export function AdminAuth() {
-  return applyDecorators(
-    UseGuards(JwtAccessGuard, AdminRoleGuard),
-    ApiAuth(),
-  );
+  return applyDecorators(UseGuards(JwtAccessGuard, AdminRoleGuard), ApiAuth());
 }

@@ -291,9 +291,13 @@ export class AdminInterviewQuestionBankService {
       throw new BadRequestException('MCQ questions require at least 2 options');
     }
 
-    if (!normalizedOptions.some((option) => option.isCorrect)) {
+    const correctOptionCount = normalizedOptions.filter(
+      (option) => option.isCorrect,
+    ).length;
+
+    if (correctOptionCount !== 1) {
       throw new BadRequestException(
-        'MCQ questions require at least 1 correct option',
+        'MCQ questions require exactly 1 correct option',
       );
     }
 

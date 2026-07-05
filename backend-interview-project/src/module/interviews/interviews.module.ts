@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
+import { InterviewAgentModule } from 'src/infrastructure/ai/interview-agent';
+import { SpeechTranscriptionModule } from 'src/infrastructure/ai/speech-transcription/speech-transcription.module';
+import { MinioModule } from 'src/infrastructure/storage/minio/minio.module';
 import { PrismaModule } from 'src/infrastructure/persistence/prisma/prisma.module';
 import SecurityModule from 'src/shared/security/security.module';
+import { TranscriptProcessingModule } from 'src/shared/transcript-processing';
 import { AdminInterviewMasterDataController } from './admin/controllers/admin-interview-master-data.controller';
 import { AdminInterviewPositionRepository } from './admin/repositories/admin-interview-position.repository';
 import { AdminInterviewMasterDataService } from './admin/services/admin-interview-master-data.service';
@@ -27,9 +31,23 @@ import { CandidateInterviewTopicService } from './candidate/services/candidate-i
 import { CandidateInterviewConfigurationController } from './candidate/controllers/candidate-interview-configuration.controller';
 import { CandidateInterviewConfigurationRepository } from './candidate/repositories/candidate-interview-configuration.repository';
 import { CandidateInterviewConfigurationService } from './candidate/services/candidate-interview-configuration.service';
+import { CandidateAudioAnswerController } from './candidate/controllers/candidate-audio-answer.controller';
+import { CandidateAudioAnswerService } from './candidate/services/candidate-audio-answer.service';
+import { CandidateInterviewSessionController } from './candidate/controllers/candidate-interview-session.controller';
+import { CandidateInterviewSessionRepository } from './candidate/repositories/candidate-interview-session.repository';
+import { CandidateInterviewSessionService } from './candidate/services/candidate-interview-session.service';
+import { CandidateInterviewEvaluationController } from './candidate/controllers/candidate-interview-evaluation.controller';
+import { CandidateInterviewEvaluationService } from './candidate/services/candidate-interview-evaluation.service';
 
 @Module({
-  imports: [PrismaModule, SecurityModule],
+  imports: [
+    PrismaModule,
+    SecurityModule,
+    MinioModule,
+    SpeechTranscriptionModule,
+    InterviewAgentModule,
+    TranscriptProcessingModule,
+  ],
   controllers: [
     AdminInterviewMasterDataController,
     AdminInterviewLevelController,
@@ -39,6 +57,9 @@ import { CandidateInterviewConfigurationService } from './candidate/services/can
     CandidateInterviewTechnologyController,
     CandidateInterviewTopicController,
     CandidateInterviewConfigurationController,
+    CandidateInterviewSessionController,
+    CandidateAudioAnswerController,
+    CandidateInterviewEvaluationController,
   ],
   providers: [
     AdminInterviewMasterDataService,
@@ -59,6 +80,10 @@ import { CandidateInterviewConfigurationService } from './candidate/services/can
     CandidateInterviewTopicRepository,
     CandidateInterviewConfigurationService,
     CandidateInterviewConfigurationRepository,
+    CandidateInterviewSessionService,
+    CandidateInterviewSessionRepository,
+    CandidateAudioAnswerService,
+    CandidateInterviewEvaluationService,
   ],
 })
 export class InterviewsModule {}

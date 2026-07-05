@@ -1,9 +1,5 @@
-import styles from "./loading.module.css";
+import { RouteLoading } from "@/components/common/route-loading";
 
 export default function Loading() {
-  return (
-    <div className={styles.loading}>
-      Loading...
-    </div>
-  );
+  return <RouteLoading />;
 }

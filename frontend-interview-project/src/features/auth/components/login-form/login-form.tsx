@@ -1,71 +1,116 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import Link from "next/link";
+import { GoogleLogin } from "@react-oauth/google";
+import { useLoginForm } from "@/features/auth/hooks";
 
-import { Button } from "@/components/ui/button";
-import { FieldError } from "@/components/ui/field-error";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { getPostLoginRedirect } from "@/lib/auth/auth-redirect";
-import { appRoutes } from "@/lib/constants/app-routes";
-import { useAuth } from "@/features/auth/hooks/use-auth";
-import styles from "./login-form.module.css";
+import "./login-form.module.css";
+import { GoogleIcon } from "@/components/ui/google-icon/google-icon";
 
+/*
+ * LoginForm là component giao diện cho chức năng đăng nhập.
+ *
+ * GoogleIcon:
+ * - Chỉ dùng để hiển thị icon G đẹp.
+ *
+ * GoogleLogin:
+ * - Vẫn là nút thật của Google.
+ * - Được đặt phủ lên icon G nhưng ẩn đi bằng CSS.
+ * - Khi user bấm vào icon G, thực chất là bấm vào GoogleLogin.
+ */
 export function LoginForm() {
-  const router = useRouter();
-  const { login, loginError, loginStatus } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    try {
-      const session = await login({ email, password });
-      router.push(getPostLoginRedirect(session.user?.role, session.user?.roleId));
-    } catch {
-      // React Query exposes the backend error through loginError.
-    }
-  }
+  const {
+    email,
+    password,
+    errorMessage,
+    isSubmitting,
+    isGoogleSubmitting,
+    setEmail,
+    setPassword,
+    handleSubmit,
+    handleGoogleLoginSuccess,
+    handleGoogleLoginError,
+  } = useLoginForm();
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
-      <div className={styles.fieldGroup}>
-        <Label htmlFor="email">Email</Label>
-        <Input
-          autoComplete="email"
-          id="email"
-          onChange={(event) => setEmail(event.target.value)}
-          placeholder="you@example.com"
-          required
-          type="email"
-          value={email}
-        />
+    <section className="login-card">
+      <div className="login-header">
+        <p className="login-eyebrow">Welcome back</p>
+
+        <h2 className="login-title">Đăng nhập</h2>
+
+        <p className="login-description">
+          Nhập email và mật khẩu để tiếp tục sử dụng hệ thống.
+        </p>
       </div>
-      <div className={styles.fieldGroup}>
-        <Label htmlFor="password">Password</Label>
-        <Input
-          autoComplete="current-password"
-          id="password"
-          onChange={(event) => setPassword(event.target.value)}
-          required
-          type="password"
-          value={password}
-        />
+
+      <form className="login-form" onSubmit={handleSubmit}>
+        <label className="login-field">
+          <span>Email</span>
+
+          <input
+            className="login-input"
+            type="email"
+            placeholder="candidate@example.com"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        </label>
+
+        <label className="login-field">
+          <span>Mật khẩu</span>
+
+          <input
+            className="login-input"
+            type="password"
+            placeholder="Nhập mật khẩu"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+        </label>
+
+        {errorMessage ? <p className="login-error">{errorMessage}</p> : null}
+
+        <button
+          className="login-submit-button"
+          type="submit"
+          disabled={isSubmitting || isGoogleSubmitting}
+        >
+          {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
+        </button>
+      </form>
+
+      <p className="login-footer-text">
+        Chưa có tài khoản?{" "}
+        <Link className="login-link" href="/register">
+          Đăng ký
+        </Link>
+      </p>
+
+      <div className="login-google-compact">
+        <span className="login-google-label">Hoặc đăng nhập với Google</span>
+
+        <div className="login-google-action">
+          <div className="login-google-visible">
+            <GoogleIcon />
+          </div>
+
+          <div className="login-google-click-layer">
+            <GoogleLogin
+              onSuccess={handleGoogleLoginSuccess}
+              onError={handleGoogleLoginError}
+              type="icon"
+              shape="circle"
+              theme="outline"
+              size="large"
+            />
+          </div>
+        </div>
+
+        {isGoogleSubmitting ? (
+          <p className="login-google-loading">Đang xử lý Google...</p>
+        ) : null}
       </div>
-      <FieldError message={loginError?.message} />
-      <Button fullWidth isLoading={loginStatus === "pending"} type="submit">
-        Sign in
-      </Button>
-      <Button
-        fullWidth
-        onClick={() => router.push(appRoutes.register)}
-        type="button"
-        variant="secondary"
-      >
-        Create account
-      </Button>
-    </form>
+    </section>
   );
 }
