@@ -2,20 +2,63 @@
   min-height: 100vh;
   background: #f8fafc;
   color: #0f172a;
-  padding: 36px min(5vw, 48px) 64px;
+  padding: 48px min(5vw, 56px) 72px;
 }
 
 .container {
-  width: min(1180px, 100%);
+  width: min(1280px, 100%);
   margin: 0 auto;
 }
 
-.header {
+.header,
+.hero {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 18px;
   margin-bottom: 22px;
+}
+
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.timerBadge {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  border: 1px solid #dbeafe;
+  border-radius: 6px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 0 14px;
+  font-weight: 900;
+}
+
+.progressBar {
+  width: min(520px, 100%);
+  height: 8px;
+  overflow: hidden;
+  margin-top: 16px;
+  border-radius: 4px;
+  background: #e2e8f0;
+}
+
+.progressBar span {
+  display: block;
+  height: 100%;
+  background: #2563eb;
+}
+
+.hero {
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+  padding: 28px;
 }
 
 .eyebrow {
@@ -28,8 +71,9 @@
 
 .title {
   margin: 0;
-  font-size: 34px;
+  font-size: 42px;
   line-height: 1.15;
+  letter-spacing: -0.03em;
 }
 
 .text {
@@ -42,7 +86,38 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.filterBar {
+  display: flex;
+  align-items: center;
   gap: 14px;
+  margin: 22px 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 14px;
+}
+
+.searchField {
+  display: flex;
+  min-height: 46px;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #64748b;
+  padding: 0 14px;
+}
+
+.searchField input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: #0f172a;
 }
 
 .card,
@@ -62,9 +137,80 @@
   padding: 18px;
 }
 
+.clickableCard {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    border-color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.clickableCard:hover,
+.clickableCard:focus-visible {
+  border-color: #93c5fd;
+  box-shadow: 0 16px 36px rgba(37, 99, 235, 0.12);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.cover {
+  position: relative;
+  min-height: 190px;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(219, 234, 254, 0.88)),
+    #eff6ff;
+}
+
+.coverImage,
+.coverFallback {
+  position: absolute;
+  inset: 0;
+}
+
+.coverImage {
+  background-position: center;
+  background-size: cover;
+}
+
+.coverFallback {
+  display: grid;
+  place-items: center;
+  color: #2563eb;
+}
+
+.coverBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.cardBody {
+  display: grid;
+  gap: 12px;
+  padding: 18px 18px 0;
+}
+
 .cardTitle {
   margin: 0;
-  font-size: 19px;
+  font-size: 22px;
+  line-height: 1.3;
+}
+
+.cardText {
+  display: -webkit-box;
+  min-height: 69px;
+  overflow: hidden;
+  margin: 0;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  color: #64748b;
+  line-height: 1.6;
 }
 
 .meta {
@@ -74,7 +220,8 @@
   margin-top: 14px;
 }
 
-.badge {
+.badge,
+.meta span {
   display: inline-flex;
   border: 1px solid #bfdbfe;
   border-radius: 6px;
@@ -92,17 +239,87 @@
   margin-top: 18px;
 }
 
+.cardActions {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+  padding: 18px;
+}
+
+.cardActions .primaryButton,
+.cardActions .secondaryButton {
+  flex: 1;
+}
+
+.detailHero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 22px;
+  margin-bottom: 22px;
+}
+
+.detailMain,
+.startPanel {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+}
+
+.detailMain {
+  overflow: hidden;
+}
+
+.detailMain .cover {
+  min-height: 310px;
+}
+
+.detailContent {
+  padding: 24px;
+}
+
+.startPanel {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  padding: 22px;
+}
+
+.statList {
+  display: grid;
+  gap: 10px;
+}
+
+.statList span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #64748b;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.statList strong {
+  color: #0f172a;
+  font-size: 18px;
+}
+
 .primaryButton,
 .secondaryButton,
 .dangerButton {
   display: inline-flex;
-  min-height: 42px;
+  min-height: 44px;
   align-items: center;
   justify-content: center;
   gap: 8px;
   border-radius: 6px;
   cursor: pointer;
-  padding: 9px 14px;
+  padding: 0 16px;
   font-weight: 900;
   text-decoration: none;
 }
@@ -134,8 +351,35 @@
 
 .questionLayout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 28px;
+  align-items: start;
+}
+
+.questionCard {
+  padding: 30px;
+}
+
+.questionCard .text {
+  max-width: none;
+  font-size: 16px;
+}
+
+.questionMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 18px;
+}
+
+.questionMeta span {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #334155;
+  padding: 6px 9px;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .optionList,
@@ -147,47 +391,86 @@
 
 .optionCard {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  min-height: 56px;
+  align-items: center;
+  gap: 12px;
   border: 1px solid #dbeafe;
   border-radius: 6px;
   background: #ffffff;
-  padding: 12px;
+  padding: 14px 16px;
   cursor: pointer;
+  color: #0f172a;
+  font-size: 15px;
+  line-height: 1.55;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.optionCard:hover {
+  background: #f8fafc;
+}
+
+.optionCard input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.radioMark {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  border: 2px solid #cbd5e1;
+  border-radius: 999px;
+  background: #ffffff;
 }
 
 .optionCardActive {
   border-color: #2563eb;
   background: #eff6ff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.optionCardActive .radioMark {
+  border: 5px solid #2563eb;
 }
 
 .optionCorrect {
-  border-color: #86efac;
-  background: #f0fdf4;
+  border-color: #22c55e;
+  background: #dcfce7;
+  color: #14532d;
 }
 
 .optionWrong {
-  border-color: #fecaca;
-  background: #fef2f2;
+  border-color: #ef4444;
+  background: #fee2e2;
+  color: #7f1d1d;
 }
 
 .sidebar {
   display: grid;
   align-content: start;
   gap: 12px;
+  position: sticky;
+  top: 96px;
 }
 
 .progressGrid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .progressButton {
-  min-height: 36px;
+  min-height: 40px;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
   background: #ffffff;
+  color: #0f172a;
   cursor: pointer;
   font-weight: 900;
 }
@@ -198,10 +481,181 @@
   color: #2563eb;
 }
 
+.progressButtonAnswered {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.progressButtonCurrentAnswered {
+  border-color: #1d4ed8;
+  background: #1d4ed8;
+  color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.progressLegend {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.progressLegend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progressLegend i {
+  display: inline-flex;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.legendCurrent {
+  border: 1px solid #2563eb;
+  background: #eff6ff;
+}
+
+.legendAnswered {
+  background: #2563eb;
+}
+
+.legendEmpty {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+}
+
+.questionActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.questionActions .primaryButton {
+  margin-left: auto;
+}
+
 .score {
   color: #2563eb;
   font-size: 48px;
   font-weight: 900;
+}
+
+.scorePanel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.summaryCard {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+  padding: 18px;
+}
+
+.summaryCard span {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.summaryCard strong {
+  color: #0f172a;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.resultCard {
+  display: grid;
+  gap: 14px;
+}
+
+.resultCard .text {
+  max-width: none;
+  font-size: 15px;
+}
+
+.resultCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.resultBadge,
+.resultQuestionNumber {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.resultBadgeCorrect {
+  border: 1px solid #22c55e;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.resultBadgeWrong {
+  border: 1px solid #ef4444;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.resultQuestionNumber {
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #334155;
+}
+
+.answerSummary {
+  display: grid;
+  gap: 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f8fafc;
+  padding: 14px;
+}
+
+.answerSummary p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.55;
+}
+
+.explanationBox {
+  border: 1px solid #dbeafe;
+  border-radius: 6px;
+  background: #eff6ff;
+  padding: 16px;
+}
+
+.explanationBox h3 {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 16px;
+}
+
+.explanationBox p {
+  margin: 0;
+  color: #334155;
+  font-size: 15px;
+  line-height: 1.65;
 }
 
 .error {
@@ -225,21 +679,157 @@
 
 .modal {
   width: min(520px, 100%);
-  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
   background: #ffffff;
   padding: 22px;
   box-shadow: 0 20px 50px rgba(15, 23, 42, 0.24);
 }
 
-@media (max-width: 900px) {
-  .grid,
-  .questionLayout {
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.warningBox {
+  margin-top: 14px;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  background: #fffbeb;
+  color: #92400e;
+  padding: 12px;
+  font-weight: 800;
+}
+
+.skeletonCard {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+.skeletonCover {
+  height: 190px;
+  border-radius: 0;
+}
+
+.skeletonDetailCover {
+  height: 310px;
+  border-radius: 0;
+}
+
+.skeletonHeading {
+  width: min(460px, 100%);
+  height: 42px;
+  margin-top: 12px;
+}
+
+.skeletonTitle {
+  width: min(280px, 75%);
+  height: 24px;
+}
+
+.skeletonText {
+  width: min(680px, 100%);
+  height: 18px;
+  margin-top: 10px;
+}
+
+.skeletonTextShort {
+  width: min(360px, 65%);
+  height: 18px;
+  margin-top: 10px;
+}
+
+.skeletonBadge {
+  width: 96px;
+  height: 28px;
+}
+
+.skeletonButton {
+  width: 132px;
+  height: 44px;
+}
+
+.skeletonStat {
+  width: 100%;
+  height: 54px;
+}
+
+.skeletonProgress {
+  width: min(520px, 100%);
+  height: 8px;
+  margin-top: 16px;
+}
+
+.skeletonOption {
+  width: 100%;
+  height: 56px;
+}
+
+.skeletonProgressButton {
+  width: 100%;
+  height: 40px;
+}
+
+.skeletonScore {
+  width: 92px;
+  height: 32px;
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .detailHero,
+  .scorePanel {
     grid-template-columns: 1fr;
   }
 }
 
+@media (max-width: 900px) {
+  .questionLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+    order: -1;
+  }
+}
+
 @media (max-width: 640px) {
-  .header {
+  .page {
+    padding: 28px 14px 48px;
+  }
+
+  .header,
+  .hero {
+    display: grid;
+  }
+
+  .hero {
+    padding: 20px;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filterBar,
+  .cardActions,
+  .headerActions,
+  .actions,
+  .questionActions,
+  .modalActions {
     display: grid;
   }
 

@@ -86,7 +86,7 @@ export function InterviewSetupForm() {
         JSON.stringify(sessionContext),
       );
 
-      router.push(`${appRoutes.userInterview}/sessions/${sessionId}`);
+      router.push(appRoutes.userInterviewSession(sessionId));
     } catch {
       // Error state is handled by useCandidateInterviewSession.
     }
@@ -152,9 +152,10 @@ export function InterviewSetupForm() {
     <section className={styles.setupCard}>
       <div className={styles.setupHeader}>
         <div>
+          <p className={styles.eyebrow}>Phỏng vấn AI</p>
           <h2 className={styles.cardTitle}>Tùy chỉnh phỏng vấn</h2>
           <p className={styles.cardText}>
-            Chọn đúng cấp độ, vị trí, công nghệ và chủ đề để bắt đầu phiên luyện tập phù hợp.
+            Chọn cấp độ, vị trí, công nghệ và chủ đề để bắt đầu phiên luyện tập phù hợp.
           </p>
         </div>
         <span className={styles.sourceBadge}>Dữ liệu từ hệ thống</span>

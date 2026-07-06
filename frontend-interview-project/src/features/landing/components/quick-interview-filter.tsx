@@ -40,11 +40,7 @@ export function QuickInterviewFilter() {
     <section className={`${styles.section} ${styles.block}`}>
       <div className={styles.sectionHeader}>
         <div>
-          <p className={styles.sectionKicker}>Lối vào nhanh</p>
-          <h2 className={styles.sectionTitle}>Chọn nhanh loại luyện tập</h2>
-          <p className={styles.sectionText}>
-            Mở trang setup để lấy dữ liệu thật từ backend và bắt đầu theo đúng ngữ cảnh.
-          </p>
+          <h2 className={styles.sectionTitle}>Các dạng bài luyện</h2>
         </div>
         <button className={styles.primaryButton} onClick={handleStart} type="button">
           <Play size={16} />

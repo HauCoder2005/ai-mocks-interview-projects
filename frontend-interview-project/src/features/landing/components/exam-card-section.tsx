@@ -1,6 +1,6 @@
 "use client";
 
-import { Info, Play } from "lucide-react";
+import { ClipboardList, Info, Play } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -73,11 +73,7 @@ export function ExamCardSection() {
     <section className={`${styles.section} ${styles.block}`} id="exam-cards">
       <div className={styles.sectionHeader}>
         <div>
-          <p className={styles.sectionKicker}>Kiểm tra nhanh</p>
-          <h2 className={styles.sectionTitle}>Bài kiểm tra trắc nghiệm</h2>
-          <p className={styles.sectionText}>
-            Chọn một bài kiểm tra để luyện nhanh kiến thức nền trước khi vào phỏng vấn AI.
-          </p>
+          <h2 className={styles.sectionTitle}>Kiểm tra dưới dạng trắc nghiệm</h2>
         </div>
         <Link className={styles.secondaryButton} href={appRoutes.mockTests}>
           Xem tất cả
@@ -93,11 +89,20 @@ export function ExamCardSection() {
       <div className={styles.examGrid}>
         {mockTests.map((exam) => (
           <article className={styles.examCard} key={exam.id}>
-            <div className={styles.examTop}>
-              <span className={styles.cardIcon}>
-                <Play size={22} />
+            <div className={styles.examCover}>
+              {exam.coverImageUrl ? (
+                <span
+                  className={styles.examCoverImage}
+                  style={{ backgroundImage: `url(${exam.coverImageUrl})` }}
+                />
+              ) : (
+                <span className={styles.examCoverFallback}>
+                  <ClipboardList size={44} />
+                </span>
+              )}
+              <span className={`${styles.smallBadge} ${styles.examCoverStatus}`}>
+                {exam.status}
               </span>
-              <span className={styles.smallBadge}>{exam.status}</span>
             </div>
             <div>
               <h3 className={styles.cardTitle}>{exam.title}</h3>

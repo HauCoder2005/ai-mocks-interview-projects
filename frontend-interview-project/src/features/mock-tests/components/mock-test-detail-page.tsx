@@ -1,8 +1,10 @@
 "use client";
 
+import { ClipboardList } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { Skeleton } from "@/components/common/skeleton";
 import { useMockTestDetail } from "@/features/user/mock-tests/hooks";
 import { getStoredAccessToken } from "@/lib/auth/auth-storage";
 import { mockTestsService } from "@/lib/api/services/mock-tests";
@@ -12,6 +14,43 @@ import styles from "./mock-tests.module.css";
 type MockTestDetailPageProps = {
   slug: string;
 };
+
+function MockTestDetailSkeleton() {
+  return (
+    <>
+      <section className={styles.detailHero}>
+        <div className={styles.detailMain}>
+          <Skeleton className={styles.skeletonDetailCover} />
+          <div className={styles.detailContent}>
+            <Skeleton className={styles.skeletonBadge} />
+            <Skeleton className={styles.skeletonHeading} />
+            <Skeleton className={styles.skeletonText} />
+            <Skeleton className={styles.skeletonTextShort} />
+          </div>
+        </div>
+        <aside className={styles.startPanel}>
+          <Skeleton className={styles.skeletonTitle} />
+          <Skeleton className={styles.skeletonStat} />
+          <Skeleton className={styles.skeletonStat} />
+          <Skeleton className={styles.skeletonStat} />
+          <Skeleton className={styles.skeletonButton} />
+        </aside>
+      </section>
+      <section className={styles.panel}>
+        <Skeleton className={styles.skeletonTitle} />
+        <div className={styles.reviewList}>
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div className={styles.questionCard} key={index}>
+              <Skeleton className={styles.skeletonTitle} />
+              <Skeleton className={styles.skeletonText} />
+              <Skeleton className={styles.skeletonTextShort} />
+            </div>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
 
 export function MockTestDetailPage({ slug }: MockTestDetailPageProps) {
   const router = useRouter();
@@ -52,7 +91,7 @@ export function MockTestDetailPage({ slug }: MockTestDetailPageProps) {
   return (
     <main className={styles.page}>
       <div className={styles.container}>
-        {isLoading ? <section className={styles.panel}>Đang tải...</section> : null}
+        {isLoading ? <MockTestDetailSkeleton /> : null}
         {error || errorMessage ? (
           <div className={styles.error}>
             <p>{error || errorMessage}</p>
@@ -65,26 +104,58 @@ export function MockTestDetailPage({ slug }: MockTestDetailPageProps) {
         ) : null}
         {mockTest ? (
           <>
-            <header className={styles.header}>
-              <div>
-                <p className={styles.eyebrow}>Chi tiết bài kiểm tra</p>
-                <h1 className={styles.title}>{mockTest.title}</h1>
-                <p className={styles.text}>{mockTest.description}</p>
-                <div className={styles.meta}>
-                  <span className={styles.badge}>{mockTest.totalQuestions} câu</span>
-                  <span className={styles.badge}>
-                    {mockTest.durationMinutes ?? "--"} phút
+            <section className={styles.detailHero}>
+              <div className={styles.detailMain}>
+                <div className={styles.cover}>
+                  {mockTest.coverImageUrl ? (
+                    <span
+                      aria-label={mockTest.title}
+                      className={styles.coverImage}
+                      role="img"
+                      style={{ backgroundImage: `url(${mockTest.coverImageUrl})` }}
+                    />
+                  ) : (
+                    <span className={styles.coverFallback}>
+                      <ClipboardList size={54} />
+                    </span>
+                  )}
+                  <span className={`${styles.badge} ${styles.coverBadge}`}>
+                    {mockTest.status}
                   </span>
                 </div>
+
+                <div className={styles.detailContent}>
+                  <p className={styles.eyebrow}>Chi tiết bài kiểm tra</p>
+                  <h1 className={styles.title}>{mockTest.title}</h1>
+                  <p className={styles.text}>{mockTest.description}</p>
+                </div>
               </div>
-              <button
-                className={styles.primaryButton}
-                onClick={() => setIsConfirmOpen(true)}
-                type="button"
-              >
-                Bắt đầu làm bài
-              </button>
-            </header>
+
+              <aside className={styles.startPanel}>
+                <h2 className={styles.cardTitle}>Thông tin bài thi</h2>
+                <div className={styles.statList}>
+                  <span>
+                    <strong>{mockTest.totalQuestions}</strong>
+                    Câu hỏi
+                  </span>
+                  <span>
+                    <strong>{mockTest.durationMinutes ?? "--"}</strong>
+                    Phút
+                  </span>
+                  <span>
+                    <strong>{mockTest.status}</strong>
+                    Trạng thái
+                  </span>
+                </div>
+                <button
+                  className={styles.primaryButton}
+                  onClick={() => setIsConfirmOpen(true)}
+                  type="button"
+                >
+                  Bắt đầu làm bài
+                </button>
+              </aside>
+            </section>
 
             <section className={styles.panel}>
               <h2 className={styles.cardTitle}>Danh sách câu hỏi</h2>
@@ -136,7 +207,7 @@ export function MockTestDetailPage({ slug }: MockTestDetailPageProps) {
                 onClick={handleStart}
                 type="button"
               >
-                {isStarting ? "Đang bắt đầu..." : "Bắt đầu"}
+                {isStarting ? "Đang tạo..." : "Bắt đầu"}
               </button>
             </div>
           </div>

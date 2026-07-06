@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { mockTestsService } from "@/lib/api/services/mock-tests";
 import type { MockTestSummaryDto } from "@/lib/api/services/mock-tests";
+import type { ApiListMeta } from "@/lib/api/core/api-response";
 
 type UseMockTestsQuery = {
   keyword?: string;
@@ -16,6 +17,7 @@ export function useMockTests(query: UseMockTestsQuery = { limit: 24 }) {
   const page = query.page;
   const limit = query.limit;
   const [data, setData] = useState<MockTestSummaryDto[]>([]);
+  const [meta, setMeta] = useState<ApiListMeta | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -30,6 +32,7 @@ export function useMockTests(query: UseMockTestsQuery = { limit: 24 }) {
         limit,
       });
       setData(response.data);
+      setMeta(response.meta ?? null);
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "Không thể tải bài kiểm tra.",
@@ -47,6 +50,7 @@ export function useMockTests(query: UseMockTestsQuery = { limit: 24 }) {
       .then((response) => {
         if (!isMounted) return;
         setData(response.data);
+        setMeta(response.meta ?? null);
       })
       .catch((error) => {
         if (!isMounted) return;
@@ -66,6 +70,7 @@ export function useMockTests(query: UseMockTestsQuery = { limit: 24 }) {
 
   return {
     data,
+    meta,
     isLoading,
     errorMessage,
     refetch,

@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 
+import { RouteLoadingProvider } from "@/components/common/route-loading-overlay";
 import { UserHeader } from "@/components/layouts/user-header";
+import { SiteFooter } from "@/components/layouts/site-footer";
 
 import styles from "./public-shell.module.css";
 
@@ -28,9 +30,12 @@ type PublicShellProps = {
  */
 export function PublicShell({ children }: PublicShellProps) {
   return (
-    <div className={styles.shell}>
-      <UserHeader />
-      <main>{children}</main>
-    </div>
+    <RouteLoadingProvider>
+      <div className={styles.shell}>
+        <UserHeader />
+        <main>{children}</main>
+        <SiteFooter />
+      </div>
+    </RouteLoadingProvider>
   );
 }

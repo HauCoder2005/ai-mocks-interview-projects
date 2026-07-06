@@ -18,7 +18,8 @@
   grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
   gap: 42px;
   align-items: center;
-  padding: 72px 0 36px;
+  min-height: 520px;
+  padding: 64px 0 44px;
 }
 
 .eyebrow,
@@ -43,8 +44,8 @@
   max-width: 680px;
   margin: 0;
   color: #0f172a;
-  font-size: 58px;
-  line-height: 1.03;
+  font-size: 56px;
+  line-height: 1.04;
   font-weight: 900;
   letter-spacing: -0.04em;
 }
@@ -154,7 +155,7 @@
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
 }
 
 .sliderCard {
@@ -164,14 +165,14 @@
 
 .sliderImageWrap {
   position: relative;
-  min-height: 430px;
+  min-height: 420px;
   overflow: hidden;
 }
 
 .sliderImage {
   display: block;
   width: 100%;
-  height: 430px;
+  height: 420px;
   object-fit: cover;
 }
 
@@ -199,6 +200,22 @@
   margin: 0;
   color: #475569;
   line-height: 1.6;
+}
+
+.previewMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.previewMeta span {
+  border: 1px solid #dbeafe;
+  border-radius: 6px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 6px 9px;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .sliderControls {
@@ -352,7 +369,7 @@
 .examGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  gap: 22px;
 }
 
 .examCard,
@@ -363,6 +380,47 @@
   display: grid;
   gap: 14px;
   padding: 20px;
+}
+
+.examCard {
+  align-content: stretch;
+}
+
+.examCard .cardActions {
+  margin-top: auto;
+}
+
+.examCover {
+  position: relative;
+  min-height: 172px;
+  overflow: hidden;
+  border-radius: 6px;
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(219, 234, 254, 0.86)),
+    #eff6ff;
+}
+
+.examCoverImage,
+.examCoverFallback {
+  position: absolute;
+  inset: 0;
+}
+
+.examCoverImage {
+  background-position: center;
+  background-size: cover;
+}
+
+.examCoverFallback {
+  display: grid;
+  place-items: center;
+  color: #2563eb;
+}
+
+.examCoverStatus {
+  position: absolute;
+  top: 12px;
+  right: 12px;
 }
 
 .examTop {

@@ -2,24 +2,25 @@ import Link from "next/link";
 import { Bot, Code2, MessageSquareText } from "lucide-react";
 
 import styles from "@/features/user/interview/components/simple-user-pages.module.css";
+import { appRoutes } from "@/lib/constants/app-routes";
 
 const practiceItems = [
   {
     title: "Câu hỏi kỹ thuật",
     description: "Luyện cách giải thích concept và trade-off.",
-    href: "/interview?type=technical",
+    href: appRoutes.userInterviewSetup,
     icon: Code2,
   },
   {
     title: "Câu hỏi hành vi",
     description: "Chuẩn bị câu chuyện theo STAR.",
-    href: "/interview?type=behavioral",
+    href: appRoutes.userInterviewSetup,
     icon: MessageSquareText,
   },
   {
     title: "Phiên AI đầy đủ",
     description: "Tạo phiên có ngữ cảnh và nhận góp ý.",
-    href: "/interview/setup",
+    href: appRoutes.userInterviewSetup,
     icon: Bot,
   },
 ];
@@ -33,7 +34,7 @@ export default function UserPracticePage() {
           <h1 className={styles.title}>Chọn cách luyện phù hợp</h1>
           <p className={styles.subtitle}>Bắt đầu nhanh bằng một dạng bài hoặc tạo phiên phỏng vấn với AI.</p>
         </div>
-        <Link className={styles.button} href="/interview">
+        <Link className={styles.button} href={appRoutes.userInterviewSetup}>
           Xem dạng bài
         </Link>
       </header>

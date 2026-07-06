@@ -1,12 +1,7 @@
-import { Suspense } from "react";
+import { redirect } from "next/navigation";
 
-import { PageLoading } from "@/components/common/page-loading";
-import { UserInterviewPage } from "@/features/user/interview/components/user-interview-page";
+import { appRoutes } from "@/lib/constants/app-routes";
 
-export default function InterviewPracticePage() {
-  return (
-    <Suspense fallback={<PageLoading />}>
-      <UserInterviewPage />
-    </Suspense>
-  );
+export default function InterviewPage() {
+  redirect(appRoutes.userInterviewSetup);
 }

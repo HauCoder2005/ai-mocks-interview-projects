@@ -1,0 +1,104 @@
+.footer {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 48px 0 24px;
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.4fr) repeat(3, minmax(150px, 1fr));
+  gap: 34px;
+  width: min(100% - 48px, 1240px);
+  margin: 0 auto;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logoMark {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.brandName,
+.brandMeta {
+  display: block;
+}
+
+.brandName {
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.brandMeta {
+  margin-top: 2px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.description {
+  max-width: 380px;
+  margin: 18px 0 0;
+  color: #94a3b8;
+  line-height: 1.7;
+}
+
+.column {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.column h2 {
+  margin: 0 0 4px;
+  color: #ffffff;
+  font-size: 15px;
+}
+
+.column a {
+  width: fit-content;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.column a:hover {
+  color: #60a5fa;
+}
+
+.bottom {
+  width: min(100% - 48px, 1240px);
+  margin: 34px auto 0;
+  border-top: 1px solid #1e293b;
+  color: #94a3b8;
+  padding-top: 22px;
+  font-size: 13px;
+}
+
+@media (max-width: 860px) {
+  .inner {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .inner,
+  .bottom {
+    width: min(100% - 28px, 1240px);
+  }
+
+  .inner {
+    grid-template-columns: 1fr;
+  }
+}

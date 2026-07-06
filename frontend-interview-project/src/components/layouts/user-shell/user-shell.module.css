@@ -5,14 +5,11 @@
 }
 
 .main {
-  min-height: calc(100vh - 76px);
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 36px 24px 64px;
+  min-height: calc(100vh - 72px);
 }
 
 @media (max-width: 860px) {
   .main {
-    padding: 22px 18px 42px;
+    min-height: calc(100vh - 72px);
   }
 }

@@ -1,10 +1,10 @@
 .page {
   display: grid;
   gap: 32px;
-  width: 100%;
-  max-width: 1180px;
+  width: min(100% - 48px, 1240px);
   margin: 0 auto;
   color: #0f172a;
+  padding: 44px 0 64px;
 }
 
 .header {
@@ -789,6 +789,11 @@
 }
 
 @media (max-width: 768px) {
+  .page {
+    width: min(100% - 28px, 1240px);
+    padding: 28px 0 44px;
+  }
+
   .title {
     font-size: 30px;
   }

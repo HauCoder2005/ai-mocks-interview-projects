@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
+import { Skeleton } from "@/components/common/skeleton";
 import { useMockTestAttempt } from "@/features/user/mock-tests/hooks";
 import { mockTestsService } from "@/lib/api/services/mock-tests";
 import { appRoutes } from "@/lib/constants/app-routes";
@@ -11,6 +12,52 @@ import styles from "./mock-tests.module.css";
 type MockTestAttemptPageProps = {
   attemptId: string;
 };
+
+function MockTestAttemptSkeleton() {
+  return (
+    <>
+      <header className={styles.header}>
+        <div>
+          <Skeleton className={styles.skeletonBadge} />
+          <Skeleton className={styles.skeletonHeading} />
+          <Skeleton className={styles.skeletonTextShort} />
+          <Skeleton className={styles.skeletonProgress} />
+        </div>
+        <div className={styles.headerActions}>
+          <Skeleton className={styles.skeletonButton} />
+          <Skeleton className={styles.skeletonButton} />
+        </div>
+      </header>
+      <section className={styles.questionLayout}>
+        <article className={styles.questionCard}>
+          <Skeleton className={styles.skeletonBadge} />
+          <div className={styles.questionMeta}>
+            <Skeleton className={styles.skeletonBadge} />
+            <Skeleton className={styles.skeletonBadge} />
+          </div>
+          <Skeleton className={styles.skeletonHeading} />
+          <Skeleton className={styles.skeletonText} />
+          <div className={styles.optionList}>
+            {Array.from({ length: 4 }).map((_, index) => (
+              <Skeleton className={styles.skeletonOption} key={index} />
+            ))}
+          </div>
+        </article>
+        <aside className={styles.sidebar}>
+          <section className={styles.panel}>
+            <Skeleton className={styles.skeletonTitle} />
+            <Skeleton className={styles.skeletonTextShort} />
+            <div className={styles.progressGrid}>
+              {Array.from({ length: 10 }).map((_, index) => (
+                <Skeleton className={styles.skeletonProgressButton} key={index} />
+              ))}
+            </div>
+          </section>
+        </aside>
+      </section>
+    </>
+  );
+}
 
 export function MockTestAttemptPage({ attemptId }: MockTestAttemptPageProps) {
   const router = useRouter();
@@ -25,6 +72,7 @@ export function MockTestAttemptPage({ attemptId }: MockTestAttemptPageProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitConfirmOpen, setIsSubmitConfirmOpen] = useState(false);
 
   const questions = useMemo(() => attempt?.questions ?? [], [attempt?.questions]);
   const currentQuestion = questions[currentIndex];
@@ -33,6 +81,10 @@ export function MockTestAttemptPage({ attemptId }: MockTestAttemptPageProps) {
     () => questions.filter((question) => question.selectedOptionId).length,
     [questions],
   );
+  const progressPercent = questions.length
+    ? Math.round((answeredCount / questions.length) * 100)
+    : 0;
+  const unansweredCount = Math.max(questions.length - answeredCount, 0);
 
   const handleSelectOption = async (selectedOptionId: number) => {
     if (!currentQuestion || !attempt) return;
@@ -69,8 +121,6 @@ export function MockTestAttemptPage({ attemptId }: MockTestAttemptPageProps) {
 
   const handleSubmit = async () => {
     if (!attempt) return;
-    const confirmed = window.confirm("Bạn chắc chắn muốn nộp bài?");
-    if (!confirmed) return;
 
     setIsSubmitting(true);
     setErrorMessage("");
@@ -85,13 +135,18 @@ export function MockTestAttemptPage({ attemptId }: MockTestAttemptPageProps) {
       );
     } finally {
       setIsSubmitting(false);
+      setIsSubmitConfirmOpen(false);
     }
+  };
+
+  const openSubmitConfirm = () => {
+    setIsSubmitConfirmOpen(true);
   };
 
   return (
     <main className={styles.page}>
       <div className={styles.container}>
-        {isLoading ? <section className={styles.panel}>Đang tải bài làm...</section> : null}
+        {isLoading ? <MockTestAttemptSkeleton /> : null}
         {errorMessage ? (
           <div className={styles.error}>
             <p>{errorMessage}</p>
@@ -109,15 +164,23 @@ export function MockTestAttemptPage({ attemptId }: MockTestAttemptPageProps) {
                 <p className={styles.text}>
                   Đã trả lời {answeredCount}/{questions.length} câu.
                 </p>
+                <div className={styles.progressBar} aria-label="Tiến độ làm bài">
+                  <span style={{ width: `${progressPercent}%` }} />
+                </div>
               </div>
-              <button
-                className={styles.dangerButton}
-                disabled={isSubmitting}
-                onClick={handleSubmit}
-                type="button"
-              >
-                {isSubmitting ? "Đang nộp..." : "Nộp bài"}
-              </button>
+              <div className={styles.headerActions}>
+                <span className={styles.timerBadge}>
+                  {attempt.mockTest?.durationMinutes ?? "--"} phút
+                </span>
+                <button
+                  className={styles.dangerButton}
+                  disabled={isSubmitting}
+                  onClick={openSubmitConfirm}
+                  type="button"
+                >
+                  {isSubmitting ? "Đang nộp..." : "Nộp bài"}
+                </button>
+              </div>
             </header>
 
             <section className={styles.questionLayout}>
@@ -125,6 +188,11 @@ export function MockTestAttemptPage({ attemptId }: MockTestAttemptPageProps) {
                 <span className={styles.badge}>
                   Câu {currentIndex + 1}/{questions.length}
                 </span>
+                <div className={styles.questionMeta}>
+                  <span>{currentQuestion.difficulty}</span>
+                  <span>{currentQuestion.topic?.name ?? "Chưa có chủ đề"}</span>
+                  <span>{currentQuestion.technology?.name ?? "Backend"}</span>
+                </div>
                 <h2 className={styles.cardTitle}>{currentQuestion.title}</h2>
                 <p className={styles.text}>{currentQuestion.content}</p>
                 <div className={styles.optionList}>
@@ -144,11 +212,12 @@ export function MockTestAttemptPage({ attemptId }: MockTestAttemptPageProps) {
                         onChange={() => handleSelectOption(option.id)}
                         type="radio"
                       />
+                      <span className={styles.radioMark} />
                       <span>{option.content}</span>
                     </label>
                   ))}
                 </div>
-                <div className={styles.actions}>
+                <div className={styles.questionActions}>
                   <button
                     className={styles.secondaryButton}
                     disabled={currentIndex === 0}
@@ -165,6 +234,14 @@ export function MockTestAttemptPage({ attemptId }: MockTestAttemptPageProps) {
                   >
                     Câu sau
                   </button>
+                  <button
+                    className={styles.dangerButton}
+                    disabled={isSubmitting}
+                    onClick={openSubmitConfirm}
+                    type="button"
+                  >
+                    {isSubmitting ? "Đang nộp..." : "Nộp bài"}
+                  </button>
                 </div>
               </article>
 
@@ -177,9 +254,16 @@ export function MockTestAttemptPage({ attemptId }: MockTestAttemptPageProps) {
                   <div className={styles.progressGrid}>
                     {questions.map((question, index) => (
                       <button
-                        className={`${styles.progressButton} ${
-                          index === currentIndex ? styles.progressButtonActive : ""
-                        }`}
+                        className={[
+                          styles.progressButton,
+                          question.selectedOptionId ? styles.progressButtonAnswered : "",
+                          index === currentIndex ? styles.progressButtonActive : "",
+                          index === currentIndex && question.selectedOptionId
+                            ? styles.progressButtonCurrentAnswered
+                            : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
                         key={question.id}
                         onClick={() => setCurrentIndex(index)}
                         type="button"
@@ -188,12 +272,59 @@ export function MockTestAttemptPage({ attemptId }: MockTestAttemptPageProps) {
                       </button>
                     ))}
                   </div>
+                  <div className={styles.progressLegend}>
+                    <span>
+                      <i className={styles.legendCurrent} />
+                      Đang làm
+                    </span>
+                    <span>
+                      <i className={styles.legendAnswered} />
+                      Đã trả lời
+                    </span>
+                    <span>
+                      <i className={styles.legendEmpty} />
+                      Chưa trả lời
+                    </span>
+                  </div>
                 </section>
               </aside>
             </section>
           </>
         ) : null}
       </div>
+      {isSubmitConfirmOpen && attempt ? (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal} role="dialog" aria-modal="true">
+            <h2 className={styles.cardTitle}>Xác nhận nộp bài</h2>
+            <p className={styles.text}>
+              Bạn đã trả lời {answeredCount}/{questions.length} câu. Sau khi nộp bài,
+              bạn sẽ không thể thay đổi đáp án.
+            </p>
+            {unansweredCount ? (
+              <div className={styles.warningBox}>
+                Bạn còn {unansweredCount} câu chưa trả lời.
+              </div>
+            ) : null}
+            <div className={styles.modalActions}>
+              <button
+                className={styles.secondaryButton}
+                onClick={() => setIsSubmitConfirmOpen(false)}
+                type="button"
+              >
+                Tiếp tục làm
+              </button>
+              <button
+                className={styles.dangerButton}
+                disabled={isSubmitting}
+                onClick={handleSubmit}
+                type="button"
+              >
+                {isSubmitting ? "Đang nộp..." : "Nộp bài"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }

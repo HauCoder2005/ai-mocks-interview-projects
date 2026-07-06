@@ -3,8 +3,10 @@ export const appRoutes = {
   login: "/login",
   register: "/register",
   userDashboard: "/dashboard",
-  userInterview: "/interview",
+  userInterview: "/interview/setup",
   userInterviewSetup: "/interview/setup",
+  userInterviewSession: (sessionId: string | number) =>
+    `/interview/sessions/${sessionId}`,
   userInterviews: "/interviews",
   userPractice: "/practice",
   mockTests: "/mock-tests",

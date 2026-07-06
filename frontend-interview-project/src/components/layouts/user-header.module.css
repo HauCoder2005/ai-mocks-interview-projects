@@ -1,25 +1,27 @@
 .header {
   position: sticky;
   top: 0;
-  z-index: 40;
+  z-index: 50;
+  width: 100%;
+  height: 72px;
   border-bottom: 1px solid #e2e8f0;
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(14px);
 }
 
 .inner {
-  display: flex;
-  min-height: 76px;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) 220px;
+  gap: 24px;
   align-items: center;
-  justify-content: space-between;
-  gap: 28px;
-  width: min(100% - 48px, 1320px);
+  width: min(100% - 48px, 1360px);
+  height: 100%;
   margin: 0 auto;
 }
 
 .brand {
-  display: inline-flex;
-  flex-shrink: 0;
+  display: flex;
+  min-width: 0;
   align-items: center;
   gap: 12px;
   color: #0f172a;
@@ -28,24 +30,35 @@
 
 .logoMark {
   display: grid;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
   place-items: center;
   border-radius: 6px;
   background: #2563eb;
   color: #ffffff;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .brandText {
   display: grid;
+  min-width: 0;
   gap: 1px;
 }
 
+.brandName,
+.brandMeta,
+.accountName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .brandName {
-  font-size: 17px;
-  letter-spacing: -0.01em;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 900;
 }
 
 .brandMeta {
@@ -56,7 +69,6 @@
 
 .nav {
   display: flex;
-  flex: 1 1 auto;
   min-width: 0;
   align-items: center;
   justify-content: center;
@@ -64,117 +76,46 @@
 }
 
 .navItem {
-  position: relative;
-}
-
-.navLink,
-.navButton {
   display: inline-flex;
+  height: 40px;
   align-items: center;
-  gap: 7px;
-  border: 0;
+  gap: 8px;
   border-radius: 6px;
-  background: transparent;
   color: #334155;
-  cursor: pointer;
-  min-height: 44px;
-  padding: 0 14px;
-  font-size: 15px;
+  padding: 0 12px;
+  font-size: 14px;
   font-weight: 700;
+  text-decoration: none;
   white-space: nowrap;
 }
 
-.navLink:hover,
-.navButton:hover,
-.active {
-  background: #eff6ff;
+.navItem:hover {
+  background: #f1f5f9;
   color: #2563eb;
 }
 
-.chevron {
-  transition: transform 0.18s ease;
-}
-
-.navItem:hover .chevron,
-.navItem:focus-within .chevron {
-  transform: rotate(180deg);
-}
-
-.dropdown {
-  position: absolute;
-  top: calc(100% + 12px);
-  left: 0;
-  display: none;
-  width: 420px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  background: #ffffff;
-  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.14);
-  padding: 10px;
-}
-
-.navItem:hover .dropdown,
-.navItem:focus-within .dropdown,
-.dropdownOpen {
-  display: grid;
-  gap: 4px;
-}
-
-.dropdownLink {
-  display: grid;
-  grid-template-columns: 38px 1fr;
-  gap: 10px;
-  border-radius: 6px;
-  padding: 10px;
-}
-
-.dropdownLink:hover {
-  background: #f8fafc;
-}
-
-.dropdownIcon {
-  display: grid;
-  width: 38px;
-  height: 38px;
-  place-items: center;
-  border-radius: 6px;
+.navItemActive {
   background: #eff6ff;
   color: #2563eb;
-}
-
-.dropdownTitle {
-  display: block;
-  color: #0f172a;
-  font-size: 14px;
-  font-weight: 800;
-}
-
-.dropdownText {
-  display: block;
-  margin-top: 3px;
-  color: #64748b;
-  font-size: 12px;
-  line-height: 1.45;
 }
 
 .actions {
   display: flex;
-  flex-shrink: 0;
+  min-width: 0;
   align-items: center;
-  gap: 12px;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .ghostLink,
-.primaryLink,
 .outlineLink {
   display: inline-flex;
-  min-height: 44px;
+  height: 40px;
   align-items: center;
   justify-content: center;
-  gap: 7px;
   border-radius: 6px;
-  padding: 0 16px;
-  font-size: 15px;
+  padding: 0 12px;
+  font-size: 14px;
   font-weight: 800;
   white-space: nowrap;
 }
@@ -183,29 +124,30 @@
   color: #334155;
 }
 
-.primaryLink {
-  border: 1px solid #2563eb;
-  background: #2563eb;
-  color: #ffffff;
-}
-
-.primaryLink:hover {
-  background: #1d4ed8;
+.ghostLink:hover {
+  color: #2563eb;
 }
 
 .outlineLink {
-  border: 1px solid #e2e8f0;
+  border: 1px solid #cbd5e1;
   background: #ffffff;
   color: #0f172a;
 }
 
+.outlineLink:hover {
+  border-color: #93c5fd;
+  color: #2563eb;
+}
+
 .account {
   position: relative;
+  min-width: 0;
 }
 
 .avatarButton {
   display: inline-flex;
-  min-height: 44px;
+  max-width: 220px;
+  height: 42px;
   align-items: center;
   gap: 8px;
   border: 1px solid #e2e8f0;
@@ -213,15 +155,16 @@
   background: #ffffff;
   color: #0f172a;
   cursor: pointer;
-  padding: 5px 12px 5px 5px;
+  padding: 4px 10px 4px 4px;
   font-size: 14px;
   font-weight: 800;
 }
 
 .avatar {
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
   place-items: center;
   border-radius: 6px;
   background: #2563eb;
@@ -229,10 +172,8 @@
 }
 
 .accountName {
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-width: 0;
+  max-width: 132px;
 }
 
 .accountMenu {
@@ -254,7 +195,6 @@
   display: inline-flex;
   width: 100%;
   align-items: center;
-  gap: 8px;
   border: 0;
   border-radius: 6px;
   background: transparent;
@@ -278,28 +218,62 @@
 
 .menuButton {
   display: none;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  justify-self: end;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   background: #ffffff;
   color: #0f172a;
   cursor: pointer;
-  padding: 9px;
+}
+
+@media (max-width: 1280px) {
+  .inner {
+    grid-template-columns: 220px minmax(0, 1fr) 190px;
+    gap: 16px;
+  }
+
+  .nav {
+    gap: 4px;
+  }
+
+  .navItem {
+    gap: 6px;
+    padding: 0 9px;
+    font-size: 13px;
+  }
 }
 
 @media (max-width: 1100px) {
+  .header {
+    height: auto;
+    min-height: 72px;
+  }
+
   .inner {
-    flex-wrap: wrap;
+    grid-template-columns: minmax(0, 1fr) 40px;
+    gap: 12px;
+    width: min(100% - 32px, 1360px);
     min-height: 72px;
     padding: 12px 0;
   }
 
+  .brand {
+    grid-column: 1;
+  }
+
   .menuButton {
-    display: inline-flex;
+    display: grid;
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .nav,
   .actions {
     display: none;
+    grid-column: 1 / -1;
     width: 100%;
   }
 
@@ -313,17 +287,22 @@
     justify-content: stretch;
   }
 
-  .navLink,
-  .navButton,
+  .navItem,
   .ghostLink,
-  .primaryLink,
   .outlineLink,
   .avatarButton {
     width: 100%;
     justify-content: flex-start;
   }
 
-  .dropdown,
+  .actions.mobileOpen {
+    justify-content: stretch;
+  }
+
+  .account {
+    width: 100%;
+  }
+
   .accountMenu {
     position: static;
     width: 100%;
@@ -331,23 +310,14 @@
     margin-top: 8px;
     box-shadow: none;
   }
-
-  .accountName {
-    max-width: none;
-  }
 }
 
 @media (max-width: 560px) {
+  .inner {
+    width: min(100% - 24px, 1360px);
+  }
+
   .brandMeta {
     display: none;
-  }
-
-  .inner {
-    gap: 14px;
-    width: min(100% - 28px, 1320px);
-  }
-
-  .brandName {
-    font-size: 15px;
   }
 }

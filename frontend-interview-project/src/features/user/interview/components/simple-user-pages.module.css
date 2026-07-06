@@ -1,6 +1,9 @@
 .page {
   display: grid;
   gap: 24px;
+  width: min(100% - 48px, 1240px);
+  margin: 0 auto;
+  padding: 44px 0 64px;
 }
 
 .header {
@@ -100,5 +103,10 @@
 
   .header {
     display: grid;
+  }
+
+  .page {
+    width: min(100% - 28px, 1240px);
+    padding: 28px 0 44px;
   }
 }

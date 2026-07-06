@@ -14,18 +14,21 @@ export function LandingHero() {
           <Sparkles size={15} />
           Nền tảng luyện phỏng vấn AI
         </p>
-        <h1 className={styles.title}>Luyện phỏng vấn cùng AI</h1>
+        <h1 className={styles.title}>
+          Luyện phỏng vấn và kiểm tra kiến thức backend
+        </h1>
         <p className={styles.subtitle}>
-          Chọn vị trí, cấp độ và chủ đề. Trả lời bằng giọng nói hoặc văn bản, nhận phản hồi và câu hỏi tiếp theo theo ngữ cảnh.
+          Chọn bài kiểm tra, luyện trắc nghiệm, sau đó phỏng vấn với AI bằng
+          giọng nói để nhận phản hồi theo ngữ cảnh.
         </p>
         <div className={styles.actions}>
-          <Link className={styles.primaryButton} href={appRoutes.userInterviewSetup}>
+          <Link className={styles.primaryButton} href={appRoutes.mockTests}>
+            <ClipboardList size={17} />
+            Làm bài kiểm tra
+          </Link>
+          <Link className={styles.secondaryButton} href={appRoutes.userInterviewSetup}>
             <Bot size={17} />
             Phỏng vấn với AI
-          </Link>
-          <Link className={styles.secondaryButton} href="#exam-cards">
-            <ClipboardList size={17} />
-            Xem bài kiểm tra
           </Link>
         </div>
         <div className={styles.heroStats}>

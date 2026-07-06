@@ -4,17 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Briefcase,
+  ClipboardList,
   ChevronDown,
-  Code2,
   FileText,
   Home,
   Layers,
   LayoutDashboard,
   Menu,
   Mic,
-  Shuffle,
-  UserRound,
-  UsersRound,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -26,50 +23,12 @@ import styles from "./user-header.module.css";
 
 const navItems = [
   { href: appRoutes.home, label: "Trang chủ", icon: Home },
-  { href: appRoutes.userInterview, label: "Phỏng vấn", icon: Mic, hasDropdown: true },
+  { href: appRoutes.userInterviewSetup, label: "Phỏng vấn AI", icon: Mic },
+  { href: appRoutes.mockTests, label: "Bài kiểm tra", icon: ClipboardList },
   { href: appRoutes.userJobs, label: "Công việc", icon: Briefcase },
   { href: appRoutes.userResumes, label: "Hồ sơ", icon: FileText },
   { href: appRoutes.userInterviews, label: "Phiên của tôi", icon: Layers },
   { href: appRoutes.userDashboard, label: "Dashboard", icon: LayoutDashboard },
-];
-
-const dropdownItems = [
-  {
-    href: "/interview?type=technical",
-    title: "Phỏng vấn kỹ thuật",
-    description: "API, database, framework và xử lý tình huống kỹ thuật.",
-    icon: Code2,
-  },
-  {
-    href: "/interview?type=behavioral",
-    title: "Phỏng vấn hành vi",
-    description: "STAR, teamwork, ownership và cách giải quyết xung đột.",
-    icon: UsersRound,
-  },
-  {
-    href: "/interview?type=mixed",
-    title: "Phỏng vấn tổng hợp",
-    description: "Kết hợp kỹ thuật, sản phẩm và cách làm việc.",
-    icon: Layers,
-  },
-  {
-    href: "/interview?mode=random",
-    title: "Câu hỏi ngẫu nhiên",
-    description: "Luyện phản xạ với các câu hỏi linh hoạt.",
-    icon: Shuffle,
-  },
-  {
-    href: "/interview?group=position",
-    title: "Theo vị trí công việc",
-    description: "Backend, Frontend, Fullstack, DevOps và Mobile.",
-    icon: Briefcase,
-  },
-  {
-    href: "/interview?group=level",
-    title: "Theo kinh nghiệm",
-    description: "Intern đến Senior với độ khó phù hợp.",
-    icon: UserRound,
-  },
 ];
 
 type HeaderUser = {
@@ -97,7 +56,6 @@ function getInitial(name: string) {
 export function UserHeader() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<HeaderUser | null>(null);
@@ -140,56 +98,13 @@ export function UserHeader() {
             const active =
               item.href === appRoutes.home
                 ? pathname === item.href
-                : pathname.startsWith(item.href);
-
-            if (item.hasDropdown) {
-              return (
-                <div className={styles.navItem} key={item.href}>
-                  <button
-                    className={`${styles.navButton} ${active ? styles.active : ""}`}
-                    onClick={() => setDropdownOpen((current) => !current)}
-                    type="button"
-                  >
-                    <Icon size={16} />
-                    {item.label}
-                    <ChevronDown className={styles.chevron} size={15} />
-                  </button>
-                  <div
-                    className={`${styles.dropdown} ${
-                      dropdownOpen ? styles.dropdownOpen : ""
-                    }`}
-                  >
-                    {dropdownItems.map((dropdownItem) => {
-                      const DropdownIcon = dropdownItem.icon;
-
-                      return (
-                        <Link
-                          className={styles.dropdownLink}
-                          href={dropdownItem.href}
-                          key={dropdownItem.href}
-                        >
-                          <span className={styles.dropdownIcon}>
-                            <DropdownIcon size={18} />
-                          </span>
-                          <span>
-                            <span className={styles.dropdownTitle}>
-                              {dropdownItem.title}
-                            </span>
-                            <span className={styles.dropdownText}>
-                              {dropdownItem.description}
-                            </span>
-                          </span>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            }
+                : item.href === appRoutes.userInterviewSetup
+                  ? pathname.startsWith("/interview")
+                : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
             return (
               <Link
-                className={`${styles.navLink} ${active ? styles.active : ""}`}
+                className={`${styles.navItem} ${active ? styles.navItemActive : ""}`}
                 href={item.href}
                 key={item.href}
               >

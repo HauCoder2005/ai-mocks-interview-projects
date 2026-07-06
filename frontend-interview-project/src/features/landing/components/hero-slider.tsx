@@ -40,6 +40,12 @@ export function HeroSlider() {
           <span className={styles.badge}>{activeSlide.badge}</span>
           <h2>{activeSlide.title}</h2>
           <p>{activeSlide.description}</p>
+          <div className={styles.previewMeta}>
+            <span>20 câu</span>
+            <span>Junior</span>
+            <span>Backend</span>
+            <span>Voice + AI</span>
+          </div>
         </div>
       </div>
 
