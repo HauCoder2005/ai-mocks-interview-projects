@@ -36,9 +36,7 @@ export abstract class AbstractPrismaCrudService<M extends PrismaCrudModel> {
    * Hàm dùng chung cho class con gọi lại.
    * Logic Prisma thật sự nằm ở đây để tránh lặp code quá nhiều.
    */
-  protected executeSelectMany(
-    query?: M['ListQuery'],
-  ): Promise<M['Record'][]> {
+  protected executeSelectMany(query?: M['ListQuery']): Promise<M['Record'][]> {
     return this.prismaModel.findMany(query);
   }
 

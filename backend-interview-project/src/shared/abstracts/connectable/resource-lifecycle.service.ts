@@ -1,9 +1,5 @@
 import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-
-export abstract class ResourceLifecycleService
-  implements OnModuleInit, OnModuleDestroy
-{
-  /*
+/*
    Abstract
     Bắt buộc class con phải tự xử lý logic, chạy thông báo
     ra terminal nhé.
@@ -12,6 +8,9 @@ export abstract class ResourceLifecycleService
    - MinioService: kiểm tra bucket tồn tại chưa.
    - QueueService: connect tới queue server.
    */
+export abstract class ResourceLifecycleService
+  implements OnModuleInit, OnModuleDestroy
+{
   abstract onModuleInit(): Promise<void>;
   async onModuleDestroy(): Promise<void> {}
 }

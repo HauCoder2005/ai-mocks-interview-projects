@@ -1,9 +1,5 @@
-import styles from "./loading.module.css";
+import { RouteLoadingOverlay } from "@/components/common/route-loading-overlay";
 
 export default function Loading() {
-  return (
-    <div className={styles.loading}>
-      Loading...
-    </div>
-  );
+  return <RouteLoadingOverlay />;
 }

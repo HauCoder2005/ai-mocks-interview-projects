@@ -1,1 +1,1 @@
-export { AdminQuestionBankPage } from "./admin-question-bank-page";
+export { AdminQuestionBanksPage as AdminQuestionBankPage } from "../admin-question-banks-page";

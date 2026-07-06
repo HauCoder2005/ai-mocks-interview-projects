@@ -3,33 +3,59 @@ import { ConfigService } from '@nestjs/config';
 import { AppConfig } from 'src/config/env.interface';
 
 /*
- * Cấu hình CORS cho toàn bộ backend.
- *
- * CORS dùng để cho phép frontend ở domain/port khác gọi API backend.
- * Ví dụ frontend NextJS chạy ở http://localhost:3000,
- * backend NestJS chạy ở http://localhost:8080 thì browser xem đây là khác origin.
- *
- * Hàm này không đọc process.env trực tiếp.
- * Thay vào đó, nó lấy AppConfig thông qua ConfigService để dùng lại cấu hình
- * đã được chuẩn hóa trong env.config.ts.
- *
- * appConfig.corsOrigins là danh sách frontend được phép gọi API.
- * Nếu corsOrigins rỗng thì fallback về clientUrl và frontendUrl.
- *
- * credentials: true cho phép gửi cookie hoặc Authorization header.
- * allowedHeaders có Authorization để frontend gửi access token dạng Bearer token.
- * OPTIONS được bật để browser thực hiện preflight request trước các request thật.
+ * Chuẩn hóa origin để tránh lỗi so sánh sai.
+ * Ví dụ:
+ * http://localhost:3000/
+ * sẽ thành:
+ * http://localhost:3000
+ * Lý do:
+ * Browser gửi Origin không có dấu "/" cuối.
+ * Nếu env có dấu "/" cuối thì CORS sẽ không match.
  */
+const normalizeOrigin = (origin?: string): string | null => {
+  if (!origin) {
+    return null;
+  }
+  const normalizedOrigin = origin.trim().replace(/\/+$/, '');
+  return normalizedOrigin || null;
+};
 
+/*
+ * Lấy danh sách origin được phép gọi backend.
+ * Nguồn lấy từ:
+ * - APP_CORS_ORIGINS
+ * - CLIENT_URL
+ * - FRONTEND_URL
+ * Hàm này cũng loại bỏ:
+ * - giá trị rỗng
+ * - dấu "/" cuối
+ * - origin bị trùng
+ */
+const resolveAllowedOrigins = (appConfig: AppConfig): string[] => {
+  const origins = [
+    ...(appConfig.corsOrigins ?? []),
+    appConfig.clientUrl,
+    appConfig.frontendUrl,
+  ]
+    .map(normalizeOrigin)
+    .filter((origin): origin is string => Boolean(origin));
+  return Array.from(new Set(origins));
+};
+
+/*
+ * Cấu hình CORS cho toàn bộ backend.
+ * Frontend và backend chạy khác port thì khác origin.
+ * Ví dụ:
+ * Frontend: http://localhost:3000
+ * Backend:  http://localhost:8080
+ * Backend phải cho phép origin frontend gọi API.
+ * Danh sách origin được phép lấy từ env,
+ * không hard-code trong code để sau này deploy chỉ cần đổi env.
+ */
 export function setupCors(app: INestApplication): void {
   const configService = app.get(ConfigService);
   const appConfig = configService.getOrThrow<AppConfig>('config.app');
-
-  const allowedOrigins =
-    appConfig.corsOrigins.length > 0
-      ? appConfig.corsOrigins
-      : [appConfig.clientUrl, appConfig.frontendUrl].filter(Boolean);
-
+  const allowedOrigins = resolveAllowedOrigins(appConfig);
   app.enableCors({
     origin: allowedOrigins,
     credentials: true,
@@ -41,5 +67,6 @@ export function setupCors(app: INestApplication): void {
       'Origin',
       'X-Requested-With',
     ],
+    optionsSuccessStatus: 204,
   });
 }

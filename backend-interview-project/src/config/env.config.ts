@@ -55,6 +55,22 @@ export const configuration = registerAs('config', (): RootConfig => {
       accessKey: process.env.MINIO_ACCESS_KEY || undefined,
       secretKey: process.env.MINIO_SECRET_KEY || undefined,
       bucketName: process.env.MINIO_BUCKET_NAME ?? 'ai-mock-interview',
+      interviewAudioBucket:
+        process.env.MINIO_INTERVIEW_AUDIO_BUCKET ?? 'interview-audio-bucket',
+    },
+
+    speechTranscription: {
+      serviceUrl:
+        process.env.SPEECH_TRANSCRIPTION_SERVICE_URL ?? 'http://localhost:8001',
+      internalServiceToken: process.env.AI_INTERNAL_SERVICE_TOKEN || undefined,
+      timeoutMs: Number(process.env.SPEECH_TRANSCRIPTION_TIMEOUT_MS ?? 300000),
+    },
+
+    interviewAgent: {
+      serviceUrl:
+        process.env.INTERVIEW_AGENT_SERVICE_URL ?? 'http://localhost:8002',
+      internalServiceToken: process.env.AI_INTERNAL_SERVICE_TOKEN || undefined,
+      timeoutMs: Number(process.env.INTERVIEW_AGENT_TIMEOUT_MS ?? 120000),
     },
 
     jwt: {
@@ -128,6 +144,22 @@ export const configValidationSchema = Joi.object({
   MINIO_ACCESS_KEY: Joi.string().allow('', null),
   MINIO_SECRET_KEY: Joi.string().allow('', null),
   MINIO_BUCKET_NAME: Joi.string().default('ai-mock-interview'),
+  MINIO_INTERVIEW_AUDIO_BUCKET: Joi.string().default('interview-audio-bucket'),
+
+  SPEECH_TRANSCRIPTION_SERVICE_URL: Joi.string()
+    .uri()
+    .default('http://localhost:8001'),
+  AI_INTERNAL_SERVICE_TOKEN: Joi.string().allow('', null),
+  SPEECH_TRANSCRIPTION_TIMEOUT_MS: Joi.number().default(300000),
+  INTERVIEW_AGENT_SERVICE_URL: Joi.string()
+    .uri()
+    .default('http://localhost:8002'),
+  INTERVIEW_AGENT_TIMEOUT_MS: Joi.number().default(120000),
+  INTERVIEW_AGENT_MODEL: Joi.string().default('qwen3:4b'),
+  INTERVIEW_AGENT_PROVIDER: Joi.string().default('ollama'),
+  INTERVIEW_AGENT_TEMPERATURE: Joi.number().default(0.25),
+  INTERVIEW_AGENT_NUM_CTX: Joi.number().default(4096),
+  OLLAMA_BASE_URL: Joi.string().uri().default('http://localhost:11434'),
 
   JWT_SECRET: Joi.string().required(),
   JWT_REFRESH_SECRET: Joi.string().required(),

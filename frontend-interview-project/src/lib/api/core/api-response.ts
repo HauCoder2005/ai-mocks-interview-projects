@@ -12,6 +12,8 @@ export interface ApiResponse<TData> {
 export interface ApiListMeta {
   total: number;
   itemCount: number;
+  page?: number;
+  limit?: number;
 }
 
 export interface ApiResponseWithMeta<

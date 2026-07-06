@@ -1,1 +1,1 @@
-export { PublicShell } from "./public-shell";
+export * from "./public-shell";

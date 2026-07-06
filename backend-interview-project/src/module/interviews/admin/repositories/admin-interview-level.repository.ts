@@ -75,7 +75,7 @@ export class AdminInterviewLevelRepository extends AbstractPrismaCrudService<any
 
   /*
    * Lấy các Level đang bật.
-   * Dùng cho Admin khi cần lọc Level active và dùng cho 
+   * Dùng cho Admin khi cần lọc Level active và dùng cho
    * Candidate khi chọn Level.
    */
   async findActiveWithTotal(): Promise<AdminInterviewLevelListQueryResult> {
@@ -190,7 +190,7 @@ export class AdminInterviewLevelRepository extends AbstractPrismaCrudService<any
 
   /*
    * Tạo Level mới trong bảng interview_levels.
-   * Level là master data để Candidate chọn kinh 
+   * Level là master data để Candidate chọn kinh
    * nghiệm khi cấu hình buổi phỏng vấn.
    */
   async createLevel(params: {
@@ -253,7 +253,7 @@ export class AdminInterviewLevelRepository extends AbstractPrismaCrudService<any
 
   /*
    * Vô hiệu hóa Level.
-   * Không xóa cứng để tránh ảnh hưởng các 
+   * Không xóa cứng để tránh ảnh hưởng các
    * Interview hoặc Configuration đã liên kết.
    */
   async deactivate(id: number): Promise<AdminInterviewLevelModel> {

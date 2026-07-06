@@ -1,1 +1,1 @@
-export { AdminInterviewOptionsPage } from "./admin-interview-options-page";
+export { AdminInterviewOptionsPage } from "../admin-interview-options-page";

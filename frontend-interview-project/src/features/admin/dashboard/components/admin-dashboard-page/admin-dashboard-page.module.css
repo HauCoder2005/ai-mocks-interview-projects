@@ -1,35 +1,55 @@
 .page {
   display: grid;
-  gap: 24px;
+  gap: 20px;
 }
 
-.metrics {
-  display: grid;
-  gap: 16px;
+.eyebrow {
+  margin: 0 0 6px;
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
-.metricLabel {
+.title {
   margin: 0;
-  color: var(--color-muted-text);
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.metricValue {
-  margin: 12px 0 0;
   color: var(--color-text);
-  font-size: 1.875rem;
-  font-weight: 600;
+  font-size: 28px;
 }
 
-.metricDescription {
+.description {
   margin: 8px 0 0;
-  color: var(--color-subtle-text);
-  font-size: 0.875rem;
+  color: var(--color-muted-text);
 }
 
-@media (min-width: 768px) {
-  .metrics {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.card {
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  padding: 18px;
+}
+
+.value {
+  color: var(--color-primary);
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.label {
+  color: var(--color-muted-text);
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: 1fr;
   }
 }
