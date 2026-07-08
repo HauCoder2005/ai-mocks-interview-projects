@@ -85,6 +85,28 @@
   align-items: end;
 }
 
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tabButton {
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  padding: 10px 12px;
+  font-weight: 900;
+}
+
+.tabButtonActive {
+  border-bottom-color: #2563eb;
+  color: #1d4ed8;
+}
+
 .field {
   display: grid;
   min-width: 170px;
@@ -202,6 +224,35 @@
   padding: 4px 8px;
   font-size: 12px;
   font-weight: 800;
+}
+
+.badgeInactive {
+  border-color: #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.toast {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 80;
+  max-width: min(420px, calc(100vw - 36px));
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 12px 14px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.tableTitle {
+  margin: 0;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 900;
 }
 
 .optionPanel {

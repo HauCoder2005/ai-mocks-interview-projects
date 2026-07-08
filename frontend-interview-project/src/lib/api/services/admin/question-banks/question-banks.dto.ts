@@ -17,6 +17,7 @@ export type AdminQuestionBankDto = {
   topic: { id: number; name: string; code: string } | null;
   technology: { id: number; name: string; slug: string; code: string } | null;
   options: AdminQuestionBankOptionDto[];
+  createdBy: number;
   createdAt: string;
   updatedAt: string;
 };

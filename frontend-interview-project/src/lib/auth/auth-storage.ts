@@ -15,7 +15,6 @@ export type AuthUserLike = {
   role?: string | number | null;
   roleId?: string | number | null;
   role_id?: string | number | null;
-  [key: string]: unknown;
 };
 
 type SaveAuthSessionInput = {

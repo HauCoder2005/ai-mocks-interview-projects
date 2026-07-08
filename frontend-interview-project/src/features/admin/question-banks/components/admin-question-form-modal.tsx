@@ -3,9 +3,10 @@
 import { useMemo, useState } from "react";
 
 import type {
-  InterviewTechnologyDto,
-  InterviewTopicDto,
-} from "@/lib/api/services/interview/interview-options";
+  InterviewLevel,
+  InterviewTechnology,
+  InterviewTopic,
+} from "@/lib/api/services/admin/master-data";
 import { AdminModal } from "../../shared/admin-modal";
 import shared from "../../shared/admin-ui.module.css";
 import type {
@@ -15,8 +16,9 @@ import type {
 
 type AdminQuestionFormModalProps = {
   question?: AdminQuestion;
-  technologies: InterviewTechnologyDto[];
-  topics: InterviewTopicDto[];
+  technologies: InterviewTechnology[];
+  topics: InterviewTopic[];
+  levels: InterviewLevel[];
   isSubmitting?: boolean;
   onClose: () => void;
   onSubmit: (input: AdminQuestionFormInput) => void;
@@ -30,14 +32,14 @@ const defaultOptions = ["", "", "", ""].map((content, index) => ({
 
 function buildInitialForm(
   question: AdminQuestion | undefined,
-  technologies: InterviewTechnologyDto[],
-  topics: InterviewTopicDto[],
+  technologies: InterviewTechnology[],
+  topics: InterviewTopic[],
 ): AdminQuestionFormInput {
   return {
     title: question?.title ?? "",
     content: question?.content ?? "",
-    technologyId: question?.technology?.id ?? technologies[0]?.id ?? 1,
-    topicId: question?.topic?.id ?? topics[0]?.id ?? 1,
+    technologyId: question?.technology?.id ?? technologies[0]?.id ?? 0,
+    topicId: question?.topic?.id ?? topics[0]?.id ?? 0,
     questionType: question?.questionType ?? "MCQ",
     difficulty: question?.difficulty ?? "EASY",
     expectedAnswer: question?.expectedAnswer ?? "",
@@ -54,6 +56,7 @@ function buildInitialForm(
 
 export function AdminQuestionFormModal({
   isSubmitting = false,
+  levels,
   onClose,
   onSubmit,
   question,
@@ -72,6 +75,7 @@ export function AdminQuestionFormModal({
     if (!form.content.trim()) return "Vui lòng nhập nội dung câu hỏi.";
     if (!form.technologyId) return "Vui lòng chọn công nghệ.";
     if (!form.topicId) return "Vui lòng chọn chủ đề.";
+    if (levels.length === 0) return "Không có level active để đối chiếu.";
 
     if (!isMcq) return "";
 
@@ -85,7 +89,7 @@ export function AdminQuestionFormModal({
     }
 
     return "";
-  }, [form, isMcq]);
+  }, [form, isMcq, levels.length]);
 
   const updateOption = (
     index: number,
@@ -181,6 +185,7 @@ export function AdminQuestionFormModal({
             }
             value={form.technologyId}
           >
+            <option value={0}>Chọn công nghệ</option>
             {technologies.map((technology) => (
               <option key={technology.id} value={technology.id}>
                 {technology.name}
@@ -197,11 +202,26 @@ export function AdminQuestionFormModal({
             }
             value={form.topicId}
           >
+            <option value={0}>Chọn chủ đề</option>
             {topics.map((topic) => (
               <option key={topic.id} value={topic.id}>
                 {topic.name}
               </option>
             ))}
+          </select>
+        </label>
+        <label className={shared.field}>
+          <span className={shared.label}>Level</span>
+          <select className={shared.select} disabled value={levels[0]?.id ?? 0}>
+            {levels.length === 0 ? (
+              <option value={0}>Chưa có level active</option>
+            ) : (
+              levels.map((level) => (
+                <option key={level.id} value={level.id}>
+                  {level.name}
+                </option>
+              ))
+            )}
           </select>
         </label>
         <label className={shared.field}>

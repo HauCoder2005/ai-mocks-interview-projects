@@ -21,5 +21,6 @@ export const appRoutes = {
   adminDashboard: "/admin/dashboard",
   adminQuestionBanks: "/admin/question-banks",
   adminInterviewOptions: "/admin/interview-options",
+  adminMockTests: "/admin/mock-tests",
   adminUsers: "/admin/users",
 };

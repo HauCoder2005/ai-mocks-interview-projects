@@ -70,6 +70,58 @@
     color 160ms ease;
 }
 
+.navigationGroup {
+  display: grid;
+  gap: 4px;
+}
+
+.navigationGroupButton {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.navigationChevron {
+  margin-left: auto;
+  color: currentColor;
+}
+
+.navigationChildren {
+  display: grid;
+  gap: 3px;
+  padding-left: 14px;
+}
+
+.navigationChildLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-left: 2px solid transparent;
+  border-radius: 6px;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 10px;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.navigationChildLink:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.navigationChildLinkActive {
+  border-left-color: #2563eb;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
 .navigationLink:hover {
   background: #f8fafc;
   color: #0f172a;
@@ -145,6 +197,11 @@
   .navigation {
     flex-direction: column;
     overflow: visible;
+  }
+
+  .navigationLink,
+  .navigationChildLink {
+    width: 100%;
   }
 }
 
