@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -10,7 +11,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import {
   ApiResponse,
   ApiResponseWithMeta,
@@ -103,6 +104,60 @@ export class AdminInterviewLevelController {
   }
 
   /*
+   * Lấy danh sách Interview Level đang active.
+   */
+  @Get('active')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Lấy danh sách Interview Level đang active' })
+  @ApiListSuccessResponse(
+    AdminInterviewLevelResponseDto,
+    'Active interview levels retrieved successfully',
+  )
+  async getActiveLevels(): Promise<
+    ApiResponseWithMeta<
+      AdminInterviewLevelResponseDto[],
+      AdminInterviewLevelListResponseResult['meta']
+    >
+  > {
+    const result = await this.interviewLevelService.getActiveLevels();
+
+    return {
+      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Active interview levels retrieved successfully',
+      data: result.data,
+      meta: result.meta,
+    };
+  }
+
+  /*
+   * Lấy danh sách Interview Level đang inactive.
+   */
+  @Get('inactive')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Lấy danh sách Interview Level inactive' })
+  @ApiListSuccessResponse(
+    AdminInterviewLevelResponseDto,
+    'Inactive interview levels retrieved successfully',
+  )
+  async getInactiveLevels(): Promise<
+    ApiResponseWithMeta<
+      AdminInterviewLevelResponseDto[],
+      AdminInterviewLevelListResponseResult['meta']
+    >
+  > {
+    const result = await this.interviewLevelService.getInactiveLevels();
+
+    return {
+      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Inactive interview levels retrieved successfully',
+      data: result.data,
+      meta: result.meta,
+    };
+  }
+
+  /*
    * Cập nhật thông tin Interview Level theo id.
    * API này chỉ cập nhật master data, không tác động tới Interview đã liên kết.
    */
@@ -177,6 +232,33 @@ export class AdminInterviewLevelController {
       success: true,
       statusCode: HttpStatus.OK,
       message: 'Interview level deactivated successfully',
+      data,
+    };
+  }
+
+  /*
+   * Xóa cứng Interview Level nếu chưa có dữ liệu liên kết.
+   */
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Xóa Interview Level' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiSuccessResponse(
+    AdminInterviewLevelResponseDto,
+    'Interview level deleted successfully',
+  )
+  @ApiBadRequestErrorResponse()
+  @ApiNotFoundErrorResponse('Interview level not found')
+  @ApiConflictErrorResponse('Không thể xóa vì dữ liệu đang được sử dụng.')
+  async deleteLevel(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ApiResponse<AdminInterviewLevelResponseDto>> {
+    const data = await this.interviewLevelService.deleteLevel(id);
+
+    return {
+      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Interview level deleted successfully',
       data,
     };
   }

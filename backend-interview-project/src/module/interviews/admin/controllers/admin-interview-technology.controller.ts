@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -10,7 +11,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 
 import {
   ApiResponse,
@@ -244,6 +245,34 @@ export class AdminInterviewTechnologyController {
       success: true,
       statusCode: HttpStatus.OK,
       message: 'Interview technology deactivated successfully',
+      data,
+    };
+  }
+
+  /*
+   * Xóa cứng Interview Technology nếu chưa có dữ liệu liên kết.
+   */
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Xóa Interview Technology' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiSuccessResponse(
+    AdminInterviewTechnologyResponseDto,
+    'Interview technology deleted successfully',
+  )
+  @ApiBadRequestErrorResponse()
+  @ApiNotFoundErrorResponse('Interview technology not found')
+  @ApiConflictErrorResponse('Không thể xóa vì dữ liệu đang được sử dụng.')
+  async deleteTechnology(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ApiResponse<AdminInterviewTechnologyResponseDto>> {
+    const data =
+      await this.adminInterviewTechnologyService.deleteTechnology(id);
+
+    return {
+      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Interview technology deleted successfully',
       data,
     };
   }

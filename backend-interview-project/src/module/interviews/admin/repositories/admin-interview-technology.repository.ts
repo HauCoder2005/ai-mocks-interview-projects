@@ -9,7 +9,7 @@ import { AdminInterviewTechnologyListQueryResult } from '../results/interview/te
 
 @Injectable()
 export class AdminInterviewTechnologyRepository extends AbstractPrismaCrudService<any> {
-  constructor(prismaService: PrismaService) {
+  constructor(private readonly prismaService: PrismaService) {
     super(prismaService.interview_technologies);
   }
 
@@ -182,5 +182,40 @@ export class AdminInterviewTechnologyRepository extends AbstractPrismaCrudServic
     return technology
       ? AdminInterviewTechnologyMapper.toModel(technology)
       : null;
+  }
+
+  /*
+   * Đếm các dữ liệu nghiệp vụ đang tham chiếu Technology.
+   */
+  async countUsage(id: number): Promise<number> {
+    const [configurationCount, questionBankCount, selectedCount] =
+      await Promise.all([
+        this.prismaService.interview_configuration_technologies.count({
+          where: {
+            technology_id: id,
+          },
+        }),
+        this.prismaService.interview_question_banks.count({
+          where: {
+            technology_id: id,
+          },
+        }),
+        this.prismaService.interview_selected_technologies.count({
+          where: {
+            technology_id: id,
+          },
+        }),
+      ]);
+
+    return configurationCount + questionBankCount + selectedCount;
+  }
+
+  /*
+   * Xóa cứng Technology khi không còn dữ liệu liên quan.
+   */
+  async deleteTechnology(id: number): Promise<AdminInterviewTechnologyModel> {
+    const technology = await this.deleteOne({ id });
+
+    return AdminInterviewTechnologyMapper.toModel(technology);
   }
 }

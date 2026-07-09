@@ -80,11 +80,33 @@ export const adminMasterDataService = {
     );
   },
 
-  getLevels(): Promise<InterviewLevelListResponse> {
-    return request<InterviewLevelListResponse>(`${MASTER_DATA_PATH}/levels`, {
-      method: ApiHttpMethod.GET,
-      auth: true,
-    });
+  deletePosition(id: number): Promise<InterviewPositionResponse> {
+    return request<InterviewPositionResponse>(
+      `${MASTER_DATA_PATH}/positions/${id}`,
+      { method: ApiHttpMethod.DELETE, auth: true },
+    );
+  },
+
+  getLevels(
+    status: AdminMasterDataStatusFilter = "all",
+  ): Promise<InterviewLevelListResponse> {
+    return request<InterviewLevelListResponse>(
+      statusPath(`${MASTER_DATA_PATH}/levels`, status),
+      {
+        method: ApiHttpMethod.GET,
+        auth: true,
+      },
+    );
+  },
+
+  getActiveLevels(): Promise<InterviewLevelListResponse> {
+    return request<InterviewLevelListResponse>(
+      `${MASTER_DATA_PATH}/levels/active`,
+      {
+        method: ApiHttpMethod.GET,
+        auth: true,
+      },
+    );
   },
 
   createLevel(input: CreateInterviewLevelRequest): Promise<InterviewLevelResponse> {
@@ -120,11 +142,25 @@ export const adminMasterDataService = {
     );
   },
 
+  deleteLevel(id: number): Promise<InterviewLevelResponse> {
+    return request<InterviewLevelResponse>(`${MASTER_DATA_PATH}/levels/${id}`, {
+      method: ApiHttpMethod.DELETE,
+      auth: true,
+    });
+  },
+
   getTechnologies(
     status: AdminMasterDataStatusFilter = "all",
   ): Promise<InterviewTechnologyListResponse> {
     return request<InterviewTechnologyListResponse>(
       statusPath(`${MASTER_DATA_PATH}/technologies`, status),
+      { method: ApiHttpMethod.GET, auth: true },
+    );
+  },
+
+  getActiveTechnologies(): Promise<InterviewTechnologyListResponse> {
+    return request<InterviewTechnologyListResponse>(
+      `${MASTER_DATA_PATH}/technologies/active`,
       { method: ApiHttpMethod.GET, auth: true },
     );
   },
@@ -170,11 +206,25 @@ export const adminMasterDataService = {
     );
   },
 
+  deleteTechnology(id: number): Promise<InterviewTechnologyResponse> {
+    return request<InterviewTechnologyResponse>(
+      `${MASTER_DATA_PATH}/technologies/${id}`,
+      { method: ApiHttpMethod.DELETE, auth: true },
+    );
+  },
+
   getTopics(
     status: AdminMasterDataStatusFilter = "all",
   ): Promise<InterviewTopicListResponse> {
     return request<InterviewTopicListResponse>(
       statusPath(`${MASTER_DATA_PATH}/topics`, status),
+      { method: ApiHttpMethod.GET, auth: true },
+    );
+  },
+
+  getActiveTopics(): Promise<InterviewTopicListResponse> {
+    return request<InterviewTopicListResponse>(
+      `${MASTER_DATA_PATH}/topics/active`,
       { method: ApiHttpMethod.GET, auth: true },
     );
   },
@@ -210,5 +260,12 @@ export const adminMasterDataService = {
       `${MASTER_DATA_PATH}/topics/${id}/deactivate`,
       { method: ApiHttpMethod.PATCH, auth: true },
     );
+  },
+
+  deleteTopic(id: number): Promise<InterviewTopicResponse> {
+    return request<InterviewTopicResponse>(`${MASTER_DATA_PATH}/topics/${id}`, {
+      method: ApiHttpMethod.DELETE,
+      auth: true,
+    });
   },
 };

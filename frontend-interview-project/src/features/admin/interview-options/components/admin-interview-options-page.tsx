@@ -1,6 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  CheckCircle,
+  LoaderCircle,
+  Pencil,
+  Trash2,
+  XCircle,
+} from "lucide-react";
 
 import {
   adminMasterDataService,
@@ -11,6 +18,8 @@ import {
   type InterviewTechnology,
   type InterviewTopic,
 } from "@/lib/api/services/admin/master-data";
+import { getStoredAuthRole } from "@/lib/auth/auth-session";
+import { isAdminRole } from "@/lib/auth/roles";
 import { AdminModal } from "../../shared/admin-modal";
 import { ConfirmDialog } from "../../shared/confirm-dialog";
 import styles from "../../shared/admin-ui.module.css";
@@ -31,12 +40,41 @@ type OptionForm = {
   description: string;
 };
 
+type ToastState = {
+  message: string;
+  tone: "success" | "error";
+};
+
+type CatalogConfig = {
+  title: string;
+  description: string;
+};
+
 const optionTabs: Array<{ kind: AdminOptionKind; label: string }> = [
   { kind: "positions", label: "Positions" },
   { kind: "levels", label: "Levels" },
   { kind: "technologies", label: "Technologies" },
   { kind: "topics", label: "Topics" },
 ];
+
+const catalogConfigs: Record<AdminOptionKind, CatalogConfig> = {
+  positions: {
+    title: "Quản lý vị trí phỏng vấn",
+    description: ".",
+  },
+  levels: {
+    title: "Quản lý cấp bậc",
+    description: "",
+  },
+  technologies: {
+    title: "Quản lý công nghệ",
+    description: "",
+  },
+  topics: {
+    title: "Quản lý chủ đề",
+    description: "",
+  },
+};
 
 function isLevel(item: OptionItem): item is InterviewLevel {
   return "displayOrder" in item;
@@ -61,19 +99,54 @@ function compactDescription(description: string) {
   return trimmed ? trimmed : undefined;
 }
 
-export function AdminInterviewOptionsPage() {
-  const [activeKind, setActiveKind] = useState<AdminOptionKind>("positions");
+function isValidCatalogCode(code: string) {
+  return /^[A-Z0-9_]+$/.test(code);
+}
+
+function getColumnCount(kind: AdminOptionKind) {
+  if (kind === "levels" || kind === "technologies") return 6;
+  return 5;
+}
+
+type AdminInterviewOptionsPageProps = {
+  catalogKind?: AdminOptionKind;
+};
+
+export function AdminInterviewOptionsPage({
+  catalogKind,
+}: AdminInterviewOptionsPageProps = {}) {
+  const [activeKind, setActiveKind] = useState<AdminOptionKind>(
+    catalogKind ?? "positions",
+  );
   const [items, setItems] = useState<OptionItem[]>([]);
   const [keyword, setKeyword] = useState("");
   const [statusFilter, setStatusFilter] =
     useState<AdminMasterDataStatusFilter>("all");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [toast, setToast] = useState("");
+  const [toast, setToast] = useState<ToastState | null>(null);
   const [editingItem, setEditingItem] = useState<OptionItem | undefined>();
   const [statusItem, setStatusItem] = useState<OptionItem | undefined>();
+  const [deletingItem, setDeletingItem] = useState<OptionItem | undefined>();
+  const [isStatusSubmitting, setIsStatusSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [canDelete, setCanDelete] = useState(false);
+  const isSingleCatalogPage = Boolean(catalogKind);
+  const activeCatalogConfig = catalogConfigs[activeKind];
+
+  useEffect(() => {
+    if (catalogKind) {
+      const timer = window.setTimeout(() => {
+        setActiveKind(catalogKind);
+        setKeyword("");
+        setStatusFilter("all");
+      }, 0);
+
+      return () => window.clearTimeout(timer);
+    }
+  }, [catalogKind]);
 
   const loadItems = useCallback(async () => {
     setIsLoading(true);
@@ -86,20 +159,21 @@ export function AdminInterviewOptionsPage() {
           : activeKind === "levels"
             ? await adminMasterDataService.getLevels()
             : activeKind === "technologies"
-              ? await adminMasterDataService.getTechnologies(statusFilter)
-              : await adminMasterDataService.getTopics(statusFilter);
+              ? await adminMasterDataService.getTechnologies()
+              : await adminMasterDataService.getTopics();
 
       setItems(response.data);
     } catch (requestError) {
-      setError(
+      const message =
         requestError instanceof Error
           ? requestError.message
-          : "Không thể tải dữ liệu tùy chọn phỏng vấn.",
-      );
+          : "Không thể tải dữ liệu tùy chọn phỏng vấn.";
+      setError(message);
+      setToast({ message, tone: "error" });
     } finally {
       setIsLoading(false);
     }
-  }, [activeKind, statusFilter]);
+  }, [activeKind]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -111,17 +185,23 @@ export function AdminInterviewOptionsPage() {
 
   useEffect(() => {
     if (!toast) return;
-    const timer = window.setTimeout(() => setToast(""), 2600);
+    const timer = window.setTimeout(() => setToast(null), 2600);
     return () => window.clearTimeout(timer);
   }, [toast]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setCanDelete(isAdminRole(getStoredAuthRole()));
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const filteredItems = useMemo(() => {
     const normalizedKeyword = keyword.trim().toLowerCase();
 
     return items.filter((item) => {
       const localStatusMatch =
-        activeKind === "technologies" ||
-        activeKind === "topics" ||
         statusFilter === "all" ||
         (statusFilter === "active" ? item.isActive : !item.isActive);
       const keywordMatch =
@@ -132,7 +212,7 @@ export function AdminInterviewOptionsPage() {
 
       return localStatusMatch && keywordMatch;
     });
-  }, [activeKind, items, keyword, statusFilter]);
+  }, [items, keyword, statusFilter]);
 
   const handleSubmit = async (form: OptionForm) => {
     const baseInput = {
@@ -143,6 +223,11 @@ export function AdminInterviewOptionsPage() {
 
     if (!baseInput.name || !baseInput.code) {
       setError("Tên và code là bắt buộc.");
+      return;
+    }
+
+    if (!isValidCatalogCode(baseInput.code)) {
+      setError("Code phải viết hoa, không dấu và dùng underscore.");
       return;
     }
 
@@ -198,16 +283,20 @@ export function AdminInterviewOptionsPage() {
         }
       }
 
-      setToast(editingItem ? "Đã cập nhật tùy chọn." : "Đã tạo tùy chọn mới.");
+      setToast({
+        message: editingItem ? "Đã cập nhật tùy chọn." : "Đã tạo tùy chọn mới.",
+        tone: "success",
+      });
       setIsModalOpen(false);
       setEditingItem(undefined);
       await loadItems();
     } catch (requestError) {
-      setError(
+      const message =
         requestError instanceof Error
           ? requestError.message
-          : "Không thể lưu tùy chọn.",
-      );
+          : "Không thể lưu tùy chọn.";
+      setError(message);
+      setToast({ message, tone: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -217,6 +306,7 @@ export function AdminInterviewOptionsPage() {
     if (!statusItem) return;
 
     setError("");
+    setIsStatusSubmitting(true);
 
     try {
       if (activeKind === "positions") {
@@ -240,49 +330,108 @@ export function AdminInterviewOptionsPage() {
           : adminMasterDataService.activateTopic(statusItem.id));
       }
 
-      setToast(statusItem.isActive ? "Đã deactivate." : "Đã activate.");
+      setToast({
+        message: statusItem.isActive ? "Đã vô hiệu hóa." : "Đã kích hoạt.",
+        tone: "success",
+      });
       setStatusItem(undefined);
       await loadItems();
     } catch (requestError) {
-      setError(
+      const message =
         requestError instanceof Error
           ? requestError.message
-          : "Không thể cập nhật trạng thái.",
-      );
+          : "Không thể cập nhật trạng thái.";
+      setError(message);
+      setToast({ message, tone: "error" });
+    } finally {
+      setIsStatusSubmitting(false);
     }
   };
 
+  const handleDelete = async () => {
+    if (!deletingItem) return;
+
+    setError("");
+    setIsDeleting(true);
+
+    try {
+      if (activeKind === "positions") {
+        await adminMasterDataService.deletePosition(deletingItem.id);
+      }
+      if (activeKind === "levels") {
+        await adminMasterDataService.deleteLevel(deletingItem.id);
+      }
+      if (activeKind === "technologies") {
+        await adminMasterDataService.deleteTechnology(deletingItem.id);
+      }
+      if (activeKind === "topics") {
+        await adminMasterDataService.deleteTopic(deletingItem.id);
+      }
+
+      setToast({ message: `Đã xóa "${deletingItem.name}".`, tone: "success" });
+      setDeletingItem(undefined);
+      await loadItems();
+    } catch (requestError) {
+      const message =
+        requestError instanceof Error
+          ? requestError.message
+          : "Không thể xóa tùy chọn.";
+      setError(message);
+      setToast({ message, tone: "error" });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const columnCount = getColumnCount(activeKind);
+
   return (
     <div className={styles.page}>
-      {toast ? <p className={styles.toast}>{toast}</p> : null}
+      {toast ? (
+        <p
+          className={`${styles.toast} ${
+            toast.tone === "error" ? styles.toastError : ""
+          }`}
+        >
+          {toast.message}
+        </p>
+      ) : null}
       <header className={styles.pageHeader}>
         <div>
-          <p className={styles.eyebrow}>Admin</p>
-          <h1 className={styles.title}>Tùy chọn phỏng vấn</h1>
+          <p className={styles.eyebrow}>ADMIN</p>
+          <h1 className={styles.title}>
+            {isSingleCatalogPage
+              ? activeCatalogConfig.title
+              : "Quản lý dữ liệu phỏng vấn"}
+          </h1>
           <p className={styles.subtitle}>
-            Quản lý positions, levels, technologies và topics bằng API admin.
+            {isSingleCatalogPage
+              ? activeCatalogConfig.description
+              : "Quản lý positions, levels, technologies và topics dùng cho phỏng vấn."}
           </p>
         </div>
       </header>
 
-      <div className={styles.tabs}>
-        {optionTabs.map((tab) => (
-          <button
-            className={`${styles.tabButton} ${
-              activeKind === tab.kind ? styles.tabButtonActive : ""
-            }`}
-            key={tab.kind}
-            onClick={() => {
-              setActiveKind(tab.kind);
-              setKeyword("");
-              setStatusFilter("all");
-            }}
-            type="button"
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {!isSingleCatalogPage ? (
+        <div className={styles.tabs}>
+          {optionTabs.map((tab) => (
+            <button
+              className={`${styles.tabButton} ${
+                activeKind === tab.kind ? styles.tabButtonActive : ""
+              }`}
+              key={tab.kind}
+              onClick={() => {
+                setActiveKind(tab.kind);
+                setKeyword("");
+                setStatusFilter("all");
+              }}
+              type="button"
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       <section className={styles.panel}>
         <div className={styles.toolbar}>
@@ -324,32 +473,40 @@ export function AdminInterviewOptionsPage() {
 
       {error ? <p className={styles.errorText}>{error}</p> : null}
 
-      {isLoading ? (
-        <section className={styles.panel}>
-          <h2 className={styles.cardTitle}>Đang tải dữ liệu...</h2>
-          <p className={styles.muted}>Vui lòng chờ trong giây lát.</p>
-        </section>
-      ) : filteredItems.length === 0 ? (
-        <section className={styles.panel}>
-          <h2 className={styles.cardTitle}>Chưa có dữ liệu phù hợp</h2>
-          <p className={styles.muted}>Thử đổi từ khóa hoặc bộ lọc trạng thái.</p>
-        </section>
-      ) : (
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Tên</th>
+              <th>Code</th>
+              {activeKind === "technologies" ? <th>Slug</th> : null}
+              {activeKind === "levels" ? <th>Display Order</th> : null}
+              <th>Mô tả</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
               <tr>
-                <th>Tên</th>
-                <th>Code</th>
-                {activeKind === "technologies" ? <th>Slug</th> : null}
-                {activeKind === "levels" ? <th>Order</th> : null}
-                <th>Mô tả</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
+                <td className={styles.tableStateCell} colSpan={columnCount}>
+                  Đang tải dữ liệu...
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filteredItems.map((item) => (
+            ) : error ? (
+              <tr>
+                <td className={styles.tableStateCell} colSpan={columnCount}>
+                  Không thể tải dữ liệu.
+                </td>
+              </tr>
+            ) : filteredItems.length === 0 ? (
+              <tr>
+                <td className={styles.tableStateCell} colSpan={columnCount}>
+                  Chưa có dữ liệu.
+                </td>
+              </tr>
+            ) : (
+              filteredItems.map((item) => (
                 <tr key={item.id}>
                   <td>{item.name}</td>
                   <td>{item.code}</td>
@@ -372,32 +529,63 @@ export function AdminInterviewOptionsPage() {
                   <td>
                     <div className={styles.buttonRow}>
                       <button
-                        className={styles.secondaryButton}
+                        aria-label="Sửa"
+                        className={`${styles.iconButton} ${styles.iconButtonNeutral}`}
                         onClick={() => {
                           setEditingItem(item);
                           setIsModalOpen(true);
                         }}
+                        title="Sửa"
                         type="button"
                       >
-                        Sửa
+                        <Pencil size={16} />
                       </button>
                       <button
+                        aria-label={item.isActive ? "Vô hiệu hóa" : "Kích hoạt"}
                         className={
-                          item.isActive ? styles.dangerButton : styles.primaryButton
+                          item.isActive
+                            ? `${styles.iconButton} ${styles.iconButtonWarning}`
+                            : `${styles.iconButton} ${styles.iconButtonSuccess}`
                         }
                         onClick={() => setStatusItem(item)}
+                        title={item.isActive ? "Vô hiệu hóa" : "Kích hoạt"}
                         type="button"
                       >
-                        {item.isActive ? "Deactivate" : "Activate"}
+                        {isStatusSubmitting && statusItem?.id === item.id ? (
+                          <LoaderCircle className={styles.spinIcon} size={16} />
+                        ) : item.isActive ? (
+                          <XCircle size={16} />
+                        ) : (
+                          <CheckCircle size={16} />
+                        )}
                       </button>
+                      {canDelete ? (
+                        <button
+                          aria-label="Xóa"
+                          className={`${styles.iconButton} ${styles.iconButtonDanger}`}
+                          disabled={isDeleting && deletingItem?.id === item.id}
+                          onClick={() => setDeletingItem(item)}
+                          title="Xóa"
+                          type="button"
+                        >
+                          {isDeleting && deletingItem?.id === item.id ? (
+                            <LoaderCircle
+                              className={styles.spinIcon}
+                              size={16}
+                            />
+                          ) : (
+                            <Trash2 size={16} />
+                          )}
+                        </button>
+                      ) : null}
                     </div>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {isModalOpen ? (
         <OptionFormModal
@@ -413,13 +601,31 @@ export function AdminInterviewOptionsPage() {
 
       {statusItem ? (
         <ConfirmDialog
-          confirmLabel={statusItem.isActive ? "Deactivate" : "Activate"}
+          confirmLabel={
+            isStatusSubmitting
+              ? "Đang xử lý..."
+              : statusItem.isActive
+                ? "Vô hiệu hóa"
+                : "Kích hoạt"
+          }
           description={`Xác nhận ${
-            statusItem.isActive ? "deactivate" : "activate"
+            statusItem.isActive ? "vô hiệu hóa" : "kích hoạt"
           } "${statusItem.name}"?`}
+          isConfirming={isStatusSubmitting}
           onCancel={() => setStatusItem(undefined)}
           onConfirm={handleToggleStatus}
           title="Xác nhận đổi trạng thái"
+        />
+      ) : null}
+
+      {deletingItem ? (
+        <ConfirmDialog
+          confirmLabel={isDeleting ? "Đang xóa..." : "Xóa"}
+          description={`Bạn có chắc muốn xóa ${deletingItem.name} không?`}
+          isConfirming={isDeleting}
+          onCancel={() => setDeletingItem(undefined)}
+          onConfirm={handleDelete}
+          title="Xác nhận xóa"
         />
       ) : null}
     </div>
@@ -444,13 +650,26 @@ function OptionFormModal({
   title: string;
 }) {
   const [form, setForm] = useState<OptionForm>(initialForm);
+  const validationError = useMemo(() => {
+    if (!form.name.trim()) return "Tên là bắt buộc.";
+    if (!form.code.trim()) return "Code là bắt buộc.";
+    if (!isValidCatalogCode(form.code.trim())) {
+      return "Code phải viết hoa, không dấu và dùng underscore.";
+    }
+    if (isTechnology && !form.slug.trim()) return "Slug là bắt buộc.";
+    if (isLevel && (!Number.isFinite(form.displayOrder) || form.displayOrder < 1)) {
+      return "Display order phải lớn hơn hoặc bằng 1.";
+    }
+
+    return "";
+  }, [form, isLevel, isTechnology]);
 
   return (
     <AdminModal
       footer={
         <button
           className={styles.primaryButton}
-          disabled={isSubmitting}
+          disabled={isSubmitting || Boolean(validationError)}
           onClick={() => onSubmit(form)}
           type="button"
         >
@@ -473,7 +692,17 @@ function OptionFormModal({
           <span className={styles.label}>Code</span>
           <input
             className={styles.input}
-            onChange={(event) => setForm({ ...form, code: event.target.value })}
+            onChange={(event) =>
+              setForm({
+                ...form,
+                code: event.target.value
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .replace(/[^a-zA-Z0-9]+/g, "_")
+                  .replace(/^_+|_+$/g, "")
+                  .toUpperCase(),
+              })
+            }
             value={form.code}
           />
         </label>
@@ -512,6 +741,9 @@ function OptionFormModal({
           value={form.description}
         />
       </label>
+      {validationError ? (
+        <p className={styles.errorText}>{validationError}</p>
+      ) : null}
     </AdminModal>
   );
 }

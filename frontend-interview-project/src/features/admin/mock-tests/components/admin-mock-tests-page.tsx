@@ -1,6 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import {
+  Archive,
+  Link,
+  LoaderCircle,
+  Pencil,
+  Send,
+  Trash2,
+} from "lucide-react";
 
 import { adminMockTestsService } from "@/lib/api/services/admin/mock-tests";
 import type {
@@ -61,6 +69,7 @@ export function AdminMockTestsPage() {
   const [pendingAction, setPendingAction] = useState<PendingAction | undefined>();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isActionSubmitting, setIsActionSubmitting] = useState(false);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -143,6 +152,7 @@ export function AdminMockTestsPage() {
     if (!pendingAction) return;
 
     setError("");
+    setIsActionSubmitting(true);
     try {
       if (pendingAction.type === "delete") {
         await adminMockTestsService.deleteMockTest(pendingAction.item.id);
@@ -164,6 +174,8 @@ export function AdminMockTestsPage() {
           ? requestError.message
           : "Không thể cập nhật mock test.",
       );
+    } finally {
+      setIsActionSubmitting(false);
     }
   };
 
@@ -197,10 +209,7 @@ export function AdminMockTestsPage() {
       <header className={styles.pageHeader}>
         <div>
           <p className={styles.eyebrow}>Admin</p>
-          <h1 className={styles.title}>Quản lý đề thi / Mock Tests</h1>
-          <p className={styles.subtitle}>
-            Tạo, chỉnh sửa, publish/archive và gắn câu hỏi vào mock tests.
-          </p>
+          <h1 className={styles.title}>Quản lý đề thi</h1>
         </div>
       </header>
 
@@ -237,8 +246,7 @@ export function AdminMockTestsPage() {
         </section>
       ) : filteredMockTests.length === 0 ? (
         <section className={styles.panel}>
-          <h2 className={styles.cardTitle}>Chưa có mock test phù hợp</h2>
-          <p className={styles.muted}>Tạo mock test đầu tiên hoặc đổi từ khóa.</p>
+          <h2 className={styles.cardTitle}>Chưa có đề kiểm tra</h2>
         </section>
       ) : (
         <div className={styles.tableWrap}>
@@ -275,55 +283,104 @@ export function AdminMockTestsPage() {
                   <td>
                     <div className={styles.buttonRow}>
                       <button
-                        className={styles.secondaryButton}
+                        aria-label="Sửa"
+                        className={`${styles.iconButton} ${styles.iconButtonNeutral}`}
                         onClick={() => {
                           setEditingItem(mockTest);
                           setIsFormOpen(true);
                         }}
+                        title="Sửa"
                         type="button"
                       >
-                        Sửa
+                        <Pencil size={16} />
                       </button>
                       <button
-                        className={styles.secondaryButton}
+                        aria-label="Gắn câu hỏi"
+                        className={`${styles.iconButton} ${styles.iconButtonNeutral}`}
                         onClick={() => {
                           setAttachingItem(mockTest);
                           setSelectedQuestionIds([]);
                         }}
+                        title="Gắn câu hỏi"
                         type="button"
                       >
-                        Gắn câu hỏi
+                        <Link size={16} />
                       </button>
                       {mockTest.status !== "PUBLISHED" ? (
                         <button
-                          className={styles.primaryButton}
+                          aria-label="Publish"
+                          className={`${styles.iconButton} ${styles.iconButtonSuccess}`}
+                          disabled={
+                            isActionSubmitting &&
+                            pendingAction?.type === "publish" &&
+                            pendingAction.item.id === mockTest.id
+                          }
                           onClick={() =>
                             setPendingAction({ type: "publish", item: mockTest })
                           }
+                          title="Publish"
                           type="button"
                         >
-                          Publish
+                          {isActionSubmitting &&
+                          pendingAction?.type === "publish" &&
+                          pendingAction.item.id === mockTest.id ? (
+                            <LoaderCircle
+                              className={styles.spinIcon}
+                              size={16}
+                            />
+                          ) : (
+                            <Send size={16} />
+                          )}
                         </button>
                       ) : null}
                       {mockTest.status !== "ARCHIVED" ? (
                         <button
-                          className={styles.secondaryButton}
+                          aria-label="Archive"
+                          className={`${styles.iconButton} ${styles.iconButtonWarning}`}
+                          disabled={
+                            isActionSubmitting &&
+                            pendingAction?.type === "archive" &&
+                            pendingAction.item.id === mockTest.id
+                          }
                           onClick={() =>
                             setPendingAction({ type: "archive", item: mockTest })
                           }
+                          title="Archive"
                           type="button"
                         >
-                          Archive
+                          {isActionSubmitting &&
+                          pendingAction?.type === "archive" &&
+                          pendingAction.item.id === mockTest.id ? (
+                            <LoaderCircle
+                              className={styles.spinIcon}
+                              size={16}
+                            />
+                          ) : (
+                            <Archive size={16} />
+                          )}
                         </button>
                       ) : null}
                       <button
-                        className={styles.dangerButton}
+                        aria-label="Xóa"
+                        className={`${styles.iconButton} ${styles.iconButtonDanger}`}
+                        disabled={
+                          isActionSubmitting &&
+                          pendingAction?.type === "delete" &&
+                          pendingAction.item.id === mockTest.id
+                        }
                         onClick={() =>
                           setPendingAction({ type: "delete", item: mockTest })
                         }
+                        title="Xóa"
                         type="button"
                       >
-                        Xóa
+                        {isActionSubmitting &&
+                        pendingAction?.type === "delete" &&
+                        pendingAction.item.id === mockTest.id ? (
+                          <LoaderCircle className={styles.spinIcon} size={16} />
+                        ) : (
+                          <Trash2 size={16} />
+                        )}
                       </button>
                     </div>
                   </td>
@@ -387,13 +444,16 @@ export function AdminMockTestsPage() {
       {pendingAction ? (
         <ConfirmDialog
           confirmLabel={
-            pendingAction.type === "delete"
-              ? "Delete"
-              : pendingAction.type === "publish"
-                ? "Publish"
-                : "Archive"
+            isActionSubmitting
+              ? "Đang xử lý..."
+              : pendingAction.type === "delete"
+                ? "Delete"
+                : pendingAction.type === "publish"
+                  ? "Publish"
+                  : "Archive"
           }
           description={`Xác nhận ${pendingAction.type} "${pendingAction.item.title}"?`}
+          isConfirming={isActionSubmitting}
           onCancel={() => setPendingAction(undefined)}
           onConfirm={handlePendingAction}
           title="Xác nhận thao tác"

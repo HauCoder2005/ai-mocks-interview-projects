@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   BarChart3,
   BriefcaseBusiness,
   ChevronDown,
   ChevronUp,
   ClipboardList,
+  Code2,
   FileQuestion,
   LayoutDashboard,
-  Settings,
+  ListOrdered,
+  Tags,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -46,10 +48,28 @@ const adminNavItems: AdminNavItem[] = [
     icon: BriefcaseBusiness,
     children: [
       {
-        href: appRoutes.adminInterviewOptions,
-        label: "Cấu hình phỏng vấn",
-        icon: Settings,
-        activePatterns: [appRoutes.adminInterviewOptions],
+        href: appRoutes.adminInterviewTechnologies,
+        label: "Công nghệ phỏng vấn",
+        icon: Code2,
+        activePatterns: [appRoutes.adminInterviewTechnologies],
+      },
+      {
+        href: appRoutes.adminInterviewTopics,
+        label: "Chủ đề phỏng vấn",
+        icon: Tags,
+        activePatterns: [appRoutes.adminInterviewTopics],
+      },
+      {
+        href: appRoutes.adminInterviewLevels,
+        label: "Cấp bậc phỏng vấn",
+        icon: ListOrdered,
+        activePatterns: [appRoutes.adminInterviewLevels],
+      },
+      {
+        href: appRoutes.adminInterviewPositions,
+        label: "Vị trí phỏng vấn",
+        icon: BriefcaseBusiness,
+        activePatterns: [appRoutes.adminInterviewPositions],
       },
       {
         href: appRoutes.adminQuestionBanks,
@@ -59,7 +79,7 @@ const adminNavItems: AdminNavItem[] = [
       },
       {
         href: appRoutes.adminMockTests,
-        label: "Quản lý đề thi",
+        label: "Quản lý đề phỏng vấn",
         icon: ClipboardList,
         activePatterns: [appRoutes.adminMockTests],
       },
@@ -93,9 +113,41 @@ function isGroupActive(pathname: string, children: AdminNavItem[] = []) {
   return children.some((child) => isActivePath(pathname, child));
 }
 
+function getActiveGroupLabels(pathname: string) {
+  return adminNavItems
+    .filter((item) => item.children?.length)
+    .filter((item) => isGroupActive(pathname, item.children))
+    .map((item) => item.label);
+}
+
 export function AdminShell({ children }: AdminShellProps) {
   const pathname = usePathname();
-  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(() =>
+    getActiveGroupLabels(pathname),
+  );
+
+  useEffect(() => {
+    const activeGroupLabels = getActiveGroupLabels(pathname);
+
+    if (activeGroupLabels.length === 0) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setExpandedGroups((current) => {
+        const next = new Set(current);
+
+        for (const label of activeGroupLabels) {
+          next.add(label);
+        }
+
+        return Array.from(next);
+      });
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
 
   const toggleGroup = (label: string) => {
     setExpandedGroups((current) =>
@@ -111,12 +163,14 @@ export function AdminShell({ children }: AdminShellProps) {
         <div className={styles.brand}>
           <Link href={appRoutes.adminDashboard} className={styles.brandLink}>
             <span className={styles.logoMark}>AI</span>
+
             <span>
               <span className={styles.brandName}>Mock Interview</span>
               <span className={styles.tagline}>Khu vực quản trị</span>
             </span>
           </Link>
         </div>
+
         <nav className={styles.navigation}>
           {adminNavItems.map((item) => {
             const Icon = item.icon;
@@ -124,7 +178,7 @@ export function AdminShell({ children }: AdminShellProps) {
 
             if (hasChildren) {
               const groupActive = isGroupActive(pathname, item.children);
-              const isOpen = groupActive || expandedGroups.includes(item.label);
+              const isOpen = expandedGroups.includes(item.label);
               const ChevronIcon = isOpen ? ChevronUp : ChevronDown;
 
               return (
@@ -141,8 +195,12 @@ export function AdminShell({ children }: AdminShellProps) {
                   >
                     <Icon size={17} />
                     <span>{item.label}</span>
-                    <ChevronIcon className={styles.navigationChevron} size={16} />
+                    <ChevronIcon
+                      className={styles.navigationChevron}
+                      size={16}
+                    />
                   </button>
+
                   {isOpen ? (
                     <div className={styles.navigationChildren}>
                       {item.children?.map((child) => {
@@ -159,7 +217,7 @@ export function AdminShell({ children }: AdminShellProps) {
                             key={child.href}
                           >
                             <ChildIcon size={15} />
-                            {child.label}
+                            <span>{child.label}</span>
                           </Link>
                         ) : null;
                       })}
@@ -181,20 +239,23 @@ export function AdminShell({ children }: AdminShellProps) {
                 key={item.href ?? item.label}
               >
                 <Icon size={17} />
-                {item.label}
+                <span>{item.label}</span>
               </Link>
             );
           })}
         </nav>
       </aside>
+
       <div className={styles.workspace}>
         <header className={styles.header}>
           <p className={styles.eyebrow}>
             <BarChart3 size={16} />
             Quản lý hệ thống
           </p>
+
           <LogoutButton className={styles.logoutButton} />
         </header>
+
         <main className={styles.content}>{children}</main>
       </div>
     </div>

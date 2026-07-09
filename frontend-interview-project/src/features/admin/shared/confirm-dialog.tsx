@@ -4,6 +4,7 @@ type ConfirmDialogProps = {
   title: string;
   description: string;
   confirmLabel?: string;
+  isConfirming?: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 };
@@ -11,6 +12,7 @@ type ConfirmDialogProps = {
 export function ConfirmDialog({
   confirmLabel = "Delete",
   description,
+  isConfirming = false,
   onCancel,
   onConfirm,
   title,
@@ -23,10 +25,20 @@ export function ConfirmDialog({
           <p className={styles.muted}>{description}</p>
         </header>
         <footer className={styles.modalFooter}>
-          <button className={styles.secondaryButton} onClick={onCancel} type="button">
+          <button
+            className={styles.secondaryButton}
+            disabled={isConfirming}
+            onClick={onCancel}
+            type="button"
+          >
             Cancel
           </button>
-          <button className={styles.dangerButton} onClick={onConfirm} type="button">
+          <button
+            className={styles.dangerButton}
+            disabled={isConfirming}
+            onClick={onConfirm}
+            type="button"
+          >
             {confirmLabel}
           </button>
         </footer>

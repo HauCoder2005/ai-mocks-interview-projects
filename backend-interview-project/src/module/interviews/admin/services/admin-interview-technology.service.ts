@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
@@ -174,6 +175,36 @@ export class AdminInterviewTechnologyService {
   }
 
   /*
+   * Xóa cứng Interview Technology khi chưa được sử dụng.
+   */
+  async deleteTechnology(
+    id: number,
+  ): Promise<AdminInterviewTechnologyResponseDto> {
+    this.logger.log(`Start deleting interview technology: id=${id}`);
+
+    this.validateId(id);
+    await this.getTechnologyByIdOrThrow(id);
+
+    const usageCount = await this.technologyRepository.countUsage(id);
+
+    if (usageCount > 0) {
+      this.logger.warn(
+        `Delete technology failed because it is in use: id=${id}, usageCount=${usageCount}`,
+      );
+
+      throw new ConflictException('Không thể xóa vì dữ liệu đang được sử dụng.');
+    }
+
+    const technology = await this.technologyRepository.deleteTechnology(id);
+
+    this.logger.log(
+      `Interview technology deleted successfully: id=${technology.id}, code=${technology.code}`,
+    );
+
+    return AdminInterviewTechnologyMapper.toResponseDto(technology);
+  }
+
+  /*
    * Gộp logic build response list cho các API danh sách.
    * Helper này chịu trách nhiệm map domain model sang response DTO và tạo meta.
    */
@@ -283,6 +314,12 @@ export class AdminInterviewTechnologyService {
       );
 
       throw new ConflictException('Interview technology slug already exists');
+    }
+  }
+
+  private validateId(id: number): void {
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new BadRequestException('Invalid interview technology id');
     }
   }
 }

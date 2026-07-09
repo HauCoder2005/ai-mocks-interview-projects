@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -11,7 +12,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 
 import {
   ApiResponse,
@@ -198,6 +199,36 @@ export class AdminInterviewMasterDataController {
       success: true,
       statusCode: HttpStatus.OK,
       message: 'Interview position deactivated successfully',
+      data: position,
+    };
+  }
+
+  /*
+   * Xóa cứng Interview Position nếu chưa có dữ liệu liên kết.
+   */
+  @Delete('positions/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Xóa Interview Position' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiSuccessResponse(
+    AdminInterviewPositionResponseDto,
+    'Interview position deleted successfully',
+  )
+  @ApiBadRequestErrorResponse()
+  @ApiNotFoundErrorResponse('Interview position not found')
+  @ApiConflictErrorResponse('Không thể xóa vì dữ liệu đang được sử dụng.')
+  async deletePosition(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ApiResponse<AdminInterviewPositionResponseDto>> {
+    this.logger.log(`DELETE /admin/interview-master-data/positions/${id}`);
+
+    const position =
+      await this.adminInterviewMasterDataService.deletePosition(id);
+
+    return {
+      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Interview position deleted successfully',
       data: position,
     };
   }

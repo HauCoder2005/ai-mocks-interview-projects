@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
@@ -178,5 +179,48 @@ export class AdminInterviewMasterDataService {
     );
 
     return AdminInterviewPositionMapper.toResponseDto(deactivatedPosition);
+  }
+
+  /*
+   * Xóa cứng Position khi chưa được sử dụng trong interview/configuration.
+   */
+  async deletePosition(
+    id: number,
+  ): Promise<AdminInterviewPositionResponseDto> {
+    this.logger.log(`Start deleting interview position: id=${id}`);
+
+    this.validateId(id);
+
+    const position = await this.positionRepository.findById(id);
+
+    if (!position) {
+      this.logger.warn(`Delete position failed because not found: id=${id}`);
+
+      throw new NotFoundException('Interview position not found');
+    }
+
+    const usageCount = await this.positionRepository.countUsage(id);
+
+    if (usageCount > 0) {
+      this.logger.warn(
+        `Delete position failed because it is in use: id=${id}, usageCount=${usageCount}`,
+      );
+
+      throw new ConflictException('Không thể xóa vì dữ liệu đang được sử dụng.');
+    }
+
+    const deletedPosition = await this.positionRepository.deletePosition(id);
+
+    this.logger.log(
+      `Interview position deleted successfully: id=${deletedPosition.id}`,
+    );
+
+    return AdminInterviewPositionMapper.toResponseDto(deletedPosition);
+  }
+
+  private validateId(id: number): void {
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new BadRequestException('Invalid interview position id');
+    }
   }
 }

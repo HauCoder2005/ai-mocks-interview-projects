@@ -20,7 +20,10 @@ export const appRoutes = {
   admin: "/admin",
   adminDashboard: "/admin/dashboard",
   adminQuestionBanks: "/admin/question-banks",
-  adminInterviewOptions: "/admin/interview-options",
+  adminInterviewTechnologies: "/admin/interview-technologies",
+  adminInterviewTopics: "/admin/interview-topics",
+  adminInterviewLevels: "/admin/interview-levels",
+  adminInterviewPositions: "/admin/interview-positions",
   adminMockTests: "/admin/mock-tests",
   adminUsers: "/admin/users",
 };

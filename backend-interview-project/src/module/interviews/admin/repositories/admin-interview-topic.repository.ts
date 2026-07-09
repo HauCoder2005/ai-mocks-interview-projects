@@ -10,7 +10,7 @@ import { AdminInterviewTopicListQueryResult } from '../results/interview/topic/a
 
 @Injectable()
 export class AdminInterviewTopicRepository extends AbstractPrismaCrudService<any> {
-  constructor(prismaService: PrismaService) {
+  constructor(private readonly prismaService: PrismaService) {
     super(prismaService.interview_topics);
   }
 
@@ -202,6 +202,41 @@ export class AdminInterviewTopicRepository extends AbstractPrismaCrudService<any
         updated_at: new Date(),
       },
     )) as interview_topics;
+
+    return AdminInterviewTopicMapper.toModel(topic);
+  }
+
+  /*
+   * Đếm các dữ liệu nghiệp vụ đang tham chiếu Topic.
+   */
+  async countUsage(id: number): Promise<number> {
+    const [configurationCount, questionBankCount, selectedCount] =
+      await Promise.all([
+        this.prismaService.interview_configuration_topics.count({
+          where: {
+            topic_id: id,
+          },
+        }),
+        this.prismaService.interview_question_banks.count({
+          where: {
+            topic_id: id,
+          },
+        }),
+        this.prismaService.interview_selected_focus_topics.count({
+          where: {
+            focus_topic_id: id,
+          },
+        }),
+      ]);
+
+    return configurationCount + questionBankCount + selectedCount;
+  }
+
+  /*
+   * Xóa cứng Topic khi không còn dữ liệu liên quan.
+   */
+  async deleteTopic(id: number): Promise<AdminInterviewTopicModel> {
+    const topic = (await this.deleteOne({ id })) as interview_topics;
 
     return AdminInterviewTopicMapper.toModel(topic);
   }

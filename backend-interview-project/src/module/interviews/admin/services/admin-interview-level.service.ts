@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
@@ -51,17 +52,29 @@ export class AdminInterviewLevelService {
   async getLevels(): Promise<AdminInterviewLevelListResponseResult> {
     this.logger.log('Start retrieving interview levels');
     const { items, total } = await this.levelRepository.findAllWithTotal();
-    const data = items.map(AdminInterviewLevelMapper.toResponseDto);
-    this.logger.log(
-      `Interview levels retrieved successfully: total=${total}, itemCount=${data.length}`,
+    return this.buildListResult(items, total, 'Interview levels retrieved');
+  }
+
+  /*
+   * Lấy danh sách Interview Level đang active.
+   */
+  async getActiveLevels(): Promise<AdminInterviewLevelListResponseResult> {
+    this.logger.log('Start retrieving active interview levels');
+    const { items, total } = await this.levelRepository.findActiveWithTotal();
+    return this.buildListResult(items, total, 'Active interview levels retrieved');
+  }
+
+  /*
+   * Lấy danh sách Interview Level đang inactive.
+   */
+  async getInactiveLevels(): Promise<AdminInterviewLevelListResponseResult> {
+    this.logger.log('Start retrieving inactive interview levels');
+    const { items, total } = await this.levelRepository.findInactiveWithTotal();
+    return this.buildListResult(
+      items,
+      total,
+      'Inactive interview levels retrieved',
     );
-    return {
-      data,
-      meta: createListMeta({
-        total,
-        itemCount: data.length,
-      }),
-    };
   }
 
   /*
@@ -118,6 +131,34 @@ export class AdminInterviewLevelService {
   }
 
   /*
+   * Xóa cứng Interview Level khi chưa được sử dụng trong interview/configuration.
+   */
+  async deleteLevel(id: number): Promise<AdminInterviewLevelResponseDto> {
+    this.logger.log(`Start deleting interview level: id=${id}`);
+
+    this.validateId(id);
+    await this.getLevelByIdOrThrow(id);
+
+    const usageCount = await this.levelRepository.countUsage(id);
+
+    if (usageCount > 0) {
+      this.logger.warn(
+        `Delete level failed because it is in use: id=${id}, usageCount=${usageCount}`,
+      );
+
+      throw new ConflictException('Không thể xóa vì dữ liệu đang được sử dụng.');
+    }
+
+    const deletedLevel = await this.levelRepository.deleteLevel(id);
+
+    this.logger.log(
+      `Interview level deleted successfully: id=${deletedLevel.id}, code=${deletedLevel.code}`,
+    );
+
+    return AdminInterviewLevelMapper.toResponseDto(deletedLevel);
+  }
+
+  /*
    * Lấy Interview Level theo id.
    * Nếu không tồn tại thì throw NotFoundException để dừng flow xử lý.
    */
@@ -134,6 +175,27 @@ export class AdminInterviewLevelService {
   }
 
   /*
+   * Gộp logic map danh sách Level sang response DTO kèm meta.
+   */
+  private buildListResult(
+    items: AdminInterviewLevelModel[],
+    total: number,
+    logMessage: string,
+  ): AdminInterviewLevelListResponseResult {
+    const data = items.map(AdminInterviewLevelMapper.toResponseDto);
+    this.logger.log(
+      `${logMessage} successfully: total=${total}, itemCount=${data.length}`,
+    );
+    return {
+      data,
+      meta: createListMeta({
+        total,
+        itemCount: data.length,
+      }),
+    };
+  }
+
+  /*
    * Kiểm tra code của Interview Level có bị trùng hay không.
    * Khi update thì currentId dùng để bỏ qua chính bản ghi đang cập nhật.
    */
@@ -147,6 +209,12 @@ export class AdminInterviewLevelService {
         `Action failed - Interview level code already exists: code=${code}`,
       );
       throw new ConflictException('Interview level code already exists');
+    }
+  }
+
+  private validateId(id: number): void {
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new BadRequestException('Invalid interview level id');
     }
   }
 }

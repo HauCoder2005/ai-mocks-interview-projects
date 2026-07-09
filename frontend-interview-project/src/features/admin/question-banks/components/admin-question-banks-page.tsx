@@ -36,9 +36,35 @@ export function AdminQuestionBanksPage() {
   const [deletingQuestion, setDeletingQuestion] = useState<AdminQuestion | undefined>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCatalogLoading, setIsCatalogLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
+
+  const loadCatalogData = async () => {
+    setIsCatalogLoading(true);
+
+    try {
+      const [technologyResponse, topicResponse, levelResponse] =
+        await Promise.all([
+          adminMasterDataService.getActiveTechnologies(),
+          adminMasterDataService.getActiveTopics(),
+          adminMasterDataService.getActiveLevels(),
+        ]);
+
+      setTechnologies(technologyResponse.data);
+      setTopics(topicResponse.data);
+      setLevels(levelResponse.data);
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Không thể tải danh mục lựa chọn.",
+      );
+    } finally {
+      setIsCatalogLoading(false);
+    }
+  };
 
   const loadPageData = async () => {
     setIsLoading(true);
@@ -46,16 +72,16 @@ export function AdminQuestionBanksPage() {
     try {
       const [questionResponse, technologyResponse, topicResponse, levelResponse] =
         await Promise.all([
-      adminQuestionBanksService.getQuestionBanks(),
-      adminMasterDataService.getTechnologies("active"),
-      adminMasterDataService.getTopics("active"),
-      adminMasterDataService.getLevels(),
-    ]);
+          adminQuestionBanksService.getQuestionBanks(),
+          adminMasterDataService.getActiveTechnologies(),
+          adminMasterDataService.getActiveTopics(),
+          adminMasterDataService.getActiveLevels(),
+        ]);
 
       setQuestions(questionResponse.data);
       setTechnologies(technologyResponse.data);
       setTopics(topicResponse.data);
-      setLevels(levelResponse.data.filter((level) => level.isActive));
+      setLevels(levelResponse.data);
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -120,6 +146,7 @@ export function AdminQuestionBanksPage() {
   const handleCreate = () => {
     setEditingQuestion(undefined);
     setIsModalOpen(true);
+    void loadCatalogData();
   };
 
   const handleSubmit = async (input: AdminQuestionFormInput) => {
@@ -178,10 +205,6 @@ export function AdminQuestionBanksPage() {
         <div>
           <p className={styles.eyebrow}>Admin</p>
           <h1 className={styles.title}>Ngân hàng câu hỏi</h1>
-          <p className={styles.subtitle}>
-            Quản lý câu hỏi, đáp án trắc nghiệm và đáp án đúng từ dữ liệu thật
-            trong backend.
-          </p>
         </div>
       </header>
 
@@ -205,6 +228,7 @@ export function AdminQuestionBanksPage() {
           onEdit={(question) => {
             setEditingQuestion(question);
             setIsModalOpen(true);
+            void loadCatalogData();
           }}
           onToggleStatus={handleToggleStatus}
           questions={filteredQuestions}
@@ -213,6 +237,7 @@ export function AdminQuestionBanksPage() {
 
       {isModalOpen ? (
         <AdminQuestionFormModal
+          isCatalogLoading={isCatalogLoading}
           isSubmitting={isSubmitting}
           levels={levels}
           onClose={() => setIsModalOpen(false)}

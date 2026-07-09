@@ -52,6 +52,18 @@ export type CreateInterviewTopicRequest = CreateInterviewPositionRequest;
 
 export type UpdateInterviewTopicRequest = Partial<CreateInterviewTopicRequest>;
 
+export type CreateInterviewCatalogPayload =
+  | CreateInterviewPositionRequest
+  | CreateInterviewLevelRequest
+  | CreateInterviewTechnologyRequest
+  | CreateInterviewTopicRequest;
+
+export type UpdateInterviewCatalogPayload =
+  | UpdateInterviewPositionRequest
+  | UpdateInterviewLevelRequest
+  | UpdateInterviewTechnologyRequest
+  | UpdateInterviewTopicRequest;
+
 export type InterviewPositionListResponse =
   ApiResponseWithMeta<InterviewPosition[]>;
 export type InterviewPositionResponse = ApiResponse<InterviewPosition>;

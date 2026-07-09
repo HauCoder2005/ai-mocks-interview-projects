@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Trash2 } from "lucide-react";
 
 import type {
   InterviewLevel,
@@ -19,6 +20,7 @@ type AdminQuestionFormModalProps = {
   technologies: InterviewTechnology[];
   topics: InterviewTopic[];
   levels: InterviewLevel[];
+  isCatalogLoading?: boolean;
   isSubmitting?: boolean;
   onClose: () => void;
   onSubmit: (input: AdminQuestionFormInput) => void;
@@ -55,6 +57,7 @@ function buildInitialForm(
 }
 
 export function AdminQuestionFormModal({
+  isCatalogLoading = false,
   isSubmitting = false,
   levels,
   onClose,
@@ -66,16 +69,44 @@ export function AdminQuestionFormModal({
   const [form, setForm] = useState<AdminQuestionFormInput>(() =>
     buildInitialForm(question, technologies, topics),
   );
+  const [selectedLevelId, setSelectedLevelId] = useState(levels[0]?.id ?? 0);
   const [error, setError] = useState("");
 
   const isMcq = form.questionType === "MCQ";
+  const hasCatalogData =
+    technologies.length > 0 && topics.length > 0 && levels.length > 0;
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setForm((currentForm) => ({
+        ...currentForm,
+        technologyId: currentForm.technologyId || technologies[0]?.id || 0,
+        topicId: currentForm.topicId || topics[0]?.id || 0,
+      }));
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [technologies, topics]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setSelectedLevelId((currentLevelId) => currentLevelId || levels[0]?.id || 0);
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [levels]);
 
   const validationError = useMemo(() => {
+    if (isCatalogLoading) {
+      return "Đang tải danh mục lựa chọn.";
+    }
+    if (!hasCatalogData) {
+      return "Chưa có dữ liệu. Vui lòng tạo trong trang quản lý tương ứng.";
+    }
     if (!form.title.trim()) return "Vui lòng nhập tiêu đề câu hỏi.";
     if (!form.content.trim()) return "Vui lòng nhập nội dung câu hỏi.";
     if (!form.technologyId) return "Vui lòng chọn công nghệ.";
     if (!form.topicId) return "Vui lòng chọn chủ đề.";
-    if (levels.length === 0) return "Không có level active để đối chiếu.";
 
     if (!isMcq) return "";
 
@@ -89,7 +120,7 @@ export function AdminQuestionFormModal({
     }
 
     return "";
-  }, [form, isMcq, levels.length]);
+  }, [form, hasCatalogData, isCatalogLoading, isMcq]);
 
   const updateOption = (
     index: number,
@@ -149,7 +180,7 @@ export function AdminQuestionFormModal({
       footer={
         <button
           className={shared.primaryButton}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isCatalogLoading || Boolean(validationError)}
           onClick={handleSubmit}
           type="button"
         >
@@ -176,6 +207,13 @@ export function AdminQuestionFormModal({
         />
       </label>
       <div className={shared.twoColumn}>
+        {isCatalogLoading ? (
+          <p className={shared.muted}>Đang tải danh mục lựa chọn...</p>
+        ) : !hasCatalogData ? (
+          <p className={shared.errorText}>
+            Chưa có dữ liệu. Vui lòng tạo trong trang quản lý tương ứng.
+          </p>
+        ) : null}
         <label className={shared.field}>
           <span className={shared.label}>Công nghệ</span>
           <select
@@ -185,7 +223,13 @@ export function AdminQuestionFormModal({
             }
             value={form.technologyId}
           >
-            <option value={0}>Chọn công nghệ</option>
+            <option disabled value={0}>
+              {isCatalogLoading
+                ? "Đang tải..."
+                : technologies.length === 0
+                  ? "Chưa có dữ liệu. Vui lòng tạo trong trang quản lý tương ứng."
+                  : "Chọn công nghệ"}
+            </option>
             {technologies.map((technology) => (
               <option key={technology.id} value={technology.id}>
                 {technology.name}
@@ -202,7 +246,13 @@ export function AdminQuestionFormModal({
             }
             value={form.topicId}
           >
-            <option value={0}>Chọn chủ đề</option>
+            <option disabled value={0}>
+              {isCatalogLoading
+                ? "Đang tải..."
+                : topics.length === 0
+                  ? "Chưa có dữ liệu. Vui lòng tạo trong trang quản lý tương ứng."
+                  : "Chọn chủ đề"}
+            </option>
             {topics.map((topic) => (
               <option key={topic.id} value={topic.id}>
                 {topic.name}
@@ -212,9 +262,19 @@ export function AdminQuestionFormModal({
         </label>
         <label className={shared.field}>
           <span className={shared.label}>Level</span>
-          <select className={shared.select} disabled value={levels[0]?.id ?? 0}>
-            {levels.length === 0 ? (
-              <option value={0}>Chưa có level active</option>
+          <select
+            className={shared.select}
+            onChange={(event) => setSelectedLevelId(Number(event.target.value))}
+            value={selectedLevelId}
+          >
+            {isCatalogLoading ? (
+              <option disabled value={0}>
+                Đang tải...
+              </option>
+            ) : levels.length === 0 ? (
+              <option disabled value={0}>
+                Chưa có dữ liệu. Vui lòng tạo trong trang quản lý tương ứng.
+              </option>
             ) : (
               levels.map((level) => (
                 <option key={level.id} value={level.id}>
@@ -330,11 +390,13 @@ export function AdminQuestionFormModal({
                 </label>
                 {(form.options?.length ?? 0) > 2 ? (
                   <button
-                    className={shared.dangerButton}
+                    aria-label={`Xóa đáp án ${String.fromCharCode(65 + index)}`}
+                    className={`${shared.iconButton} ${shared.iconButtonDanger}`}
                     onClick={() => removeOption(index)}
+                    title={`Xóa đáp án ${String.fromCharCode(65 + index)}`}
                     type="button"
                   >
-                    Xóa
+                    <Trash2 size={16} />
                   </button>
                 ) : null}
               </div>
