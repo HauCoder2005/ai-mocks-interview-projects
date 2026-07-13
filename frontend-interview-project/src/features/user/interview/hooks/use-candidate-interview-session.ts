@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
+import { ApiClientError } from "@/lib/api/core";
 import { candidateInterviewSessionService } from "@/lib/api/services/interview/candidate-interview-session";
 import type {
+  ActiveInterviewSessionData,
   EvaluateAnswerData,
   EvaluateAnswerRequest,
   StartInterviewSessionData,
@@ -17,11 +19,20 @@ export function useCandidateInterviewSession() {
   const [isUploadingAudio, setIsUploadingAudio] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [conflictingSession, setConflictingSession] =
+    useState<Partial<ActiveInterviewSessionData> | null>(null);
+  const createInFlightRef = useRef(false);
 
   const startSession = async (
     input: StartInterviewSessionRequest,
   ): Promise<StartInterviewSessionData> => {
+    if (createInFlightRef.current) {
+      throw new Error("Yêu cầu tạo phiên đang được xử lý.");
+    }
+
+    createInFlightRef.current = true;
     setErrorMessage(null);
+    setConflictingSession(null);
     setIsStarting(true);
 
     try {
@@ -30,13 +41,24 @@ export function useCandidateInterviewSession() {
 
       return response.data;
     } catch (error) {
-      const message =
-        error instanceof Error
+      const isActiveSessionConflict =
+        error instanceof ApiClientError &&
+        error.statusCode === 409 &&
+        error.code === "ACTIVE_INTERVIEW_SESSION_EXISTS";
+      const message = isActiveSessionConflict
+        ? "Bạn đang có một phiên phỏng vấn chưa hoàn thành. Hãy tiếp tục hoặc hủy phiên hiện tại trước khi tạo phiên mới."
+        : error instanceof Error
           ? error.message
           : "Không thể tạo phiên phỏng vấn.";
+      if (isActiveSessionConflict) {
+        setConflictingSession(
+          (error.data as Partial<ActiveInterviewSessionData>) ?? null,
+        );
+      }
       setErrorMessage(message);
       throw error;
     } finally {
+      createInFlightRef.current = false;
       setIsStarting(false);
     }
   };
@@ -93,6 +115,7 @@ export function useCandidateInterviewSession() {
     isUploadingAudio,
     isEvaluating,
     errorMessage,
+    conflictingSession,
     startSession,
     uploadAudioAnswer,
     evaluateAnswer,

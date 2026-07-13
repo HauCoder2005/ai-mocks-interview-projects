@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   BarChart3,
+  Database,
   BriefcaseBusiness,
   ChevronDown,
   ChevronUp,
@@ -84,6 +85,12 @@ const adminNavItems: AdminNavItem[] = [
         activePatterns: [appRoutes.adminMockTests],
       },
     ],
+  },
+  {
+    href: appRoutes.adminJobs,
+    label: "Việc làm đã crawl",
+    icon: Database,
+    activePatterns: [appRoutes.adminJobs],
   },
   {
     href: appRoutes.adminUsers,

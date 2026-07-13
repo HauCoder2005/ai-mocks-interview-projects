@@ -1,0 +1,21 @@
+-- One-time MariaDB cleanup. Run manually after taking a database backup:
+--   mariadb --host="$DB_HOST" --user="$DB_USER" --password "$DB_NAME" \
+--     < prisma/manual-scripts/cleanup-duplicate-active-interview-sessions.mariadb
+--
+-- Keeps the newest PENDING/IN_PROGRESS AI interview session per user and
+-- marks every older active session as CANCELLED. No row is deleted and
+-- COMPLETED/CANCELLED sessions are untouched. Mock tests use test_attempts,
+-- so they are not part of this table.
+
+UPDATE interview_sessions AS older
+JOIN interview_sessions AS newer
+  ON newer.user_id = older.user_id
+  AND newer.status IN ('PENDING', 'IN_PROGRESS')
+  AND (
+    newer.created_at > older.created_at
+    OR (newer.created_at = older.created_at AND newer.id > older.id)
+  )
+SET
+  older.status = 'CANCELLED',
+  older.updated_at = CURRENT_TIMESTAMP
+WHERE older.status IN ('PENDING', 'IN_PROGRESS');

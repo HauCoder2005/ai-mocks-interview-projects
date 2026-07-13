@@ -184,9 +184,7 @@ export class AdminInterviewMasterDataService {
   /*
    * Xóa cứng Position khi chưa được sử dụng trong interview/configuration.
    */
-  async deletePosition(
-    id: number,
-  ): Promise<AdminInterviewPositionResponseDto> {
+  async deletePosition(id: number): Promise<AdminInterviewPositionResponseDto> {
     this.logger.log(`Start deleting interview position: id=${id}`);
 
     this.validateId(id);
@@ -206,7 +204,9 @@ export class AdminInterviewMasterDataService {
         `Delete position failed because it is in use: id=${id}, usageCount=${usageCount}`,
       );
 
-      throw new ConflictException('Không thể xóa vì dữ liệu đang được sử dụng.');
+      throw new ConflictException(
+        'Không thể xóa vì dữ liệu đang được sử dụng.',
+      );
     }
 
     const deletedPosition = await this.positionRepository.deletePosition(id);

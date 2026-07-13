@@ -11,7 +11,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 
 import {
   ApiResponse,
@@ -22,6 +22,7 @@ import { JwtAccessGuard } from 'src/shared/security/guards/jwt-access.guard';
 import { ApiAuth } from 'src/shared/swagger/decorators/api-auth.decorator';
 import { MockTestQueryDto } from '../../admin/dtos/mock-test-query.dto';
 import { SubmitMockTestAnswerDto } from '../dtos/submit-mock-test-answer.dto';
+import { SubmitMockTestDto } from '../dtos/submit-mock-test.dto';
 import { CandidateMockTestService } from '../services/candidate-mock-test.service';
 
 @ApiTags('Candidate Mock Tests')
@@ -113,6 +114,32 @@ export class CandidateMockTestController {
     };
   }
 
+  @Post(':id/submit')
+  @UseGuards(JwtAccessGuard)
+  @ApiAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Submit and grade a published mock test' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiBody({ type: SubmitMockTestDto })
+  async submitMockTest(
+    @CurrentUserId() userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: SubmitMockTestDto,
+  ): Promise<ApiResponse<any>> {
+    const data = await this.candidateMockTestService.submitMockTest(
+      userId,
+      id,
+      dto,
+    );
+
+    return {
+      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Mock test submitted successfully',
+      data,
+    };
+  }
+
   @Post('attempts/:attemptId/submit')
   @UseGuards(JwtAccessGuard)
   @ApiAuth()
@@ -176,14 +203,18 @@ export class CandidateMockTestController {
     };
   }
 
-  @Get(':slug')
+  @Get(':id')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get published mock test detail by slug' })
-  async getMockTestBySlug(
-    @Param('slug') slug: string,
+  @ApiOperation({ summary: 'Get published mock test detail by id' })
+  @ApiParam({
+    name: 'id',
+    description: 'Mock test id (legacy slug is supported)',
+  })
+  async getMockTestDetail(
+    @Param('id') identifier: string,
   ): Promise<ApiResponse<any>> {
     const data =
-      await this.candidateMockTestService.getPublishedMockTestBySlug(slug);
+      await this.candidateMockTestService.getPublishedMockTest(identifier);
 
     if (!data) {
       throw new NotFoundException('Published mock test not found');

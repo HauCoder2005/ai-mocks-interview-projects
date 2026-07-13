@@ -10,7 +10,7 @@ export const appRoutes = {
   userInterviews: "/interviews",
   userPractice: "/practice",
   mockTests: "/mock-tests",
-  mockTestDetail: (slug: string) => `/mock-tests/${slug}`,
+  mockTestDetail: (id: number | string) => `/mock-tests/${id}`,
   mockTestAttempt: (attemptId: number | string) =>
     `/mock-tests/attempts/${attemptId}`,
   mockTestResult: (attemptId: number | string) =>
@@ -25,5 +25,6 @@ export const appRoutes = {
   adminInterviewLevels: "/admin/interview-levels",
   adminInterviewPositions: "/admin/interview-positions",
   adminMockTests: "/admin/mock-tests",
+  adminJobs: "/admin/jobs",
   adminUsers: "/admin/users",
 };

@@ -32,6 +32,37 @@ export type MockTestQuestionDto = {
   technology: { id: number; name: string; slug: string } | null;
   topic: { id: number; name: string; code: string } | null;
   options: MockTestOptionDto[];
+  answers: (MockTestOptionDto & { label: string })[];
+};
+
+export type SubmitMockTestRequest = {
+  answers: { questionId: number; answerId: number }[];
+};
+
+export type SubmitMockTestResultDto = {
+  mockTestId: number;
+  title: string;
+  totalQuestions: number;
+  correctCount: number;
+  wrongCount: number;
+  score: number;
+  percentage: number;
+  questions: {
+    questionId: number;
+    title: string;
+    content: string;
+    userAnswerId: number | null;
+    correctAnswerId: number | null;
+    isCorrect: boolean;
+    expectedAnswer: string | null;
+    answers: {
+      id: number;
+      label: string;
+      content: string;
+      isUserSelected: boolean;
+      isCorrect: boolean;
+    }[];
+  }[];
 };
 
 export type MockTestDetailDto = MockTestSummaryDto & {
@@ -95,6 +126,7 @@ export type MockTestResultDto = {
 
 export type MockTestListResponse = ApiResponseWithMeta<MockTestSummaryDto[]>;
 export type MockTestDetailResponse = ApiResponse<MockTestDetailDto>;
+export type SubmitMockTestResponse = ApiResponse<SubmitMockTestResultDto>;
 export type MockTestAttemptResponse = ApiResponse<MockTestAttemptDto>;
 export type MockTestAnswerResponse = ApiResponse<MockTestAnswerResponseDto>;
 export type MockTestSubmitResponse = ApiResponse<MockTestSubmitResultDto>;

@@ -4,6 +4,8 @@ import { ApiHttpMethod } from "@/lib/api/core/enums/api-method.enum";
 import type {
   EvaluateAnswerRequest,
   EvaluateAnswerResponse,
+  ActiveInterviewSessionResponse,
+  InterviewSessionLifecycleResponse,
   StartInterviewSessionRequest,
   StartInterviewSessionResponse,
   UploadAudioAnswerRequest,
@@ -13,6 +15,13 @@ import type {
 const CANDIDATE_INTERVIEW_SESSION_PATH = "/candidate/interviews/sessions";
 
 export const candidateInterviewSessionService = {
+  getActiveSession(): Promise<ActiveInterviewSessionResponse> {
+    return request<ActiveInterviewSessionResponse>(
+      "/interviews/sessions/active",
+      { method: ApiHttpMethod.GET, auth: true },
+    );
+  },
+
   startInterviewSession(
     input: StartInterviewSessionRequest,
   ): Promise<StartInterviewSessionResponse> {
@@ -31,6 +40,34 @@ export const candidateInterviewSessionService = {
         },
         body,
       },
+    );
+  },
+
+  startCreatedSession(sessionId: string | number): Promise<InterviewSessionLifecycleResponse> {
+    return request<InterviewSessionLifecycleResponse>(
+      `/interviews/sessions/${sessionId}/start`,
+      { method: ApiHttpMethod.PATCH, auth: true },
+    );
+  },
+
+  completeSession(
+    sessionId: string | number,
+    overallScore?: number,
+  ): Promise<InterviewSessionLifecycleResponse> {
+    return request<InterviewSessionLifecycleResponse>(
+      `/interviews/sessions/${sessionId}/complete`,
+      {
+        method: ApiHttpMethod.PATCH,
+        auth: true,
+        body: JSON.stringify({ overallScore }),
+      },
+    );
+  },
+
+  cancelSession(sessionId: string | number): Promise<InterviewSessionLifecycleResponse> {
+    return request<InterviewSessionLifecycleResponse>(
+      `/interviews/sessions/${sessionId}/cancel`,
+      { method: ApiHttpMethod.PATCH, auth: true },
     );
   },
 

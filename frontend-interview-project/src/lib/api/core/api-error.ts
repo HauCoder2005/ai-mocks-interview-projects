@@ -19,4 +19,18 @@ export interface ApiErrorResponse {
   message?: string | string[];
   error?: string;
   errors?: ApiFieldError[];
+  code?: string;
+  data?: unknown;
+}
+
+export class ApiClientError<TData = unknown> extends Error {
+  constructor(
+    message: string,
+    readonly statusCode: number,
+    readonly code?: string,
+    readonly data?: TData,
+  ) {
+    super(message);
+    this.name = "ApiClientError";
+  }
 }

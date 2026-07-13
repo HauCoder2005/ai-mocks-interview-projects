@@ -22,10 +22,10 @@ export class CandidateInterviewSessionResponseDto {
 
   @ApiProperty({
     enum: interview_sessions_status,
-    example: interview_sessions_status.IN_PROGRESS,
+    example: interview_sessions_status.PENDING,
   })
   status!: interview_sessions_status;
 
   @ApiProperty({ example: '2026-07-02T04:00:00.000Z' })
-  startedAt!: Date;
+  startedAt!: Date | null;
 }

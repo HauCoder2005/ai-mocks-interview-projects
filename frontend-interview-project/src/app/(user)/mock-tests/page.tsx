@@ -1,4 +1,4 @@
-import { MockTestListPage } from "@/features/mock-tests/components/mock-test-list-page";
+import { MockTestListPage } from "@/features/mock-tests";
 
 export default function MockTestsRoutePage() {
   return <MockTestListPage />;

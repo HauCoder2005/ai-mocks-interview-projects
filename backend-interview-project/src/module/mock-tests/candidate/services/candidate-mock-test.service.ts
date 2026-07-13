@@ -4,6 +4,7 @@ import { MockTestMapper } from '../../mappers/mock-test.mapper';
 import { MockTestRepository } from '../../repositories/mock-test.repository';
 import { MockTestQueryDto } from '../../admin/dtos/mock-test-query.dto';
 import { SubmitMockTestAnswerDto } from '../dtos/submit-mock-test-answer.dto';
+import { SubmitMockTestDto } from '../dtos/submit-mock-test.dto';
 
 @Injectable()
 export class CandidateMockTestService {
@@ -18,14 +19,32 @@ export class CandidateMockTestService {
     };
   }
 
-  async getPublishedMockTestBySlug(slug: string) {
-    const mockTest = await this.mockTestRepository.findPublishedBySlug(slug);
+  async getPublishedMockTest(identifier: string) {
+    const id = Number(identifier);
+    const mockTest =
+      Number.isInteger(id) && id > 0
+        ? await this.mockTestRepository.findPublishedById(id)
+        : await this.mockTestRepository.findPublishedBySlug(identifier);
 
     if (!mockTest) {
       return null;
     }
 
     return MockTestMapper.toDetail(mockTest);
+  }
+
+  async submitMockTest(
+    userId: number,
+    mockTestId: number,
+    dto: SubmitMockTestDto,
+  ) {
+    const result = await this.mockTestRepository.gradeMockTest(
+      userId,
+      mockTestId,
+      dto.answers,
+    );
+
+    return MockTestMapper.toGradedResult(result);
   }
 
   async startAttempt(userId: number, mockTestId: number) {

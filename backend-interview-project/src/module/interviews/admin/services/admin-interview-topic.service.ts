@@ -156,7 +156,9 @@ export class AdminInterviewTopicService {
         `Delete topic failed because it is in use: id=${id}, usageCount=${usageCount}`,
       );
 
-      throw new ConflictException('Không thể xóa vì dữ liệu đang được sử dụng.');
+      throw new ConflictException(
+        'Không thể xóa vì dữ liệu đang được sử dụng.',
+      );
     }
 
     const topic = await this.topicRepository.deleteTopic(id);

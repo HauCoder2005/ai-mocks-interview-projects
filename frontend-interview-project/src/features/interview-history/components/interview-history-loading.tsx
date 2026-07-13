@@ -1,0 +1,1 @@
+import styles from './interview-history.module.css'; export function InterviewHistoryLoading(){return <div className={styles.list}>{Array.from({length:3}).map((_,index)=><div className={styles.skeleton} key={index}/>)}</div>}

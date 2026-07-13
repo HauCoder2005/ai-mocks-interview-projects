@@ -13,11 +13,49 @@ export type StartInterviewSessionData = {
   levelId: number;
   attemptNumber: number;
   status: string;
-  startedAt: string;
+  startedAt: string | null;
 };
 
 export type StartInterviewSessionResponse =
   ApiResponse<StartInterviewSessionData>;
+
+export type InterviewSessionStatus =
+  | "PENDING"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELLED";
+
+export type ActiveInterviewSessionData = {
+  sessionId: number;
+  configurationId: number;
+  status: "PENDING" | "IN_PROGRESS";
+  attemptNumber: number;
+  position: { id: number; name: string };
+  level: { id: number; name: string };
+  questionCount: number;
+  answeredQuestionCount: number;
+  createdAt: string;
+  startedAt: string | null;
+  canResume: true;
+};
+
+export type ActiveInterviewSessionResponse =
+  ApiResponse<ActiveInterviewSessionData | null>;
+
+export type InterviewSessionLifecycleData = {
+  sessionId: number;
+  configurationId: number;
+  attemptNumber: number;
+  status: InterviewSessionStatus;
+  startedAt: string | null;
+  completedAt: string | null;
+  durationSeconds: number | null;
+  overallScore: number | null;
+  updatedAt: string;
+};
+
+export type InterviewSessionLifecycleResponse =
+  ApiResponse<InterviewSessionLifecycleData>;
 
 export type UploadAudioAnswerRequest = {
   sessionId: string | number;

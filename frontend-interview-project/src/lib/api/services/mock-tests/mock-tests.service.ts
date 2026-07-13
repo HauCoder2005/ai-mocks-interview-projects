@@ -9,6 +9,8 @@ import type {
   MockTestListResponse,
   MockTestResultResponse,
   MockTestSubmitResponse,
+  SubmitMockTestRequest,
+  SubmitMockTestResponse,
   SubmitMockTestAnswerRequest,
 } from "./mock-tests.dto";
 
@@ -41,9 +43,20 @@ export const mockTestsService = {
     });
   },
 
-  getMockTestBySlug(slug: string): Promise<MockTestDetailResponse> {
-    return request<MockTestDetailResponse>(`/mock-tests/${slug}`, {
+  getMockTestDetail(id: number | string): Promise<MockTestDetailResponse> {
+    return request<MockTestDetailResponse>(`/mock-tests/${id}`, {
       method: ApiHttpMethod.GET,
+    });
+  },
+
+  submitMockTest(
+    id: number | string,
+    input: SubmitMockTestRequest,
+  ): Promise<SubmitMockTestResponse> {
+    return request<SubmitMockTestResponse>(`/mock-tests/${id}/submit`, {
+      method: ApiHttpMethod.POST,
+      auth: true,
+      body: JSON.stringify(input),
     });
   },
 

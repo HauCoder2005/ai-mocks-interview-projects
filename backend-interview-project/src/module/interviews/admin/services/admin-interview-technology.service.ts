@@ -192,7 +192,9 @@ export class AdminInterviewTechnologyService {
         `Delete technology failed because it is in use: id=${id}, usageCount=${usageCount}`,
       );
 
-      throw new ConflictException('Không thể xóa vì dữ liệu đang được sử dụng.');
+      throw new ConflictException(
+        'Không thể xóa vì dữ liệu đang được sử dụng.',
+      );
     }
 
     const technology = await this.technologyRepository.deleteTechnology(id);

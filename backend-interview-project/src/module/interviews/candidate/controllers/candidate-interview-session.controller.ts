@@ -36,11 +36,11 @@ export class CandidateInterviewSessionController {
    */
   @Post('start')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Start Interview Session cho Candidate' })
+  @ApiOperation({ summary: 'Create pending Interview Session for Candidate' })
   @ApiFormBody(StartCandidateInterviewSessionDto)
   @ApiCreatedSuccessResponse(
     CandidateInterviewSessionResponseDto,
-    'Interview session started successfully',
+    'Interview session created successfully',
   )
   @ApiBadRequestErrorResponse()
   @ApiUnauthorizedErrorResponse()
@@ -58,7 +58,7 @@ export class CandidateInterviewSessionController {
     return {
       success: true,
       statusCode: HttpStatus.CREATED,
-      message: 'Interview session started successfully',
+      message: 'Interview session created successfully',
       data,
     };
   }

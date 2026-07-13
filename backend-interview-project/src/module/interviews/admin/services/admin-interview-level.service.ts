@@ -61,7 +61,11 @@ export class AdminInterviewLevelService {
   async getActiveLevels(): Promise<AdminInterviewLevelListResponseResult> {
     this.logger.log('Start retrieving active interview levels');
     const { items, total } = await this.levelRepository.findActiveWithTotal();
-    return this.buildListResult(items, total, 'Active interview levels retrieved');
+    return this.buildListResult(
+      items,
+      total,
+      'Active interview levels retrieved',
+    );
   }
 
   /*
@@ -146,7 +150,9 @@ export class AdminInterviewLevelService {
         `Delete level failed because it is in use: id=${id}, usageCount=${usageCount}`,
       );
 
-      throw new ConflictException('Không thể xóa vì dữ liệu đang được sử dụng.');
+      throw new ConflictException(
+        'Không thể xóa vì dữ liệu đang được sử dụng.',
+      );
     }
 
     const deletedLevel = await this.levelRepository.deleteLevel(id);
