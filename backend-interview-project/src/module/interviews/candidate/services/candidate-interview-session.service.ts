@@ -1,8 +1,13 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
-  interview_configurations,
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import {
   interview_levels,
   interview_positions,
+  interview_sessions,
 } from 'generated/prisma/client';
 import { StartCandidateInterviewSessionDto } from '../dtos/start-candidate-interview-session.dto';
 import { CandidateInterviewSessionRepository } from '../repositories/candidate-interview-session.repository';
@@ -23,30 +28,28 @@ export class CandidateInterviewSessionService {
     userId: number,
     dto: StartCandidateInterviewSessionDto,
   ): Promise<CandidateInterviewSessionResult> {
+    const existingSession =
+      await this.sessionRepository.findActiveAiInterviewSessionByUserId(userId);
+    if (existingSession) this.throwActiveSessionConflict(existingSession);
+
     const [position, level] = await Promise.all([
       this.getActivePosition(dto.positionId),
       this.getActiveLevel(dto.levelId),
     ]);
 
-    const configuration = await this.getOrCreateConfiguration({
+    const creation = await this.createSessionWithConcurrencyGuard({
       userId,
       position,
       level,
     });
-    const latestAttempt = await this.sessionRepository.findLatestAttempt({
-      userId,
-      configurationId: configuration.id,
-    });
-    const attemptNumber = (latestAttempt?.attempt_number ?? 0) + 1;
+    if (!creation.created) {
+      this.throwActiveSessionConflict(creation.activeSession);
+    }
 
-    const session = await this.sessionRepository.createSession({
-      userId,
-      configurationId: configuration.id,
-      attemptNumber,
-    });
+    const { configuration, session } = creation;
 
     this.logger.log(
-      `Interview session started: userId=${userId}, sessionId=${session.id}`,
+      `Interview session created as pending: userId=${userId}, sessionId=${session.id}`,
     );
 
     return {
@@ -57,7 +60,7 @@ export class CandidateInterviewSessionService {
       levelId: configuration.level_id,
       attemptNumber: session.attempt_number,
       status: session.status,
-      startedAt: session.started_at ?? session.created_at,
+      startedAt: session.started_at,
     };
   }
 
@@ -84,23 +87,52 @@ export class CandidateInterviewSessionService {
     return level;
   }
 
-  private async getOrCreateConfiguration(params: {
+  private async createSessionWithConcurrencyGuard(params: {
     userId: number;
     position: interview_positions;
     level: interview_levels;
-  }): Promise<interview_configurations> {
-    const existedConfiguration = await this.sessionRepository.findConfiguration(
-      {
-        userId: params.userId,
-        positionId: params.position.id,
-        levelId: params.level.id,
-      },
-    );
+  }) {
+    try {
+      return await this.sessionRepository.createPendingSessionIfNoActive(
+        params,
+      );
+    } catch (error) {
+      if (!this.isTransactionConflict(error)) throw error;
 
-    if (existedConfiguration) {
-      return existedConfiguration;
+      const activeSession =
+        await this.sessionRepository.findActiveAiInterviewSessionByUserId(
+          params.userId,
+        );
+      if (activeSession) this.throwActiveSessionConflict(activeSession);
+
+      // A deadlock can be selected before the competing request commits.
+      // One bounded retry keeps the endpoint deterministic without looping.
+      return this.sessionRepository.createPendingSessionIfNoActive(params);
     }
+  }
 
-    return this.sessionRepository.createDefaultConfiguration(params);
+  private isTransactionConflict(error: unknown): boolean {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      error.code === 'P2034'
+    );
+  }
+
+  private throwActiveSessionConflict(session: interview_sessions): never {
+    throw new ConflictException({
+      code: 'ACTIVE_INTERVIEW_SESSION_EXISTS',
+      message:
+        'Bạn đang có một phiên phỏng vấn chưa hoàn thành. Vui lòng tiếp tục hoặc hủy phiên hiện tại trước khi tạo phiên mới.',
+      data: {
+        sessionId: session.id,
+        status: session.status,
+        configurationId: session.configuration_id,
+        createdAt: session.created_at,
+        startedAt: session.started_at,
+        canResume: true,
+      },
+    });
   }
 }

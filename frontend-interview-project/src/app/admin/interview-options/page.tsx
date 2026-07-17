@@ -1,5 +1,5 @@
-import { AdminInterviewOptionsPage } from "@/features/admin/interview-options/components/admin-interview-options-page";
+import { redirect } from "next/navigation";
 
 export default function AdminInterviewOptionsRoutePage() {
-  return <AdminInterviewOptionsPage />;
+  redirect("/admin/interview-technologies");
 }

@@ -120,12 +120,56 @@ export class MockTestMapper {
     };
   }
 
+  static toGradedResult(record: any) {
+    const { mockTest, gradedAnswers, correctCount, percentage } = record;
+    const selectedByQuestion = new Map(
+      gradedAnswers.map((answer: any) => [answer.questionId, answer.answerId]),
+    );
+
+    return {
+      mockTestId: mockTest.id,
+      title: mockTest.title,
+      totalQuestions: mockTest.questions.length,
+      correctCount,
+      wrongCount: mockTest.questions.length - correctCount,
+      score: correctCount,
+      percentage,
+      questions: mockTest.questions.map((item: any) => {
+        const question = item.question_bank;
+        const userAnswerId = selectedByQuestion.get(question.id) ?? null;
+        const correctAnswer = question.interview_question_bank_options.find(
+          (option: any) => option.is_correct,
+        );
+
+        return {
+          questionId: question.id,
+          title: question.title,
+          content: question.content,
+          userAnswerId,
+          correctAnswerId: correctAnswer?.id ?? null,
+          isCorrect: userAnswerId === correctAnswer?.id,
+          answers: question.interview_question_bank_options.map(
+            (option: any, index: number) => ({
+              id: option.id,
+              label: String.fromCharCode(65 + index),
+              content: option.content,
+              isUserSelected: option.id === userAnswerId,
+              isCorrect: option.is_correct,
+            }),
+          ),
+          expectedAnswer: question.expected_answer,
+        };
+      }),
+    };
+  }
+
   private static toQuestion(item: any, includeCorrectAnswers: boolean) {
     const question = item.question_bank;
     return {
       id: question.id,
       title: question.title,
       content: question.content,
+      type: question.question_type,
       difficulty: question.difficulty,
       technology: question.interview_technologies
         ? {
@@ -142,6 +186,15 @@ export class MockTestMapper {
           }
         : null,
       displayOrder: item.display_order,
+      answers: (question.interview_question_bank_options ?? []).map(
+        (option: any, index: number) => ({
+          id: option.id,
+          label: String.fromCharCode(65 + index),
+          content: option.content,
+          displayOrder: option.display_order,
+          ...(includeCorrectAnswers ? { isCorrect: option.is_correct } : {}),
+        }),
+      ),
       options: (question.interview_question_bank_options ?? []).map(
         (option: any) => ({
           id: option.id,

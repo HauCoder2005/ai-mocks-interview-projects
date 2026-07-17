@@ -1,7 +1,25 @@
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap");
+
 .shell {
   min-height: 100vh;
   background: #f8fafc;
   color: #0f172a;
+  font-family:
+    "Be Vietnam Pro",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.shell button,
+.shell input,
+.shell select,
+.shell textarea {
+  font-family: inherit;
 }
 
 .sidebar {
@@ -20,16 +38,22 @@
   align-items: center;
   gap: 10px;
   font-weight: 800;
+  text-decoration: none;
+  color: inherit;
 }
 
 .logoMark {
   display: grid;
   width: 40px;
   height: 40px;
+  flex: 0 0 40px;
   place-items: center;
   border-radius: 8px;
   background: #2563eb;
   color: #ffffff;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 800;
 }
 
 .brandName,
@@ -38,14 +62,18 @@
 }
 
 .brandName {
-  font-size: 15px;
+  color: #0f172a;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 800;
 }
 
 .tagline {
   margin-top: 2px;
   color: #64748b;
   font-size: 12px;
-  font-weight: 700;
+  line-height: 16px;
+  font-weight: 600;
 }
 
 .navigation {
@@ -55,29 +83,92 @@
   padding: 12px;
 }
 
-.navigationLink {
+.navigationGroup {
+  display: grid;
+  gap: 4px;
+}
+
+.navigationLink,
+.navigationGroupButton,
+.navigationChildLink {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+  min-height: 40px;
   white-space: nowrap;
   border-radius: 8px;
-  padding: 10px 12px;
   color: #475569;
   font-size: 14px;
-  font-weight: 700;
+  line-height: 20px;
+  font-weight: 600;
+  text-decoration: none;
   transition:
     background-color 160ms ease,
+    border-color 160ms ease,
     color 160ms ease;
 }
 
-.navigationLink:hover {
+.navigationLink {
+  padding: 10px 12px;
+}
+
+.navigationGroupButton {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 10px 12px;
+  font: inherit;
+  text-align: left;
+}
+
+.navigationLink svg,
+.navigationGroupButton svg,
+.navigationChildLink svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  stroke-width: 2;
+}
+
+.navigationChevron {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  margin-left: auto;
+  color: currentColor;
+}
+
+.navigationChildren {
+  display: grid;
+  gap: 4px;
+  margin-top: 4px;
+  padding-left: 12px;
+}
+
+.navigationChildLink {
+  min-height: 38px;
+  border-left: 2px solid transparent;
+  border-radius: 8px;
+  padding: 9px 12px;
+}
+
+.navigationLink:hover,
+.navigationGroupButton:hover,
+.navigationChildLink:hover {
   background: #f8fafc;
   color: #0f172a;
 }
 
-.navigationLinkActive {
+.navigationLinkActive,
+.navigationChildLinkActive {
   background: #eff6ff;
   color: #2563eb;
+  font-weight: 600;
+}
+
+.navigationChildLinkActive {
+  border-left-color: #2563eb;
 }
 
 .workspace {
@@ -101,12 +192,21 @@
   margin: 0;
   color: #64748b;
   font-size: 14px;
-  font-weight: 800;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.eyebrow svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  stroke-width: 2;
 }
 
 .logoutButton {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -114,7 +214,20 @@
   color: #334155;
   cursor: pointer;
   padding: 9px 12px;
-  font-weight: 800;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.logoutButton svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  stroke-width: 2;
 }
 
 .logoutButton:hover {
@@ -125,7 +238,9 @@
 
 .content {
   width: 100%;
+  min-width: 0;
   max-width: 1180px;
+  box-sizing: border-box;
   margin: 0 auto;
   padding: 24px;
 }
@@ -146,6 +261,12 @@
     flex-direction: column;
     overflow: visible;
   }
+
+  .navigationLink,
+  .navigationGroupButton,
+  .navigationChildLink {
+    width: 100%;
+  }
 }
 
 @media (max-width: 640px) {
@@ -155,6 +276,5 @@
 
   .logoutButton {
     width: 100%;
-    justify-content: center;
   }
 }

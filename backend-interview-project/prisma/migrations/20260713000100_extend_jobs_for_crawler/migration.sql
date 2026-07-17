@@ -1,0 +1,18 @@
+ALTER TABLE `jobs`
+  ADD COLUMN `source` ENUM('UNKNOWN', 'TOPCV', 'CAREERVIET', 'VIETNAMWORKS', 'TOPDEV') NOT NULL DEFAULT 'UNKNOWN',
+  ADD COLUMN `externalId` VARCHAR(255) NULL,
+  ADD COLUMN `companyUrl` TEXT NULL,
+  ADD COLUMN `logoUrl` TEXT NULL,
+  ADD COLUMN `location` VARCHAR(500) NULL,
+  ADD COLUMN `salary` VARCHAR(255) NULL,
+  ADD COLUMN `description` LONGTEXT NULL,
+  ADD COLUMN `requirements` LONGTEXT NULL,
+  ADD COLUMN `benefits` LONGTEXT NULL,
+  ADD COLUMN `experience` VARCHAR(255) NULL,
+  ADD COLUMN `level` VARCHAR(255) NULL,
+  ADD COLUMN `employmentType` VARCHAR(255) NULL,
+  ADD COLUMN `tags` JSON NULL,
+  ADD COLUMN `postedAt` DATETIME(3) NULL,
+  ADD COLUMN `crawledAt` TIMESTAMP(0) NULL,
+  ADD INDEX `jobs_source_idx` (`source`),
+  ADD UNIQUE INDEX `jobs_source_externalId_key` (`source`, `externalId`);

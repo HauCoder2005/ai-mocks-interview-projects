@@ -9,7 +9,7 @@ import { AdminInterviewPositionListQueryResult } from '../results/interview/posi
 
 @Injectable()
 export class AdminInterviewPositionRepository extends AbstractPrismaCrudService<any> {
-  constructor(prismaService: PrismaService) {
+  constructor(private readonly prismaService: PrismaService) {
     super(prismaService.interview_positions);
   }
 
@@ -177,6 +177,36 @@ export class AdminInterviewPositionRepository extends AbstractPrismaCrudService<
         updated_at: new Date(),
       },
     );
+
+    return AdminInterviewPositionMapper.toModel(position);
+  }
+
+  /*
+   * Đếm các dữ liệu nghiệp vụ đang tham chiếu Position.
+   * Nếu count > 0 thì Service không được hard delete để tránh lỗi FK.
+   */
+  async countUsage(id: number): Promise<number> {
+    const [configurationCount, interviewCount] = await Promise.all([
+      this.prismaService.interview_configurations.count({
+        where: {
+          position_id: id,
+        },
+      }),
+      this.prismaService.interviews.count({
+        where: {
+          position_id: id,
+        },
+      }),
+    ]);
+
+    return configurationCount + interviewCount;
+  }
+
+  /*
+   * Xóa cứng Position khi không còn dữ liệu liên quan.
+   */
+  async deletePosition(id: number): Promise<AdminInterviewPositionModel> {
+    const position = await this.deleteOne({ id });
 
     return AdminInterviewPositionMapper.toModel(position);
   }

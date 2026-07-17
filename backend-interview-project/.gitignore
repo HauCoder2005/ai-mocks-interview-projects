@@ -134,6 +134,7 @@ jest-html-reporters-*.html
 # ==========================================
 *.sql
 *.dump
+!prisma/migrations/20260713000100_extend_jobs_for_crawler/migration.sql
 
 # ==========================================
 # Local Secrets

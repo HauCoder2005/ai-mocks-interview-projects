@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 import { AdminQuestionCard } from "./admin-question-card";
 import type { AdminQuestion } from "../types/admin-question-bank.type";
@@ -28,8 +29,7 @@ export function AdminQuestionGroupList({
   if (!questions.length) {
     return (
       <section className={shared.panel}>
-        <h2 className={shared.cardTitle}>No questions found</h2>
-        <p className={shared.muted}>Điều chỉnh bộ lọc hoặc tạo câu hỏi mới.</p>
+        <h2 className={shared.cardTitle}>Không có câu hỏi nào.</h2>
       </section>
     );
   }
@@ -53,7 +53,8 @@ export function AdminQuestionGroupList({
                 <span className={shared.badge}>{groupQuestions.length} câu hỏi</span>
               </span>
               <button
-                className={shared.secondaryButton}
+                aria-label={isOpen ? "Đóng nhóm" : "Mở nhóm"}
+                className={`${shared.iconButton} ${shared.iconButtonNeutral}`}
                 onClick={() =>
                   setOpenTopics((current) =>
                     current.includes(topic)
@@ -61,9 +62,10 @@ export function AdminQuestionGroupList({
                       : [...current, topic],
                   )
                 }
+                title={isOpen ? "Đóng nhóm" : "Mở nhóm"}
                 type="button"
               >
-                {isOpen ? "Đóng" : "Mở"}
+                {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               </button>
             </div>
             {isOpen ? (

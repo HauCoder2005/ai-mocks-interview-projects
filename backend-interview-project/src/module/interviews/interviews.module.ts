@@ -38,6 +38,7 @@ import { CandidateInterviewSessionRepository } from './candidate/repositories/ca
 import { CandidateInterviewSessionService } from './candidate/services/candidate-interview-session.service';
 import { CandidateInterviewEvaluationController } from './candidate/controllers/candidate-interview-evaluation.controller';
 import { CandidateInterviewEvaluationService } from './candidate/services/candidate-interview-evaluation.service';
+import { CandidateInterviewHistoryModule } from './candidate/interview-history/candidate-interview-history.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { CandidateInterviewEvaluationService } from './candidate/services/candid
     SpeechTranscriptionModule,
     InterviewAgentModule,
     TranscriptProcessingModule,
+    CandidateInterviewHistoryModule,
   ],
   controllers: [
     AdminInterviewMasterDataController,

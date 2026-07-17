@@ -7,7 +7,7 @@ import { AdminInterviewLevelListQueryResult } from '../results/interview/level/a
 
 @Injectable()
 export class AdminInterviewLevelRepository extends AbstractPrismaCrudService<any> {
-  constructor(prismaService: PrismaService) {
+  constructor(private readonly prismaService: PrismaService) {
     super(prismaService.interview_levels);
   }
 
@@ -264,6 +264,35 @@ export class AdminInterviewLevelRepository extends AbstractPrismaCrudService<any
         updated_at: new Date(),
       },
     );
+
+    return AdminInterviewLevelMapper.toModel(level);
+  }
+
+  /*
+   * Đếm các dữ liệu nghiệp vụ đang tham chiếu Level.
+   */
+  async countUsage(id: number): Promise<number> {
+    const [configurationCount, interviewCount] = await Promise.all([
+      this.prismaService.interview_configurations.count({
+        where: {
+          level_id: id,
+        },
+      }),
+      this.prismaService.interviews.count({
+        where: {
+          experience_level_id: id,
+        },
+      }),
+    ]);
+
+    return configurationCount + interviewCount;
+  }
+
+  /*
+   * Xóa cứng Level khi không còn dữ liệu liên quan.
+   */
+  async deleteLevel(id: number): Promise<AdminInterviewLevelModel> {
+    const level = await this.deleteOne({ id });
 
     return AdminInterviewLevelMapper.toModel(level);
   }

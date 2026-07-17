@@ -8,5 +8,5 @@ export interface CandidateInterviewSessionResult {
   levelId: number;
   attemptNumber: number;
   status: interview_sessions_status;
-  startedAt: Date;
+  startedAt: Date | null;
 }

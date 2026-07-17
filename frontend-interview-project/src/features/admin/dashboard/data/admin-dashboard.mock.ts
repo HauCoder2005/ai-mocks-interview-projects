@@ -37,6 +37,6 @@ export const recentActivities: RecentActivity[] = [];
 export const quickActions: QuickAction[] = [
   { label: "Quản lý người dùng", description: "Tài khoản, vai trò và trạng thái", href: appRoutes.adminUsers },
   { label: "Ngân hàng câu hỏi", description: "Tổ chức câu hỏi phỏng vấn", href: appRoutes.adminQuestionBanks },
-  { label: "Tùy chọn phỏng vấn", description: "Vị trí, cấp độ và chủ đề", href: appRoutes.adminInterviewOptions },
-  { label: "Chủ đề", description: "Nhóm dữ liệu dùng chung", href: appRoutes.adminInterviewOptions },
+  { label: "Công nghệ", description: "Quản lý công nghệ phỏng vấn", href: appRoutes.adminInterviewTechnologies },
+  { label: "Chủ đề", description: "Nhóm dữ liệu dùng chung", href: appRoutes.adminInterviewTopics },
 ];

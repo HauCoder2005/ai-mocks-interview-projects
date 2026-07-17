@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -10,7 +11,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 
 import {
   ApiResponse,
@@ -236,6 +237,33 @@ export class AdminInterviewTopicController {
       success: true,
       statusCode: HttpStatus.OK,
       message: 'Interview topic deactivated successfully',
+      data,
+    };
+  }
+
+  /*
+   * Xóa cứng Interview Topic nếu chưa có dữ liệu liên kết.
+   */
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Xóa Interview Topic' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiSuccessResponse(
+    AdminInterviewTopicResponseDto,
+    'Interview topic deleted successfully',
+  )
+  @ApiBadRequestErrorResponse()
+  @ApiNotFoundErrorResponse('Interview topic not found')
+  @ApiConflictErrorResponse('Không thể xóa vì dữ liệu đang được sử dụng.')
+  async deleteTopic(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ApiResponse<AdminInterviewTopicResponseDto>> {
+    const data = await this.adminInterviewTopicService.deleteTopic(id);
+
+    return {
+      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Interview topic deleted successfully',
       data,
     };
   }

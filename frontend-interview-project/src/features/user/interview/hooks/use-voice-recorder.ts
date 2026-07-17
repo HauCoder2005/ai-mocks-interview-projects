@@ -6,7 +6,7 @@ export function useVoiceRecorder() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const timerRef = useRef<ReturnType<typeof window.setInterval> | null>(null);
+  const timerRef = useRef<number | null>(null);
   const audioUrlRef = useRef<string>("");
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
@@ -140,6 +141,36 @@ export class AdminInterviewTopicService {
   }
 
   /*
+   * Xóa cứng Interview Topic khi chưa được sử dụng.
+   */
+  async deleteTopic(id: number): Promise<AdminInterviewTopicResponseDto> {
+    this.logger.log(`Start deleting interview topic: id=${id}`);
+
+    this.validateId(id);
+    await this.getTopicByIdOrThrow(id);
+
+    const usageCount = await this.topicRepository.countUsage(id);
+
+    if (usageCount > 0) {
+      this.logger.warn(
+        `Delete topic failed because it is in use: id=${id}, usageCount=${usageCount}`,
+      );
+
+      throw new ConflictException(
+        'Không thể xóa vì dữ liệu đang được sử dụng.',
+      );
+    }
+
+    const topic = await this.topicRepository.deleteTopic(id);
+
+    this.logger.log(
+      `Interview topic deleted successfully: id=${topic.id}, code=${topic.code}`,
+    );
+
+    return AdminInterviewTopicMapper.toResponseDto(topic);
+  }
+
+  /*
    * Gộp logic build response list cho các API danh sách.
    * Helper này map domain model sang response DTO và tạo meta.
    */
@@ -224,6 +255,12 @@ export class AdminInterviewTopicService {
       );
 
       throw new ConflictException('Interview topic code already exists');
+    }
+  }
+
+  private validateId(id: number): void {
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new BadRequestException('Invalid interview topic id');
     }
   }
 }

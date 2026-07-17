@@ -14,6 +14,7 @@ import { PrismaService } from 'src/infrastructure/persistence/prisma/prisma.serv
 import { MockTestQueryDto } from '../admin/dtos/mock-test-query.dto';
 import { CreateMockTestDto } from '../admin/dtos/create-mock-test.dto';
 import { UpdateMockTestDto } from '../admin/dtos/update-mock-test.dto';
+import { SubmitMockTestItemDto } from '../candidate/dtos/submit-mock-test.dto';
 
 @Injectable()
 export class MockTestRepository {
@@ -38,6 +39,82 @@ export class MockTestRepository {
       },
       ...this.detailInclude(),
     });
+  }
+
+  async findPublishedById(id: number) {
+    return this.prismaService.mockTest.findFirst({
+      where: { id, status: MockTestStatus.PUBLISHED },
+      ...this.detailInclude(),
+    });
+  }
+
+  async gradeMockTest(
+    userId: number,
+    mockTestId: number,
+    answers: SubmitMockTestItemDto[],
+  ) {
+    const mockTest = await this.findPublishedById(mockTestId);
+    if (!mockTest) {
+      throw new NotFoundException('Published mock test not found');
+    }
+
+    const questionIds = answers.map((answer) => answer.questionId);
+    if (new Set(questionIds).size !== questionIds.length) {
+      throw new BadRequestException('Each question can only be answered once');
+    }
+
+    const questionsById = new Map(
+      mockTest.questions.map((item) => [item.question_bank_id, item]),
+    );
+    const gradedAnswers = answers.map((answer) => {
+      const item = questionsById.get(answer.questionId);
+      if (!item) {
+        throw new BadRequestException('Question does not belong to mock test');
+      }
+
+      const selectedOption =
+        item.question_bank.interview_question_bank_options.find(
+          (option) => option.id === answer.answerId,
+        );
+      if (!selectedOption) {
+        throw new BadRequestException('Answer does not belong to question');
+      }
+
+      return {
+        questionId: answer.questionId,
+        answerId: answer.answerId,
+        isCorrect: selectedOption.is_correct,
+      };
+    });
+
+    const totalQuestions = mockTest.questions.length;
+    const correctCount = gradedAnswers.filter(
+      (answer) => answer.isCorrect,
+    ).length;
+    const percentage = totalQuestions
+      ? Number(((correctCount / totalQuestions) * 100).toFixed(2))
+      : 0;
+
+    await this.prismaService.testAttempt.create({
+      data: {
+        user_id: userId,
+        mock_test_id: mockTestId,
+        status: TestAttemptStatus.COMPLETED,
+        total_questions: totalQuestions,
+        correct_answers: correctCount,
+        score: new Prisma.Decimal(percentage),
+        completed_at: new Date(),
+        answers: {
+          create: gradedAnswers.map((answer) => ({
+            question_bank_id: answer.questionId,
+            selected_option_id: answer.answerId,
+            is_correct: answer.isCorrect,
+          })),
+        },
+      },
+    });
+
+    return { mockTest, gradedAnswers, correctCount, percentage };
   }
 
   async findById(id: number) {

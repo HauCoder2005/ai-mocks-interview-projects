@@ -30,7 +30,7 @@
  * Nó chỉ chịu trách nhiệm gọi API và xử lý response/error tập trung.
  */
 
-import { ApiErrorResponse } from "./api-error";
+import { ApiClientError, ApiErrorResponse } from "./api-error";
 import { getStoredAccessToken } from "@/lib/auth/auth-storage";
 
 const urlApi = process.env.NEXT_PUBLIC_API_URL as string;
@@ -74,10 +74,13 @@ export const request = async <TResponse>(
   if (!response.ok) {
     const apiErr = data as ApiErrorResponse | null;
 
-    throw new Error(
+    throw new ApiClientError(
       [apiErr?.message].flat().filter(Boolean).join(", ") ||
         apiErr?.error ||
         "API request failed",
+      response.status,
+      apiErr?.code,
+      apiErr?.data,
     );
   }
 

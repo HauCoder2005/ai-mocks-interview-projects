@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { mockTestsService } from "@/lib/api/services/mock-tests";
 import type { MockTestDetailDto } from "@/lib/api/services/mock-tests";
 
-export function useMockTestDetail(slug: string) {
+export function useMockTestDetail(id: string) {
   const [data, setData] = useState<MockTestDetailDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -15,7 +15,7 @@ export function useMockTestDetail(slug: string) {
     setErrorMessage("");
 
     try {
-      const response = await mockTestsService.getMockTestBySlug(slug);
+      const response = await mockTestsService.getMockTestDetail(id);
       setData(response.data);
     } catch (error) {
       setErrorMessage(
@@ -26,13 +26,13 @@ export function useMockTestDetail(slug: string) {
     } finally {
       setIsLoading(false);
     }
-  }, [slug]);
+  }, [id]);
 
   useEffect(() => {
     let isMounted = true;
 
     mockTestsService
-      .getMockTestBySlug(slug)
+      .getMockTestDetail(id)
       .then((response) => {
         if (!isMounted) return;
         setData(response.data);
@@ -53,7 +53,7 @@ export function useMockTestDetail(slug: string) {
     return () => {
       isMounted = false;
     };
-  }, [slug]);
+  }, [id]);
 
   return {
     data,

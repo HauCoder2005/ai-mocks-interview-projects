@@ -1,3 +1,5 @@
+import { Pencil, Power, Trash2 } from "lucide-react";
+
 import type { AdminQuestion } from "../types/admin-question-bank.type";
 import shared from "../../shared/admin-ui.module.css";
 import styles from "../../topics/components/admin-topic-groups.module.css";
@@ -38,21 +40,31 @@ export function AdminQuestionCard({
       </div>
       <div className={shared.buttonRow}>
         <button
-          className={shared.secondaryButton}
+          aria-label="Sửa câu hỏi"
+          className={`${shared.iconButton} ${shared.iconButtonNeutral}`}
           onClick={() => onEdit(question)}
+          title="Sửa câu hỏi"
           type="button"
         >
-          Sửa
-        </button>
-        <button className={shared.secondaryButton} onClick={() => onToggleStatus(question)} type="button">
-          Bật/Tắt
+          <Pencil size={16} />
         </button>
         <button
-          className={shared.dangerButton}
-          onClick={() => onDelete(question)}
+          aria-label="Bật/Tắt câu hỏi"
+          className={`${shared.iconButton} ${shared.iconButtonWarning}`}
+          onClick={() => onToggleStatus(question)}
+          title="Bật/Tắt câu hỏi"
           type="button"
         >
-          Xóa
+          <Power size={16} />
+        </button>
+        <button
+          aria-label="Xóa câu hỏi"
+          className={`${shared.iconButton} ${shared.iconButtonDanger}`}
+          onClick={() => onDelete(question)}
+          title="Xóa câu hỏi"
+          type="button"
+        >
+          <Trash2 size={16} />
         </button>
       </div>
     </article>

@@ -1,3 +1,5 @@
+import { CheckCircle, Eye, Pencil, Trash2, XCircle } from "lucide-react";
+
 import type { AdminUser } from "../types/admin-user.type";
 import styles from "../../shared/admin-ui.module.css";
 
@@ -55,29 +57,50 @@ export function AdminUsersTable({
               <td>{user.createdAt}</td>
               <td>
                 <div className={styles.buttonRow}>
-                  <button className={styles.ghostButton} type="button">
-                    View
+                  <button
+                    aria-label="Xem chi tiết"
+                    className={`${styles.iconButton} ${styles.iconButtonNeutral}`}
+                    title="Xem chi tiết"
+                    type="button"
+                  >
+                    <Eye size={16} />
                   </button>
                   <button
-                    className={styles.secondaryButton}
+                    aria-label="Sửa"
+                    className={`${styles.iconButton} ${styles.iconButtonNeutral}`}
                     onClick={() => onEdit(user)}
+                    title="Sửa"
                     type="button"
                   >
-                    Edit
+                    <Pencil size={16} />
                   </button>
                   <button
-                    className={styles.secondaryButton}
+                    aria-label={
+                      user.status === "Active" ? "Vô hiệu hóa" : "Kích hoạt"
+                    }
+                    className={
+                      user.status === "Active"
+                        ? `${styles.iconButton} ${styles.iconButtonWarning}`
+                        : `${styles.iconButton} ${styles.iconButtonSuccess}`
+                    }
                     onClick={() => onToggleStatus(user)}
+                    title={user.status === "Active" ? "Vô hiệu hóa" : "Kích hoạt"}
                     type="button"
                   >
-                    {user.status === "Active" ? "Disable" : "Enable"}
+                    {user.status === "Active" ? (
+                      <XCircle size={16} />
+                    ) : (
+                      <CheckCircle size={16} />
+                    )}
                   </button>
                   <button
-                    className={styles.dangerButton}
+                    aria-label="Xóa"
+                    className={`${styles.iconButton} ${styles.iconButtonDanger}`}
                     onClick={() => onDelete(user)}
+                    title="Xóa"
                     type="button"
                   >
-                    Delete
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </td>

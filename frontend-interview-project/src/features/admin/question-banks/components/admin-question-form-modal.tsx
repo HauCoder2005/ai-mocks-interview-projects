@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Trash2 } from "lucide-react";
 
 import type {
-  InterviewTechnologyDto,
-  InterviewTopicDto,
-} from "@/lib/api/services/interview/interview-options";
+  InterviewLevel,
+  InterviewTechnology,
+  InterviewTopic,
+} from "@/lib/api/services/admin/master-data";
 import { AdminModal } from "../../shared/admin-modal";
 import shared from "../../shared/admin-ui.module.css";
 import type {
@@ -15,8 +17,10 @@ import type {
 
 type AdminQuestionFormModalProps = {
   question?: AdminQuestion;
-  technologies: InterviewTechnologyDto[];
-  topics: InterviewTopicDto[];
+  technologies: InterviewTechnology[];
+  topics: InterviewTopic[];
+  levels: InterviewLevel[];
+  isCatalogLoading?: boolean;
   isSubmitting?: boolean;
   onClose: () => void;
   onSubmit: (input: AdminQuestionFormInput) => void;
@@ -30,14 +34,14 @@ const defaultOptions = ["", "", "", ""].map((content, index) => ({
 
 function buildInitialForm(
   question: AdminQuestion | undefined,
-  technologies: InterviewTechnologyDto[],
-  topics: InterviewTopicDto[],
+  technologies: InterviewTechnology[],
+  topics: InterviewTopic[],
 ): AdminQuestionFormInput {
   return {
     title: question?.title ?? "",
     content: question?.content ?? "",
-    technologyId: question?.technology?.id ?? technologies[0]?.id ?? 1,
-    topicId: question?.topic?.id ?? topics[0]?.id ?? 1,
+    technologyId: question?.technology?.id ?? technologies[0]?.id ?? 0,
+    topicId: question?.topic?.id ?? topics[0]?.id ?? 0,
     questionType: question?.questionType ?? "MCQ",
     difficulty: question?.difficulty ?? "EASY",
     expectedAnswer: question?.expectedAnswer ?? "",
@@ -53,7 +57,9 @@ function buildInitialForm(
 }
 
 export function AdminQuestionFormModal({
+  isCatalogLoading = false,
   isSubmitting = false,
+  levels,
   onClose,
   onSubmit,
   question,
@@ -63,11 +69,40 @@ export function AdminQuestionFormModal({
   const [form, setForm] = useState<AdminQuestionFormInput>(() =>
     buildInitialForm(question, technologies, topics),
   );
+  const [selectedLevelId, setSelectedLevelId] = useState(levels[0]?.id ?? 0);
   const [error, setError] = useState("");
 
   const isMcq = form.questionType === "MCQ";
+  const hasCatalogData =
+    technologies.length > 0 && topics.length > 0 && levels.length > 0;
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setForm((currentForm) => ({
+        ...currentForm,
+        technologyId: currentForm.technologyId || technologies[0]?.id || 0,
+        topicId: currentForm.topicId || topics[0]?.id || 0,
+      }));
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [technologies, topics]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setSelectedLevelId((currentLevelId) => currentLevelId || levels[0]?.id || 0);
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [levels]);
 
   const validationError = useMemo(() => {
+    if (isCatalogLoading) {
+      return "Đang tải danh mục lựa chọn.";
+    }
+    if (!hasCatalogData) {
+      return "Chưa có dữ liệu. Vui lòng tạo trong trang quản lý tương ứng.";
+    }
     if (!form.title.trim()) return "Vui lòng nhập tiêu đề câu hỏi.";
     if (!form.content.trim()) return "Vui lòng nhập nội dung câu hỏi.";
     if (!form.technologyId) return "Vui lòng chọn công nghệ.";
@@ -85,7 +120,7 @@ export function AdminQuestionFormModal({
     }
 
     return "";
-  }, [form, isMcq]);
+  }, [form, hasCatalogData, isCatalogLoading, isMcq]);
 
   const updateOption = (
     index: number,
@@ -145,7 +180,7 @@ export function AdminQuestionFormModal({
       footer={
         <button
           className={shared.primaryButton}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isCatalogLoading || Boolean(validationError)}
           onClick={handleSubmit}
           type="button"
         >
@@ -172,6 +207,13 @@ export function AdminQuestionFormModal({
         />
       </label>
       <div className={shared.twoColumn}>
+        {isCatalogLoading ? (
+          <p className={shared.muted}>Đang tải danh mục lựa chọn...</p>
+        ) : !hasCatalogData ? (
+          <p className={shared.errorText}>
+            Chưa có dữ liệu. Vui lòng tạo trong trang quản lý tương ứng.
+          </p>
+        ) : null}
         <label className={shared.field}>
           <span className={shared.label}>Công nghệ</span>
           <select
@@ -181,6 +223,13 @@ export function AdminQuestionFormModal({
             }
             value={form.technologyId}
           >
+            <option disabled value={0}>
+              {isCatalogLoading
+                ? "Đang tải..."
+                : technologies.length === 0
+                  ? "Chưa có dữ liệu. Vui lòng tạo trong trang quản lý tương ứng."
+                  : "Chọn công nghệ"}
+            </option>
             {technologies.map((technology) => (
               <option key={technology.id} value={technology.id}>
                 {technology.name}
@@ -197,11 +246,42 @@ export function AdminQuestionFormModal({
             }
             value={form.topicId}
           >
+            <option disabled value={0}>
+              {isCatalogLoading
+                ? "Đang tải..."
+                : topics.length === 0
+                  ? "Chưa có dữ liệu. Vui lòng tạo trong trang quản lý tương ứng."
+                  : "Chọn chủ đề"}
+            </option>
             {topics.map((topic) => (
               <option key={topic.id} value={topic.id}>
                 {topic.name}
               </option>
             ))}
+          </select>
+        </label>
+        <label className={shared.field}>
+          <span className={shared.label}>Level</span>
+          <select
+            className={shared.select}
+            onChange={(event) => setSelectedLevelId(Number(event.target.value))}
+            value={selectedLevelId}
+          >
+            {isCatalogLoading ? (
+              <option disabled value={0}>
+                Đang tải...
+              </option>
+            ) : levels.length === 0 ? (
+              <option disabled value={0}>
+                Chưa có dữ liệu. Vui lòng tạo trong trang quản lý tương ứng.
+              </option>
+            ) : (
+              levels.map((level) => (
+                <option key={level.id} value={level.id}>
+                  {level.name}
+                </option>
+              ))
+            )}
           </select>
         </label>
         <label className={shared.field}>
@@ -310,11 +390,13 @@ export function AdminQuestionFormModal({
                 </label>
                 {(form.options?.length ?? 0) > 2 ? (
                   <button
-                    className={shared.dangerButton}
+                    aria-label={`Xóa đáp án ${String.fromCharCode(65 + index)}`}
+                    className={`${shared.iconButton} ${shared.iconButtonDanger}`}
                     onClick={() => removeOption(index)}
+                    title={`Xóa đáp án ${String.fromCharCode(65 + index)}`}
                     type="button"
                   >
-                    Xóa
+                    <Trash2 size={16} />
                   </button>
                 ) : null}
               </div>

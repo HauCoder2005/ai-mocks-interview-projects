@@ -546,20 +546,45 @@ model SystemVisit {
 }
 
 model Job {
-  id           Int       @id @default(autoincrement())
-  title        String    @db.VarChar(255)
-  company      String    @db.VarChar(255)
-  sourceUrl    String    @unique @db.VarChar(768)
-  technologies Json?
-  focusTopics  Json?
-  expiredAt    DateTime?
-  status       JobStatus @default(ACTIVE)
-  createdAt    DateTime  @default(now()) @db.Timestamp(0)
-  updatedAt    DateTime  @default(now()) @updatedAt @db.Timestamp(0)
+  id             Int       @id @default(autoincrement())
+  title          String    @db.VarChar(255)
+  company        String    @db.VarChar(255)
+  sourceUrl      String    @unique @db.VarChar(768)
+  source         JobSource @default(UNKNOWN)
+  externalId     String?   @db.VarChar(255)
+  companyUrl     String?   @db.Text
+  logoUrl        String?   @db.Text
+  location       String?   @db.VarChar(500)
+  salary         String?   @db.VarChar(255)
+  description    String?   @db.LongText
+  requirements   String?   @db.LongText
+  benefits       String?   @db.LongText
+  experience     String?   @db.VarChar(255)
+  level          String?   @db.VarChar(255)
+  employmentType String?   @db.VarChar(255)
+  tags           Json?
+  technologies   Json?
+  focusTopics    Json?
+  postedAt       DateTime?
+  expiredAt      DateTime?
+  crawledAt      DateTime? @db.Timestamp(0)
+  status         JobStatus @default(ACTIVE)
+  createdAt      DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt      DateTime  @default(now()) @updatedAt @db.Timestamp(0)
 
   @@index([status])
+  @@index([source])
   @@index([expiredAt])
+  @@unique([source, externalId])
   @@map("jobs")
+}
+
+enum JobSource {
+  UNKNOWN
+  TOPCV
+  CAREERVIET
+  VIETNAMWORKS
+  TOPDEV
 }
 
 enum JobStatus {

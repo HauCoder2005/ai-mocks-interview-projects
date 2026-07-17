@@ -1,0 +1,2 @@
+import type { InterviewHistoryItem } from '../types/interview-history.type'; import { InterviewHistoryCard } from './interview-history-card'; import styles from './interview-history.module.css';
+export function InterviewHistoryList({ items, onCancelled }: { items: InterviewHistoryItem[]; onCancelled: () => void | Promise<void> }) { return <section className={styles.list}>{items.map((item)=><InterviewHistoryCard item={item} key={item.sessionId} onCancelled={onCancelled}/>)}</section>; }

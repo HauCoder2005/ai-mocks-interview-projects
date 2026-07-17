@@ -1,8 +1,11 @@
 "use client";
 
-import { Mic, RotateCcw, Send, Square } from "lucide-react";
+import Link from "next/link";
+import { Mic, Play, RotateCcw, Send, Square } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { getInterviewHistoryDetail } from "@/features/interview-history/api/interview-history.api";
+import type { InterviewHistoryStatus } from "@/features/interview-history/types/interview-history.type";
 import { candidateInterviewSessionService } from "@/lib/api/services/interview/candidate-interview-session";
 import type { EvaluateAnswerData } from "@/lib/api/services/interview/candidate-interview-session";
 import { useVoiceRecorder } from "../hooks";
@@ -42,7 +45,10 @@ const fallbackContext = {
   interviewType: "TECHNICAL",
 };
 
-function createMessage(role: ChatMessage["role"], content: string): ChatMessage {
+function createMessage(
+  role: ChatMessage["role"],
+  content: string,
+): ChatMessage {
   return {
     id:
       typeof crypto !== "undefined" && crypto.randomUUID
@@ -114,6 +120,10 @@ export function InterviewChatSession({ sessionId }: InterviewChatSessionProps) {
   const [isUploadingAudio, setIsUploadingAudio] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [sessionStatus, setSessionStatus] =
+    useState<InterviewHistoryStatus | null>(null);
+  const [isLoadingSession, setIsLoadingSession] = useState(true);
+  const [isStartingSession, setIsStartingSession] = useState(false);
   const [sessionContext, setSessionContext] =
     useState<InterviewSessionContext>(fallbackContext);
   const messageListRef = useRef<HTMLDivElement | null>(null);
@@ -139,9 +149,71 @@ export function InterviewChatSession({ sessionId }: InterviewChatSessionProps) {
   );
 
   useEffect(() => {
-    queueMicrotask(() => {
-      setSessionContext(getSessionContext(sessionId));
-    });
+    let active = true;
+    getInterviewHistoryDetail(sessionId)
+      .then((detail) => {
+        if (!active) return;
+        const storedContext = getSessionContext(sessionId);
+        setSessionContext({
+          ...storedContext,
+          positionId: detail.position.id,
+          positionName: detail.position.name,
+          levelId: detail.level.id,
+          levelName: detail.level.name,
+          interviewType: detail.interviewType,
+        });
+        setSessionStatus(detail.status);
+
+        const answeredQuestions = detail.questions.filter(
+          (question) => question.answer?.answerText,
+        );
+        if (detail.questions.length) {
+          const restoredMessages = detail.questions.flatMap((question) => {
+            const questionMessage: ChatMessage = {
+              id: `question-${question.sessionQuestionId}`,
+              role: "ai",
+              content: question.content,
+              createdAt: detail.createdAt,
+            };
+            return question.answer?.answerText
+              ? [
+                  questionMessage,
+                  {
+                    id: `answer-${question.sessionQuestionId}`,
+                    role: "user" as const,
+                    content: question.answer.answerText,
+                    createdAt: detail.updatedAt,
+                  },
+                ]
+              : [questionMessage];
+          });
+          setMessages(restoredMessages);
+          setPreviousQuestions(answeredQuestions.map((question) => question.content));
+          setPreviousAnswers(
+            answeredQuestions.map((question) => question.answer?.answerText ?? ""),
+          );
+          setCurrentQuestion(
+            detail.questions.find((question) => !question.answered)?.content ??
+              detail.questions.at(-1)?.content ??
+              initialQuestion,
+          );
+        }
+      })
+      .catch((error) => {
+        if (active) {
+          setErrorMessage(
+            error instanceof Error
+              ? error.message
+              : "Không thể tải phiên phỏng vấn.",
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setIsLoadingSession(false);
+      });
+    return () => {
+      active = false;
+    };
   }, [sessionId]);
 
   useEffect(() => {
@@ -171,6 +243,25 @@ export function InterviewChatSession({ sessionId }: InterviewChatSessionProps) {
     }
 
     await startRecording();
+  };
+
+  const handleStartSession = async () => {
+    if (isStartingSession) return;
+    setIsStartingSession(true);
+    setErrorMessage(null);
+    try {
+      const response =
+        await candidateInterviewSessionService.startCreatedSession(sessionId);
+      setSessionStatus(response.data.status);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Không thể bắt đầu phiên phỏng vấn.",
+      );
+    } finally {
+      setIsStartingSession(false);
+    }
   };
 
   const handleSendAudioAnswer = async () => {
@@ -222,6 +313,13 @@ export function InterviewChatSession({ sessionId }: InterviewChatSessionProps) {
         });
       const aiContent = buildAiChatMessage(evaluateResult.data);
 
+      if (!evaluateResult.data.shouldContinue) {
+        await candidateInterviewSessionService.completeSession(
+          sessionId,
+          evaluateResult.data.overallScore,
+        );
+      }
+
       setEvaluations((currentEvaluations) => [
         ...currentEvaluations,
         evaluateResult.data,
@@ -254,16 +352,61 @@ export function InterviewChatSession({ sessionId }: InterviewChatSessionProps) {
     }
   };
 
+  if (isLoadingSession) {
+    return (
+      <div className={styles.chatPage}>
+        <div className={styles.sessionGate}>Đang tải phiên phỏng vấn...</div>
+      </div>
+    );
+  }
+
+  if (sessionStatus === "PENDING") {
+    return (
+      <div className={styles.chatPage}>
+        <section className={styles.sessionGate}>
+          <p className={styles.eyebrow}>Phiên #{sessionId}</p>
+          <h1>Phiên phỏng vấn chưa bắt đầu</h1>
+          <p>Trạng thái sẽ chỉ chuyển sang Đang thực hiện khi bạn chủ động bắt đầu.</p>
+          {errorMessage ? <div className={styles.errorAlert}>{errorMessage}</div> : null}
+          <button className={styles.primaryButton} disabled={isStartingSession} onClick={handleStartSession} type="button">
+            <Play size={18} />
+            {isStartingSession ? "Đang bắt đầu..." : "Bắt đầu"}
+          </button>
+        </section>
+      </div>
+    );
+  }
+
+  if (sessionStatus === "COMPLETED" || sessionStatus === "CANCELLED") {
+    return (
+      <div className={styles.chatPage}>
+        <section className={styles.sessionGate}>
+          <h1>Phiên phỏng vấn đã đóng</h1>
+          <p>Phiên này không thể chuyển lại sang trạng thái đang thực hiện.</p>
+          <Link className={styles.primaryButton} href={`/interviews/${sessionId}`}>Xem chi tiết</Link>
+        </section>
+      </div>
+    );
+  }
+
+  if (!sessionStatus) {
+    return (
+      <div className={styles.chatPage}>
+        <section className={styles.sessionGate}>
+          <div className={styles.errorAlert}>{errorMessage ?? "Không thể tải phiên phỏng vấn."}</div>
+          <Link className={styles.primaryButton} href="/interviews">Về lịch sử</Link>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.chatPage}>
       <div className={styles.chatShell}>
         <header className={styles.chatHeader}>
           <div>
             <p className={styles.eyebrow}>Mã phiên: {sessionId}</p>
-            <h1 className={styles.chatTitle}>Phỏng vấn AI bằng giọng nói</h1>
-            <p className={styles.chatSubtitle}>
-              Bấm microphone để trả lời, sau đó gửi audio để AI đánh giá và hỏi tiếp.
-            </p>
+            <h1 className={styles.chatTitle}>Phỏng vấn AI bằng ghi âm</h1>
           </div>
 
           <div className={styles.contextBadges}>
@@ -277,7 +420,7 @@ export function InterviewChatSession({ sessionId }: InterviewChatSessionProps) {
           </div>
         </header>
 
-        {(errorMessage || recorderErrorMessage) ? (
+        {errorMessage || recorderErrorMessage ? (
           <div className={styles.errorAlert}>
             {errorMessage || recorderErrorMessage}
           </div>
@@ -345,7 +488,7 @@ export function InterviewChatSession({ sessionId }: InterviewChatSessionProps) {
               <span>
                 {audioBlob
                   ? "Nghe lại audio rồi gửi câu trả lời."
-                  : "Tin nhắn sẽ được tạo từ transcript sau khi upload audio."}
+                  : ""}
               </span>
             </div>
 
