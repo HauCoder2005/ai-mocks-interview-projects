@@ -147,6 +147,15 @@
   font-weight: 800;
 }
 
+.errorPanel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-color: #fecaca;
+  background: #fff7f7;
+}
+
 .pagination {
   display: flex;
   justify-content: flex-end;

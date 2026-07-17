@@ -13,6 +13,9 @@ export function JobCard({ job }: JobCardProps) {
       <div>
         <h2 className={styles.cardTitle}>{job.title}</h2>
         <p className={styles.company}>{job.company}</p>
+        <p className={styles.meta}>
+          {job.source} · {job.location || "Chưa rõ địa điểm"}
+        </p>
       </div>
 
       {job.technologies.length > 0 ? (
@@ -26,7 +29,13 @@ export function JobCard({ job }: JobCardProps) {
       ) : null}
 
       <p className={styles.meta}>
-        Hết hạn: {job.expiredAt ? new Date(job.expiredAt).toLocaleDateString("vi-VN") : "Chưa rõ"}
+        Mức lương: {job.salary || "Thỏa thuận"}
+      </p>
+      <p className={styles.meta}>
+        Hết hạn:{" "}
+        {job.expiredAt
+          ? new Date(job.expiredAt).toLocaleDateString("vi-VN")
+          : "Chưa rõ"}
       </p>
 
       <a

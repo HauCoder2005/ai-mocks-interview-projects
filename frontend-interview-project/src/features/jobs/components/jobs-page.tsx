@@ -19,7 +19,7 @@ export function JobsPage() {
     }),
     [keyword, page, technology],
   );
-  const { data, meta, isLoading, errorMessage } = useJobs(query);
+  const { data, meta, isLoading, errorMessage, refetch } = useJobs(query);
 
   const total = meta?.total ?? 0;
   const canGoNext = page * 12 < total;
@@ -60,15 +60,20 @@ export function JobsPage() {
         </label>
       </section>
 
-      {errorMessage ? <p className={styles.error}>{errorMessage}</p> : null}
-
-      {isLoading ? (
+      {errorMessage ? (
+        <section className={`${styles.panel} ${styles.errorPanel}`} role="alert">
+          <p className={styles.error}>Không thể tải danh sách việc làm.</p>
+          <button className={styles.button} onClick={() => void refetch()} type="button">
+            Thử lại
+          </button>
+        </section>
+      ) : isLoading ? (
         <section className={styles.panel}>
           <p className={styles.muted}>Đang tải danh sách việc làm...</p>
         </section>
       ) : data.length === 0 ? (
         <section className={styles.panel}>
-          <p className={styles.muted}>Chưa có việc làm phù hợp.</p>
+          <p className={styles.muted}>Chưa có việc làm nào được cập nhật.</p>
         </section>
       ) : (
         <div className={styles.grid}>
